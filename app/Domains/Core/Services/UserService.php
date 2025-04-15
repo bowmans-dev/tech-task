@@ -56,9 +56,8 @@ class UserService
     /**
      * Create a new user.
      */
-    public function createUser(array $data): void
+    public function createUser(array $data)
     {
-
         $rules = $this->getUserValidationRules('create');
         Validator::make($data, $rules)->validate();
 
@@ -71,11 +70,13 @@ class UserService
         $userAggregate = UserAggregate::create($data);
 
         // Publish a domain event
-        DomainEventPublisher::publish(new UserCreatedEvent($userAggregate));
+        DomainEventPublisher::publish(new UserCreatedEvent($userAggregate));  
+        
+        return $userAggregate->getProcessedData();
     }
 
 
-    public function updateUser(User $user, array $data): void
+    public function updateUser(User $user, array $data)
     {
         $rules = $this->getUserValidationRules('update', $user->id);
         Validator::make($data, $rules)->validate();
@@ -100,6 +101,9 @@ class UserService
 
         // Publish a domain event directly with the current aggregate and new data
         DomainEventPublisher::publish(new UserUpdatedEvent($userAggregate, $data));
+
+        return $userAggregate->getProcessedData();
+
     }
 
 
@@ -121,6 +125,7 @@ class UserService
 
         // Publish a domain event to delete the user
         DomainEventPublisher::publish(new UserDeletedEvent($userAggregate));
+        
     }
 
 

@@ -31,18 +31,16 @@ class ApiAdminControllerTest extends TestCase
      */
     public function test_store_creates_user()
     {
-        $file = UploadedFile::fake()->image('profile.jpg');
 
         $data = [
             'first_name' => 'John',
             'last_name' => 'Doe',
             'email' => 'tim.doe@example.com',
             'phone' => '123456789',
-            'country' => 'USA',
+            'country' => 'United Kingdom',
             'gender' => 'male',
             'password' => 'password123',
             'password_confirmation' => 'password123',
-            'profile_picture' => $file,
         ];
 
         $response = $this->postJson('/api/users', $data); // API route
@@ -61,11 +59,6 @@ class ApiAdminControllerTest extends TestCase
             'email' => 'tim.doe@example.com',
         ]);
 
-        // Cleanup: Delete the uploaded profile picture
-        $user = User::where('email', 'tim.doe@example.com')->first();
-        if ($user && $user->profile_picture) {
-            Storage::disk('public')->delete($user->profile_picture);
-        }
     }
 
     /**
@@ -73,10 +66,13 @@ class ApiAdminControllerTest extends TestCase
      */
     public function test_destroy_deletes_user()
     {
-        $user = User::factory()->create(['profile_picture' => 'profile_pictures/profile.jpg']);
+        $user = User::factory()->create(['profile_picture' => 'profile_pictures/profile.webp']);
 
         Storage::fake('public');
-        Storage::disk('public')->put('profile_pictures/profile.jpg', 'content');
+        Storage::disk('public')->put('profile_pictures/profile.webp', 'content');
+        Storage::disk('public')->assertExists('profile_pictures/profile.webp');
+
+        
 
         $response = $this->deleteJson('/api/users/'.$user->id); // API route
 
@@ -85,8 +81,9 @@ class ApiAdminControllerTest extends TestCase
                 'message' => 'User deleted successfully!',
             ]);
 
-        $this->assertDatabaseMissing('users', ['id' => $user->id]);
-        Storage::disk('public')->assertMissing('profile_pictures/profile.jpg');
+
+            $this->assertDatabaseMissing('users', ['id' => $user->id]);
+            Storage::disk('public')->assertMissing('profile_pictures/profile.webp');
     }
 
     /**

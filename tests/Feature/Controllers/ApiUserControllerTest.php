@@ -55,7 +55,7 @@ class ApiUserControllerTest extends TestCase
             'last_name' => 'Profile',
             'email' => 'updated@example.com',
             'phone' => '123456789',
-            'country' => 'USA',
+            'country' => 'United Kingdom',
             'gender' => 'male',
             'password' => 'newpassword123',
             'password_confirmation' => 'newpassword123',
@@ -100,22 +100,18 @@ class ApiUserControllerTest extends TestCase
     /**
      * Test updating profile with a profile picture.
      */
-    public function test_update_profile_with_profile_picture()
+    public function test_update_profile()
     {
-        // Storage::fake('public'); // Fake storage
-
-        // $file = UploadedFile::fake()->image('profile.jpg');
 
         $data = [
             'first_name' => 'Updated',
             'last_name' => 'Profile',
             'email' => 'updated@example.com',
             'phone' => '123456789',
-            'country' => 'USA',
+            'country' => 'United Kingdom',
             'gender' => 'male',
             'password' => 'newpassword123',
             'password_confirmation' => 'newpassword123',
-            // 'profile_picture' => $file,
         ];
 
         $response = $this->patchJson('/api/profile', $data); // API endpoint for updating profile
@@ -128,7 +124,5 @@ class ApiUserControllerTest extends TestCase
             'email' => 'updated@example.com',
         ]);
 
-        // $filePath = 'profile_pictures/' . $file->hashName();
-        // Storage::disk('public')->assertExists($filePath);
     }
 }

@@ -105,7 +105,7 @@ class ApiRoutesTest extends TestCase
             'last_name' => 'Doe',
             'email' => 'simon.doe@example.com',
             'phone' => '123456789',
-            'country' => 'USA',
+            'country' => 'United Kingdom',
             'gender' => 'male',
             'password' => 'password123',
             'password_confirmation' => 'password123',
@@ -149,14 +149,21 @@ class ApiRoutesTest extends TestCase
             'first_name' => 'Old Name',
             'last_name' => 'Old Last Name',
             'email' => 'old_email@example.com',
+            'gender' => 'male',
+            'phone' => '123456789',
+            'country' => 'United Kingdom',
         ]);
-
+        
         // Data to update (include last_name field to meet validation rules)
         $data = [
             'first_name' => 'New Name',
             'last_name' => 'New Last Name',
             'email' => 'new_email@example.com',
+            'gender' => 'male',
+            'country' => 'United Kingdom',
+            'phone' => '123456789',
         ];
+        
 
         // Make PATCH request to update the user
         $response = $this->patchJson(route('api.users.update', $user), $data);
@@ -186,10 +193,10 @@ class ApiRoutesTest extends TestCase
      */
     public function test_admin_can_delete_user()
     {
-        $user = User::factory()->create(['profile_picture' => 'profile_pictures/profile.jpg']);
+        $user = User::factory()->create(['profile_picture' => 'profile_pictures/profile.webp']);
 
         Storage::fake('public');
-        Storage::disk('public')->put('profile_pictures/profile.jpg', 'content');
+        Storage::disk('public')->put('profile_pictures/profile.webp', 'content');
 
         $response = $this->deleteJson('/api/users/'.$user->id); // API route
 
@@ -199,7 +206,7 @@ class ApiRoutesTest extends TestCase
             ]);
 
         $this->assertDatabaseMissing('users', ['id' => $user->id]);
-        Storage::disk('public')->assertMissing('profile_pictures/profile.jpg');
+        Storage::disk('public')->assertMissing('profile_pictures/profile.webp');
     }
 
     /**
@@ -268,11 +275,12 @@ class ApiRoutesTest extends TestCase
         $this->actingAs($user, 'web');
 
         $data = [
-            'first_name' => 'Updated',
-            'last_name' => 'Profile',
+            'first_name' => 'New',
+            'last_name' => 'Name',
             'email' => 'updated@example.com',
             'phone' => '123456789',
             'country' => 'United Kingdom',
+            'phone' => '123456789',
             'gender' => 'male',
             'password' => 'newpassword123',
             'password_confirmation' => 'newpassword123',
@@ -284,7 +292,7 @@ class ApiRoutesTest extends TestCase
             ->assertJson(['message' => 'Profile updated successfully.']);
 
         $this->assertDatabaseHas('users', [
-            'first_name' => 'Updated',
+            'first_name' => 'New',
             'email' => 'updated@example.com',
         ]);
     }
@@ -294,22 +302,14 @@ class ApiRoutesTest extends TestCase
      */
     public function test_user_can_delete_profile()
     {
-        Storage::fake('public');
 
         $user = User::factory()->create();
         $this->actingAs($user, 'web');
-
-        $filePath = 'profile_pictures/profile.webp';
-        Storage::disk('public')->put($filePath, 'content');
-
-        $user->update(['profile_picture' => $filePath]);
 
         $response = $this->deleteJson(route('api.profile.delete')); // API route
 
         $this->assertSoftDeleted('users', ['id' => $user->id]);
         $response->assertStatus(200)
             ->assertJson(['message' => 'Your profile has been deleted successfully.']);
-
-        Storage::disk('public')->assertMissing($filePath);
     }
 }

@@ -1,8 +1,8 @@
 # User Management System
 ## DDD / EDA
-![System Diagram](./storage/app/public/screenshots/sign_in_screenshot.png)
-![Create User Screenshot](./storage/app/public/screenshots/create_user_screenshot.png)
-![Users List Screenshot](./storage/app/public/screenshots/users_list_screenshot.png)
+![System Diagram](./screenshots/sign_in_screenshot.png)
+![Create User Screenshot](./screenshots/create_user_screenshot.png)
+![Users List Screenshot](./screenshots/users_list_screenshot.png)
 
 ---
 # Set Up Guide

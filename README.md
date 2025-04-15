@@ -45,7 +45,7 @@ php artisan queue:work
 ---
 
 # System Diagram
-![System Diagram](./storage/app/public/screenshots/system_diagram.png)
+![System Diagram](./screenshots/system_diagram.png)
 
 
 

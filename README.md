@@ -1,3 +1,56 @@
+# User Management System
+## DDD / EDA
+![System Diagram](./storage/app/public/screenshots/sign_in_screenshot.png)
+![Create User Screenshot](./storage/app/public/screenshots/create_user_screenshot.png)
+![Users List Screenshot](./storage/app/public/screenshots/users_list_screenshot.png)
+
+---
+# Set Up Guide
+```bash
+cp .env.example .env
+```
+
+```bash
+php artisan key:generate
+```
+```bash
+npm i
+```
+```bash
+composer install
+```
+
+```bash
+php artisan migrate
+```
+```bash
+php artisan db:seed
+```
+```bash
+Generates Users & Admin Login:
+'email' => 'admin@example.com',
+'password' => bcrypt('test1234'),
+```
+```bash
+npm run dev
+```
+```bash
+php artisan serve
+```
+#### ! Important (required to simulate password reset link email found in storage/laravel.log)
+```bash
+php artisan queue:work
+```
+
+---
+
+# System Diagram
+![System Diagram](./storage/app/public/screenshots/system_diagram.png)
+
+
+
+
+
 ## Backend dev tech task
 ### Objective
  Demonstrate your backend development skills by implementing a basic user management system.

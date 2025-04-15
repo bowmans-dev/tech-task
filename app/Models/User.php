@@ -18,9 +18,14 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
         'email',
         'password',
+        'first_name',
+        'last_name',
+        'phone',
+        'country',
+        'gender',
+        'profile_picture',
     ];
 
     /**
@@ -42,7 +47,14 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
         ];
+    }
+
+    // Accessor for profile_picture_url
+    public function getProfilePictureUrlAttribute()
+    {
+        return $this->profile_picture
+            ? asset('storage/'.$this->profile_picture)
+            : asset('storage/default_profile_image.png'); // Use default image
     }
 }

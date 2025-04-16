@@ -33,9 +33,7 @@ class UserService
      * Create a new user.
      */
     public function createUser(array $data)
-    {
-        $data['password'] = Hash::make($data['password']);
-        
+    {       
         // Handle profile picture via ImageService
         if (isset($data['profile_picture'])) {
             $data['profile_picture'] = $this->imageService->upload($data['profile_picture']);
@@ -57,8 +55,6 @@ class UserService
         // Handle passwords: remove empty/null passwords
         if (empty($data['password'])) {
             unset($data['password']);
-        } else {
-            $data['password'] = Hash::make($data['password']); 
         }
 
         // Handle profile picture updates

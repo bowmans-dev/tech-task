@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Domains\Core\Services\UserService;
 use Illuminate\Http\Request;
+use App\Http\Requests\UserUpdateRequest;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -28,25 +30,31 @@ class UserController extends Controller
         return view('profile', compact('profile'));
     }
 
+
     /**
      * Update the authenticated user's profile.
      *
+     * @param \App\Http\Requests\UserUpdateRequest $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function updateProfile(Request $request)
+    public function updateProfile(UserUpdateRequest $request)
     {
-        // Delegate the logic to the user service
+        // Retrieve validated data from the form request
+        $data = $request->validated();
+
+        // Delegate the update logic to the user service
         $this->userService->updateUser(
             auth()->user(), // Current user
-            $request->all(), // Input data
-            'user', // Scope
-            auth()->id() // Authenticated user ID
+            $data,          // Validated input data
+            'user',         // Scope
+            auth()->id()    // Authenticated user ID
         );
 
         // Redirect back to the profile page with a success message
         return redirect()->route('profile.show')->with('success', 'Profile updated successfully!');
     }
 
+    
     /**
      * Delete the authenticated user's profile.
      *

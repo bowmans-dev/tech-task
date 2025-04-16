@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Domains\Core\Services\UserService;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Requests\UserStoreRequest;
+use App\Http\Requests\UserUpdateRequest;
+
 
 class AdminController extends Controller
 {
@@ -18,41 +21,52 @@ class AdminController extends Controller
     /**
      * Create a new user (admin action).
      *
+     * @param \App\Http\Requests\UserStoreRequest $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(UserStoreRequest $request)
     {
+        // The validated data from the form request
+        $data = $request->validated();
 
-        $this->userService->createUser($request->all(), 'admin');
+        // Call the service layer to create the user
+        $this->userService->createUser($data, 'admin');
 
+        // Redirect back with a success message
         return redirect()->route('users.index')->with('success', 'User created successfully!');
     }
 
+
     /**
-     * Delete a user.
+     * Update a user's details.
      *
+     * @param \App\Http\Requests\UserUpdateRequest $request
+     * @param \App\Models\User $user
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy(User $user)
+    public function update(UserUpdateRequest $request, User $user)
     {
+        // Retrieve validated data from the Form Request
+        $data = $request->validated();
 
-        $this->userService->deleteUser($user, 'admin');
+        // Call the service layer to update the user
+        $this->userService->updateUser($user, $data);
 
-        return redirect()->route('users.index')->with('success', 'User deleted successfully!');
+        // Redirect to the user's details page with a success message
+        return redirect()->route('users.show', $user->id)->with('success', 'User updated successfully!');
     }
 
+
     /**
-     * Filter users.
+     * Show the details of a specific user.
      *
      * @return \Illuminate\View\View
      */
-    public function filter(Request $request)
+    public function show(User $user)
     {
-
-        $users = $this->userService->filterUsers($request->query('search'));
-
-        return view('Components.user-list', compact('users'));
+        return view('user.manage', compact('user'));
     }
+
 
     /**
      * Display a paginated list of all users.
@@ -67,26 +81,32 @@ class AdminController extends Controller
         return view('user.index', compact('users'));
     }
 
+
     /**
-     * Show the details of a specific user.
+     * Filter users.
      *
      * @return \Illuminate\View\View
      */
-    public function show(User $user)
+    public function filter(Request $request)
     {
-        return view('user.manage', compact('user'));
+
+        $users = $this->userService->filterUsers($request->query('search'));
+
+        return view('Components.user-list', compact('users'));
     }
 
+
     /**
-     * Update a user's details.
+     * Delete a user.
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, User $user)
+    public function destroy(User $user)
     {
 
-        $this->userService->updateUser($user, $request->all(), 'admin');
+        $this->userService->deleteUser($user, 'admin');
 
-        return redirect()->route('users.show', $user->id)->with('success', 'User updated successfully!');
+        return redirect()->route('users.index')->with('success', 'User deleted successfully!');
     }
+    
 }

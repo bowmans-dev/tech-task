@@ -12,6 +12,7 @@ use App\Domains\Supporting\ImageUpload\ImageService;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 
 class UserService
 {
@@ -27,40 +28,14 @@ class UserService
         $this->userRepository = $userRepository;
     }
 
-    /**
-     * Get validation rules for user creation or update.
-     *
-     * @param  string  $context  'create' or 'update'
-     */
-    private function getUserValidationRules(string $context = 'create', ?int $userId = null): array
-    {
-        $rules = [
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'gender' => 'required|string',
-            'country' => 'required|string',
-            'phone' => 'required|string|max:20',
-            'email' => 'required|string|email|max:255|unique:users,email',
-            'password' => 'required|string|confirmed|min:8', // Password is required
-            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-        ];
-
-        if ($context === 'update' && $userId) {
-            $rules['email'] = 'required|string|email|max:255|unique:users,email,'.$userId;
-            $rules['password'] = 'nullable|string|confirmed|min:8'; // Password is not required for updates
-        }
-
-        return $rules;
-    }
 
     /**
      * Create a new user.
      */
     public function createUser(array $data)
     {
-        $rules = $this->getUserValidationRules('create');
-        Validator::make($data, $rules)->validate();
-
+        $data['password'] = Hash::make($data['password']);
+        
         // Handle profile picture via ImageService
         if (isset($data['profile_picture'])) {
             $data['profile_picture'] = $this->imageService->upload($data['profile_picture']);
@@ -70,40 +45,41 @@ class UserService
         $userAggregate = UserAggregate::create($data);
 
         // Publish a domain event
-        DomainEventPublisher::publish(new UserCreatedEvent($userAggregate));  
-        
+        DomainEventPublisher::publish(new UserCreatedEvent($userAggregate));
+
+        // Return the processed data
         return $userAggregate->getProcessedData();
     }
 
 
     public function updateUser(User $user, array $data)
     {
-        $rules = $this->getUserValidationRules('update', $user->id);
-        Validator::make($data, $rules)->validate();
-
+        // Handle passwords: remove empty/null passwords
         if (empty($data['password'])) {
-            unset($data['password']); // Remove null or empty passwords
+            unset($data['password']);
+        } else {
+            $data['password'] = Hash::make($data['password']); 
         }
 
+        // Handle profile picture updates
         if (isset($data['profile_picture'])) {
             if ($user->profile_picture && Storage::disk('public')->exists($user->profile_picture)) {
-                $this->imageService->delete($user->profile_picture);
+                $this->imageService->delete($user->profile_picture); // Delete the old image
             }
-            $data['profile_picture'] = $this->imageService->upload($data['profile_picture']);
+            $data['profile_picture'] = $this->imageService->upload($data['profile_picture']); // Upload the new image
         }
 
-        // Fetch the existing UserAggregate
+        // Fetch the current userAggregate state before updates
         $userAggregate = $this->userRepository->findById($user->id);
 
         if (!$userAggregate) {
-            throw new \Exception("User not found.");
+            throw new \Exception("User not found."); // Handle user not found scenario
         }
 
-        // Publish a domain event directly with the current aggregate and new data
+        // Publish a domain event for the update operation, passing previous state and new $data for the update
         DomainEventPublisher::publish(new UserUpdatedEvent($userAggregate, $data));
 
-        return $userAggregate->getProcessedData();
-
+        return $userAggregate->getProcessedData(); // Return the processed data
     }
 
 

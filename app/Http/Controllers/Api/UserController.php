@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Domains\Core\Services\UserService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
+use App\Http\Requests\UserUpdateRequest;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -38,28 +40,29 @@ class UserController extends Controller
     /**
      * Update the authenticated user's profile.
      *
+     * @param \App\Http\Requests\UserUpdateRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function updateProfile(Request $request)
+    public function updateProfile(UserUpdateRequest $request)
     {
         try {
-            $data = $request->all();
+            // Retrieve validated data from the form request
+            $data = $request->validated();
 
-            // Preserve password_confirmation for validation
-            if ($request->has('password') && $request->has('password_confirmation')) {
-                $data['password_confirmation'] = $request->input('password_confirmation');
-            }
-
+            // Call the service layer to update the authenticated user's profile
             $updatedUser = $this->userService->updateUser(
                 auth()->user(),
-                $data, // Pass all fields including password_confirmation
+                $data, // Pass validated data
                 'user',
                 auth()->id()
             );
 
+            // Use successResponse from ApiResponseTrait
             return $this->successResponse($updatedUser, 'Profile updated successfully.', 200);
-
         } catch (\Exception $e) {
+            Log::error('Error updating profile: ' . $e->getMessage());
+
+            // Use errorResponse from ApiResponseTrait
             return $this->errorResponse('Failed to update profile.', 500, $e->getMessage());
         }
     }

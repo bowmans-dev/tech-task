@@ -11,11 +11,15 @@ class AuthenticationService
         return Auth::guard($guard)->attempt($credentials);
     }
 
+
+
     public function logout(string $guard): void
     {
         Auth::guard($guard)->logout();
     }
 
+
+    
     public function regenerateSession(): void
     {
         session()->regenerate(); // Ensure the session is fully regenerated

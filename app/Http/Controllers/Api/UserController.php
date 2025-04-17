@@ -20,6 +20,8 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
+
+
     /**
      * Show the authenticated user's profile.
      *
@@ -32,10 +34,13 @@ class UserController extends Controller
             $profile = $this->userService->showProfile();
 
             return $this->successResponse($profile, 'Profile retrieved successfully.', 200);
+
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to retrieve profile.', 500, $e->getMessage());
         }
     }
+
+
 
     /**
      * Update the authenticated user's profile.
@@ -46,26 +51,24 @@ class UserController extends Controller
     public function updateProfile(UserUpdateRequest $request)
     {
         try {
-            // Retrieve validated data from the form request
+
             $data = $request->validated();
 
-            // Call the service layer to update the authenticated user's profile
             $updatedUser = $this->userService->updateUser(
-                auth()->user(),
-                $data, // Pass validated data
-                'user',
-                auth()->id()
+                auth()->user(), 
+                $data          
             );
 
-            // Use successResponse from ApiResponseTrait
             return $this->successResponse($updatedUser, 'Profile updated successfully.', 200);
-        } catch (\Exception $e) {
-            Log::error('Error updating profile: ' . $e->getMessage());
 
-            // Use errorResponse from ApiResponseTrait
+        } catch (\Exception $e) {
+
+            Log::error('Error updating profile: ' . $e->getMessage());
             return $this->errorResponse('Failed to update profile.', 500, $e->getMessage());
         }
     }
+
+
 
     /**
      * Delete the authenticated user's profile.

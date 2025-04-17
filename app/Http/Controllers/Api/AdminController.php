@@ -24,6 +24,8 @@ class AdminController extends Controller
         $this->userService = $userService;
     }
 
+
+
     /**
      * Create a new user (admin action).
      *
@@ -35,18 +37,19 @@ class AdminController extends Controller
     public function store(UserStoreRequest $request)
     {
         try {
-            $data = $request->validated(); // Automatically validate the request data
+            $data = $request->validated();
             $user = $this->userService->createUser($data);
 
-            // Use successResponse from ApiResponseTrait
             return $this->successResponse($user, 'User created successfully!', 201);
+
         } catch (\Exception $e) {
+
             Log::error('Error creating user: ' . $e->getMessage());
 
-            // Use errorResponse from ApiResponseTrait
             return $this->errorResponse('Internal server error', 500, $e->getMessage());
         }
     }
+
 
 
     /**
@@ -59,19 +62,20 @@ class AdminController extends Controller
     public function update(UserUpdateRequest $request, User $user)
     {
         try {
-            $data = $request->validated(); // Automatically validates the request data
+            $data = $request->validated();
             $updatedUser = $this->userService->updateUser($user, $data);
 
-            // Use successResponse from ApiResponseTrait
             return $this->successResponse($updatedUser, 'User updated successfully!', 200);
+
         } catch (\Exception $e) {
+
             Log::error('Error updating user: ' . $e->getMessage());
 
-            // Use errorResponse from ApiResponseTrait
             return $this->errorResponse('Failed to update user.', 500, $e->getMessage());
         }
     }
     
+
 
     /**
      * Show the details of a specific user.
@@ -88,6 +92,7 @@ class AdminController extends Controller
             return $this->errorResponse('Failed to fetch user details.', 500, $e->getMessage());
         }
     }
+
 
 
     /**
@@ -110,6 +115,7 @@ class AdminController extends Controller
     }
 
 
+
     /**
      * Filter users.
      *
@@ -130,6 +136,7 @@ class AdminController extends Controller
     }
 
 
+    
     /**
      * Delete a user.
      *
@@ -138,12 +145,12 @@ class AdminController extends Controller
     public function destroy(User $user)
     {
         try {
-            // Call the service layer to delete the user
             $this->userService->deleteUser($user, 'admin');
 
             return $this->successResponse(null, 'User deleted successfully!', 200);
 
         } catch (\Exception $e) {
+
             Log::error('Error deleting user: '.$e->getMessage());
 
             return $this->errorResponse('Failed to delete user.', 500, $e->getMessage());

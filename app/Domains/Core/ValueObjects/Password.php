@@ -3,12 +3,12 @@ namespace App\Domains\Core\ValueObjects;
 
 class Password
 {
-    private ?string $password; // Allow null values
+    private ?string $password;
 
     public function __construct(?string $password, bool $isHashed = false)
     {
         if ($password === null) {
-            $this->password = null; // Set to null if no password is provided
+            $this->password = null;
             return;
         }
 
@@ -19,16 +19,22 @@ class Password
         $this->password = $isHashed ? $password : $this->hashPassword($password);
     }
 
+
+
     private function hashPassword(string $password): string
     {
         return password_hash($password, PASSWORD_DEFAULT);
     }
 
+
+
     public function getValue(): ?string
     {
-        return $this->password; // Return null if no password is set
+        return $this->password;
     }
 
+    
+    
     public function verify(string $plainPassword): bool
     {
         if ($this->password === null) {

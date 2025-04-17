@@ -12,11 +12,11 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register()
     {
-        // Register the UserService with both ImageService and UserRepositoryInterface
+
         $this->app->singleton(UserService::class, function ($app) {
             return new UserService(
                 $app->make(ImageService::class), 
-                $app->make(UserRepositoryInterface::class) // Add the second required dependency
+                $app->make(UserRepositoryInterface::class) 
             );
         });
 
@@ -24,15 +24,11 @@ class AppServiceProvider extends ServiceProvider
             return new ImageService;
         });
 
-        // Bind the UserRepositoryInterface to the concrete implementation
         $this->app->bind(UserRepositoryInterface::class, EloquentUserRepository::class);
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
-        //
+        
     }
 }

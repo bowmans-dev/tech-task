@@ -21,7 +21,7 @@ class UserUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        $userId = $this->route('user')->id ?? null; // Get the user ID from the route (e.g., /users/{user})
+        $userId = $this->route('user')->id ?? auth()->id();// Get the user ID from the route (e.g., /users/{user}) or the currently logged in user
 
         return [
             'first_name' => 'required|string|max:255',

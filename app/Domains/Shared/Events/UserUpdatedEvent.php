@@ -15,11 +15,15 @@ class UserUpdatedEvent
         $this->updatedData = $updatedData;
     }
 
+
+
     public function getUserAggregate(): UserAggregate
     {
         return $this->userAggregate;
     }
 
+
+    
     public function getUpdatedData(): array
     {
         return $this->updatedData;

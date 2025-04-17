@@ -23,42 +23,40 @@ class AuthController extends Controller
     {
 
         try {
-            Log::info('Entering login method'); // Log entry
 
             $credentials = $request->validate([
                 'email' => 'required|email',
                 'password' => 'required|string',
             ]);
 
-            Log::info('Credentials provided:', $credentials); // Log credentials
 
-            // Attempt admin login
             if (Auth::guard('admin')->attempt($credentials)) {
-                Log::info('Admin login successful'); // Log admin login success
+                Log::info('Admin login successful');
                 $request->session()->regenerate();
 
                 return $this->successResponse(null, 'Admin logged in successfully.', 200);
             }
 
-            // Attempt user login
+
             if (Auth::guard('web')->attempt($credentials)) {
-                Log::info('User login successful'); // Log user login success
+                Log::info('User login successful');
                 $request->session()->regenerate();
 
                 return $this->successResponse(null, 'User logged in successfully.', 200);
             }
 
-            // Authentication failed
-            Log::info('Login failed: Invalid credentials'); // Log failure
+            Log::info('Login failed: Invalid credentials'); 
 
             return $this->errorResponse('Invalid credentials provided.', 401);
 
         } catch (\Exception $e) {
-            Log::error('Login exception:', ['message' => $e->getMessage()]); // Log exception
+            Log::error('Login exception:', ['message' => $e->getMessage()]); 
 
             return $this->errorResponse('Login failed.', 500, $e->getMessage());
         }
     }
+
+
 
     /**
      * Handle logout for both admin and user guards.
@@ -68,29 +66,33 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         try {
-            Log::info('Entering logout method'); // Log entry
+            Log::info('Entering logout method');
 
-            // Logout admin guard if authenticated
+
             if (Auth::guard('admin')->check()) {
-                Log::info('Admin guard detected, logging out'); // Log admin logout
+
+                Log::info('Admin guard detected, logging out');
                 Auth::guard('admin')->logout();
+
             } else {
-                // Logout web guard if authenticated
-                Log::info('Web guard detected, logging out'); // Log user logout
+
+                Log::info('Web guard detected, logging out'); 
                 Auth::guard('web')->logout();
             }
 
             $request->session()->invalidate();
             $request->session()->regenerateToken();
-            Log::info('Session invalidated and token regenerated'); // Log session actions
+            Log::info('Session invalidated and token regenerated');
 
             return $this->successResponse(null, 'Logged out successfully.', 200);
         } catch (\Exception $e) {
-            Log::error('Logout exception:', ['message' => $e->getMessage()]); // Log exception
+            Log::error('Logout exception:', ['message' => $e->getMessage()]);
 
             return $this->errorResponse('Logout failed.', 500, $e->getMessage());
         }
     }
+
+    #
 
     /**
      * Send reset password link.
@@ -100,33 +102,37 @@ class AuthController extends Controller
     public function sendResetLink(Request $request)
     {
         try {
-            Log::info('Entering sendResetLink method'); // Log entry
+            Log::info('Entering sendResetLink method');
 
             $request->validate(['email' => 'required|email']);
-            Log::info('Email validated:', ['email' => $request->email]); // Log email validation
+            Log::info('Email validated:', ['email' => $request->email]);
 
             $broker = $this->broker();
             $user = $broker->getUser($request->only('email'));
 
             if (! $user) {
-                Log::info('User not found:', ['email' => $request->email]); // Log user not found
+                Log::info('User not found:', ['email' => $request->email]);
 
                 return $this->errorResponse('User not found.', 404);
             }
 
             $token = $broker->createToken($user);
-            Log::info('Reset token created:', ['token' => $token]); // Log token creation
+            Log::info('Reset token created:', ['token' => $token]);
 
             $user->notify(new ResetPasswordNotification($token));
-            Log::info('Notification sent'); // Log notification
+            Log::info('Notification sent');
 
             return $this->successResponse(null, 'Reset password link sent successfully.', 200);
+
         } catch (\Exception $e) {
-            Log::error('SendResetLink exception:', ['message' => $e->getMessage()]); // Log exception
+            
+            Log::error('SendResetLink exception:', ['message' => $e->getMessage()]);
 
             return $this->errorResponse('Failed to send reset password link.', 500, $e->getMessage());
         }
     }
+
+
 
     /**
      * Handle password reset requests.
@@ -136,39 +142,41 @@ class AuthController extends Controller
     public function resetPassword(Request $request)
     {
         try {
-            Log::info('Entering resetPassword method'); // Log entry
+            Log::info('Entering resetPassword method');
 
             $request->validate([
                 'email' => 'required|email',
                 'password' => 'required|confirmed|min:8',
                 'token' => 'required',
             ]);
-            Log::info('Reset request validated:', $request->all()); // Log validation
+            Log::info('Reset request validated:', $request->all());
 
             $response = $this->broker()->reset(
                 $request->only('email', 'password', 'password_confirmation', 'token'),
                 function ($user, $password) {
-                    Log::info('Updating user password'); // Log password update
+                    Log::info('Updating user password');
                     $user->password = bcrypt($password);
                     $user->save();
                 }
             );
 
             if ($response == Password::PASSWORD_RESET) {
-                Log::info('Password reset successful'); // Log success
+                Log::info('Password reset successful');
 
                 return $this->successResponse(null, 'Password reset successfully.', 200);
             }
 
-            Log::info('Password reset failed:', ['response' => $response]); // Log failure
+            Log::info('Password reset failed:', ['response' => $response]);
 
             return $this->errorResponse('Failed to reset password.', 400, trans($response));
         } catch (\Exception $e) {
-            Log::error('ResetPassword exception:', ['message' => $e->getMessage()]); // Log exception
+            Log::error('ResetPassword exception:', ['message' => $e->getMessage()]);
 
             return $this->errorResponse('An error occurred while resetting the password.', 500, $e->getMessage());
         }
     }
+
+
 
     /**
      * Display the password reset form.
@@ -178,10 +186,12 @@ class AuthController extends Controller
      */
     public function showResetForm($token)
     {
-        Log::info('Displaying reset form with token:', ['token' => $token]); // Log token
+        Log::info('Displaying reset form with token:', ['token' => $token]);
 
         return $this->successResponse(['token' => $token], 'Reset token retrieved successfully.', 200);
     }
+
+
 
     /**
      * Use the default broker (users).
@@ -190,7 +200,7 @@ class AuthController extends Controller
      */
     protected function broker()
     {
-        Log::info('Using default password broker'); // Log broker usage
+        Log::info('Using default password broker');
 
         return Password::broker();
     }

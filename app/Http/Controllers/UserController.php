@@ -16,6 +16,8 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
+
+
     /**
      * Show the authenticated user's profile.
      *
@@ -23,12 +25,11 @@ class UserController extends Controller
      */
     public function showProfile()
     {
-        // Call the service to retrieve the logged-in user's profile
         $profile = $this->userService->showProfile();
 
-        // Pass the profile to the view
         return view('profile', compact('profile'));
     }
+
 
 
     /**
@@ -39,21 +40,17 @@ class UserController extends Controller
      */
     public function updateProfile(UserUpdateRequest $request)
     {
-        // Retrieve validated data from the form request
         $data = $request->validated();
 
-        // Delegate the update logic to the user service
         $this->userService->updateUser(
-            auth()->user(), // Current user
-            $data,          // Validated input data
-            'user',         // Scope
-            auth()->id()    // Authenticated user ID
+            auth()->user(),
+            $data,         
         );
 
-        // Redirect back to the profile page with a success message
         return redirect()->route('profile.show')->with('success', 'Profile updated successfully!');
     }
 
+   
     
     /**
      * Delete the authenticated user's profile.
@@ -62,10 +59,8 @@ class UserController extends Controller
      */
     public function deleteProfile()
     {
-        // Call the service to delete the authenticated user's profile
         $this->userService->deleteProfile();
 
-        // Redirect to the login page after logout and deletion
         return redirect()->route('login')->with('success', 'Your profile has been deleted successfully.');
     }
 }

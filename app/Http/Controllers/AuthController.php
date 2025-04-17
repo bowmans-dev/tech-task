@@ -17,14 +17,16 @@ class AuthController extends Controller
     public function __construct(AuthenticationService $authService, PasswordResetService $passwordService)
     {
         $this->authService = $authService;
-        $this->passwordService = $passwordService; // Inject PasswordResetService
+        $this->passwordService = $passwordService;
     }
+
+
 
     public function login(Request $request)
     {
 
         if ($request->isMethod('get')) {
-            return view('sign-in'); // Shared login page
+            return view('sign-in');
         }
 
         $credentials = $request->validate([
@@ -32,14 +34,12 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        // Use AuthenticationService for admin login
         if ($this->authService->login($credentials, 'admin')) {
             $request->session()->regenerate();
 
             return redirect('/users');
         }
 
-        // Use AuthenticationService for user login
         if ($this->authService->login($credentials, 'web')) {
             $request->session()->regenerate();
 
@@ -51,9 +51,10 @@ class AuthController extends Controller
         ]);
     }
 
+
+
     public function logout(Request $request)
     {
-        // Determine guard dynamically
         $guard = Auth::guard('admin')->check() ? 'admin' : 'web';
         $this->authService->logout($guard);
 
@@ -63,10 +64,14 @@ class AuthController extends Controller
         return redirect('/')->with('success', 'You have been logged out successfully.');
     }
 
+
+
     protected function broker()
     {
         return Password::broker(); // Default broker ('users')
     }
+
+
 
     public function sendResetLink(Request $request)
     {
@@ -81,6 +86,8 @@ class AuthController extends Controller
             return back()->withErrors(['email' => 'Unable to send reset link.']);
         }
     }
+
+
 
     public function resetPassword(Request $request)
     {
@@ -104,6 +111,8 @@ class AuthController extends Controller
             : back()->withErrors(['email' => 'Unable to reset password.']);
     }
 
+
+    
     public function showResetForm($token)
     {
         return view('auth.passwords.reset', ['token' => $token]);

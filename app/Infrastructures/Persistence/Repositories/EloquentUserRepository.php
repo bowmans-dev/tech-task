@@ -6,11 +6,6 @@ use App\Domains\Core\Aggregates\UserAggregate;
 use App\Domains\Core\DTOs\UserData;
 use App\Domains\Core\Entities\User;
 use App\Domains\Core\Repositories\UserRepositoryInterface;
-use App\Domains\Core\ValueObjects\Country;
-use App\Domains\Core\ValueObjects\Email;
-use App\Domains\Core\ValueObjects\Password;
-use App\Domains\Core\ValueObjects\Phone;
-use App\Domains\Core\ValueObjects\ProfilePicture;
 use App\Models\User as EloquentUserModel;
 
 class EloquentUserRepository implements UserRepositoryInterface
@@ -27,36 +22,26 @@ class EloquentUserRepository implements UserRepositoryInterface
         EloquentUserModel::updateOrCreate(['id' => $userData['id']], $userData);
     }
 
+
+
     /**
      * Find a UserAggregate by its unique identifier.
      */
     public function findById(string $userId): ?UserAggregate
     {
-        // Query the user model
         $userModel = EloquentUserModel::find($userId);
 
-        if (! $userModel) {
-            return null; // User not found
+        if (!$userModel) {
+            return null;
         }
 
-        // Create a UserData DTO from the model data
-        $userData = new UserData(
-            id: $userModel->id,
-            firstName: $userModel->first_name,
-            lastName: $userModel->last_name,
-            gender: $userModel->gender,
-            email: new Email($userModel->email),
-            password: new Password($userModel->password, true), // Password already hashed
-            phone: $userModel->phone ? new Phone($userModel->phone) : null,
-            country: $userModel->country ? new Country($userModel->country) : null,
-            profilePicture: $userModel->profile_picture ? new ProfilePicture($userModel->profile_picture) : null
-        );
-
-        // Create a User entity from the DTO and wrap it in a UserAggregate
+        $userData = UserData::fromModel($userModel);
         $userEntity = new User($userData);
 
         return new UserAggregate($userEntity);
     }
+
+
 
     /**
      * Delete a UserAggregate by its unique identifier.
@@ -66,6 +51,8 @@ class EloquentUserRepository implements UserRepositoryInterface
         EloquentUserModel::destroy($userId);
     }
 
+
+
     /**
      * List all UserAggregates with optional pagination.
      */
@@ -73,24 +60,8 @@ class EloquentUserRepository implements UserRepositoryInterface
     {
         $userModels = EloquentUserModel::paginate($perPage);
 
-        return $userModels->map(function ($userModel) {
-            // Create a UserData DTO for each user model
-            $userData = new UserData(
-                id: $userModel->id,
-                firstName: $userModel->first_name,
-                lastName: $userModel->last_name,
-                gender: $userModel->gender,
-                email: new Email($userModel->email),
-                password: new Password($userModel->password, true), // Password already hashed
-                phone: $userModel->phone ? new Phone($userModel->phone) : null,
-                country: $userModel->country ? new Country($userModel->country) : null,
-                profilePicture: $userModel->profile_picture ? new ProfilePicture($userModel->profile_picture) : null
-            );
-
-            // Create a User entity and wrap it in a UserAggregate
-            $userEntity = new User($userData);
-
-            return new UserAggregate($userEntity);
-        })->toArray();
+        return $userModels->map(fn($userModel) => new UserAggregate(
+            new User(UserData::fromModel($userModel))
+        ))->toArray();
     }
 }

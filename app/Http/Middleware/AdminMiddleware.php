@@ -19,6 +19,6 @@ class AdminMiddleware
             return redirect()->route('login')->with('error', 'You must log in as an admin to access this page.');
         }
 
-        return $next($request); // Allow request to proceed
+        return $next($request);
     }
 }

@@ -3,13 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable; // Extend for authentication
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class Admin extends Authenticatable
 {
     use HasFactory;
 
-    // Mass-assignable attributes
     protected $fillable = [
         'name',
         'email',
@@ -17,12 +16,10 @@ class Admin extends Authenticatable
         'permissions',
     ];
 
-    // Casts for specific attributes
     protected $casts = [
-        'permissions' => 'array', // Automatically decode/encode JSON permissions
+        'permissions' => 'array',
     ];
 
-    // Hide sensitive attributes
     protected $hidden = [
         'password',
     ];

@@ -18,6 +18,8 @@ class AdminController extends Controller
         $this->userService = $userService;
     }
 
+
+
     /**
      * Create a new user (admin action).
      *
@@ -26,15 +28,13 @@ class AdminController extends Controller
      */
     public function store(UserStoreRequest $request)
     {
-        // The validated data from the form request
         $data = $request->validated();
 
-        // Call the service layer to create the user
-        $this->userService->createUser($data, 'admin');
+        $this->userService->createUser($data);
 
-        // Redirect back with a success message
         return redirect()->route('users.index')->with('success', 'User created successfully!');
     }
+
 
 
     /**
@@ -46,15 +46,13 @@ class AdminController extends Controller
      */
     public function update(UserUpdateRequest $request, User $user)
     {
-        // Retrieve validated data from the Form Request
         $data = $request->validated();
 
-        // Call the service layer to update the user
         $this->userService->updateUser($user, $data);
 
-        // Redirect to the user's details page with a success message
         return redirect()->route('users.show', $user->id)->with('success', 'User updated successfully!');
     }
+
 
 
     /**
@@ -68,18 +66,19 @@ class AdminController extends Controller
     }
 
 
+
     /**
      * Display a paginated list of all users.
      *
      * @return \Illuminate\View\View
      */
     public function index()
-    {
-
+    { 
         $users = $this->userService->listUsers();
 
         return view('user.index', compact('users'));
     }
+
 
 
     /**
@@ -89,12 +88,12 @@ class AdminController extends Controller
      */
     public function filter(Request $request)
     {
-
         $users = $this->userService->filterUsers($request->query('search'));
 
         return view('Components.user-list', compact('users'));
     }
 
+    
 
     /**
      * Delete a user.
@@ -103,8 +102,7 @@ class AdminController extends Controller
      */
     public function destroy(User $user)
     {
-
-        $this->userService->deleteUser($user, 'admin');
+        $this->userService->deleteUser($user);
 
         return redirect()->route('users.index')->with('success', 'User deleted successfully!');
     }

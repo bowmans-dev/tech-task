@@ -14,6 +14,8 @@ class Country
         'Germany',
     ];
 
+
+
     public function __construct(string $country)
     {
         if (! in_array($country, self::VALID_COUNTRIES, true)) {
@@ -23,11 +25,15 @@ class Country
         $this->country = $country;
     }
 
+
+
     public function getValue(): string
     {
         return $this->country;
     }
 
+
+    
     public function isEqual(Country $otherCountry): bool
     {
         return $this->country === $otherCountry->getValue();

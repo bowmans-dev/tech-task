@@ -13,6 +13,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class UserService
 {
@@ -29,92 +30,55 @@ class UserService
     }
 
 
-    /**
-     * Create a new user.
-     */
-    public function createUser(array $data)
-    {       
-        // Handle profile picture via ImageService
-        if (isset($data['profile_picture'])) {
-            $data['profile_picture'] = $this->imageService->upload($data['profile_picture']);
-        }
 
-        // Create UserAggregate
+    public function createUser(array $data)
+    {
+
+        $this->uploadProfilePicture($data);
+
         $userAggregate = UserAggregate::create($data);
 
-        // Publish a domain event
         DomainEventPublisher::publish(new UserCreatedEvent($userAggregate));
 
-        // Return the processed data
         return $userAggregate->getProcessedData();
     }
 
 
+
+
     public function updateUser(User $user, array $data)
     {
-        // Handle passwords: remove empty/null passwords
-        if (empty($data['password'])) {
-            unset($data['password']);
-        }
 
-        // Handle profile picture updates
-        if (isset($data['profile_picture'])) {
-            if ($user->profile_picture && Storage::disk('public')->exists($user->profile_picture)) {
-                $this->imageService->delete($user->profile_picture); // Delete the old image
-            }
-            $data['profile_picture'] = $this->imageService->upload($data['profile_picture']); // Upload the new image
-        }
+        $this->replaceProfilePicture($data, $user->profile_picture);
 
-        // Fetch the current userAggregate state before updates
         $userAggregate = $this->userRepository->findById($user->id);
 
-        if (!$userAggregate) {
-            throw new \Exception("User not found."); // Handle user not found scenario
-        }
-
-        // Publish a domain event for the update operation, passing previous state and new $data for the update
         DomainEventPublisher::publish(new UserUpdatedEvent($userAggregate, $data));
 
-        return $userAggregate->getProcessedData(); // Return the processed data
+        return $userAggregate->getProcessedData();
     }
 
 
-    /**
-     * Delete a user.
-     *
-     * @param  string  $userId
-     */
-    public function deleteUser(User $user, string $authType): void
+
+    public function deleteUser(User $user): void
     {
 
         $userAggregate = $this->userRepository->findById($user->id);
 
-        // Check if the user has a profile picture and delete it from storage
-        $profilePicture = $userAggregate->getProcessedData()['profile_picture'];
-        if ($profilePicture && \Storage::disk('public')->exists($profilePicture)) {
-            \Storage::disk('public')->delete($profilePicture);
-        }
+        $this->deleteProfilePicture($userAggregate->getProcessedData()['profile_picture']);
 
-        // Publish a domain event to delete the user
         DomainEventPublisher::publish(new UserDeletedEvent($userAggregate));
-        
     }
 
 
-    /**
-     * Get all users (Admin listing).
-     */
-    public function listUsers(): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+
+    public function listUsers(): LengthAwarePaginator
     {
         return User::paginate($this->paginationCount);
     }
 
 
-    /**
-     * Filter users (Admin-only functionality).
-     *
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
-     */
+
     public function filterUsers(?string $search)
     {
         $query = User::query();
@@ -131,18 +95,14 @@ class UserService
     }
 
 
-    /**
-     * Show authenticated user's profile.
-     */
+
     public function showProfile(): User
     {
         return auth('web')->user();
     }
 
 
-    /**
-     * Delete authenticated user's profile.
-     */
+
     public function deleteProfile(): void
     {
         $profile = auth('web')->user();
@@ -153,5 +113,35 @@ class UserService
 
         $profile->delete();
         auth('web')->logout();
+    }
+
+
+
+    private function uploadProfilePicture(array &$data): void
+    {
+        if (isset($data['profile_picture'])) {
+            $data['profile_picture'] = $this->imageService->upload($data['profile_picture']);
+        }
+    }
+
+
+
+    private function replaceProfilePicture(array &$data, ?string $currentPicture): void
+    {
+        if (isset($data['profile_picture'])) {
+            if ($currentPicture && Storage::disk('public')->exists($currentPicture)) {
+                $this->imageService->delete($currentPicture);
+            }
+            $data['profile_picture'] = $this->imageService->upload($data['profile_picture']);
+        }
+    }
+
+
+
+    private function deleteProfilePicture(?string $profilePicture): void
+    {
+        if ($profilePicture && Storage::disk('public')->exists($profilePicture)) {
+            Storage::disk('public')->delete($profilePicture);
+        }
     }
 }

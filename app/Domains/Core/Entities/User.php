@@ -8,15 +8,26 @@ class User
 {
     private UserData $data;
 
-    public function __construct(UserData $data)
+    public function __construct(array|UserData $data)
     {
-        $this->data = $data;
+        if (is_array($data)) {
+            $this->data = UserData::fromArray($data); // Automatically convert array to UserData
+        } else {
+            $this->data = $data;
+        }
     }
 
-    public function update(UserData $data): void
+
+    public function update(array $data): void
     {
-        $this->data = $data;
+        if (empty($data['password'])) {
+            unset($data['password']);
+        }
+        
+        $mergedData = array_merge($this->toArray(), $data);
+        $this->data = UserData::fromArray($mergedData);
     }
+
 
     public function toArray(): array
     {

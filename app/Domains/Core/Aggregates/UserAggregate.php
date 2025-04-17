@@ -18,21 +18,13 @@ class UserAggregate
 
     public static function create(array $data): self
     {
-        $userData = UserData::fromArray($data);
-        $user = new User($userData);
-        return new self($user);
+        return new self(new User($data));
     }
 
 
     public function update(array $data): void
     {
-        if (empty($data['password'])) {
-            unset($data['password']);
-        }
-
-        // Update only the fields provided in $data, keeping all other existing fields unchanged.
-        $updatedData = array_merge($this->user->toArray(), $data);
-        $this->user->update(UserData::fromArray($updatedData));
+        $this->user->update($data);
     }
 
 
@@ -41,9 +33,4 @@ class UserAggregate
         return $this->user->toArray();
     }
 
-    
-    public function getId(): string
-    {
-        return $this->user->toArray()['id'];
-    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Domains\Core\Services;
 
+use App\Models\User;
 use App\Domains\Core\Aggregates\UserAggregate;
 use App\Domains\Core\Repositories\UserRepositoryInterface;
 use App\Domains\Shared\Events\DomainEventPublisher;
@@ -9,7 +10,6 @@ use App\Domains\Shared\Events\UserCreatedEvent;
 use App\Domains\Shared\Events\UserUpdatedEvent;
 use App\Domains\Shared\Events\UserDeletedEvent;
 use App\Domains\Supporting\ImageUpload\ImageService;
-use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;

@@ -19,11 +19,11 @@ class AuthenticationService
     }
 
 
-    
+
     public function regenerateSession(): void
     {
-        session()->regenerate(); // Ensure the session is fully regenerated
-        session()->invalidate(); // Invalidate old session data
-        session()->regenerateToken(); // Regenerate CSRF token
+        session()->regenerate();
+        session()->invalidate();
+        session()->regenerateToken(); 
     }
 }

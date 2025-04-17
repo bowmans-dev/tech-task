@@ -29,7 +29,7 @@ php artisan db:seed
 ```bash
 Generates Users & Admin Login:
 'email' => 'admin@example.com',
-'password' => bcrypt('test1234'),
+'password' => 'test1234',
 ```
 ```bash
 npm run dev

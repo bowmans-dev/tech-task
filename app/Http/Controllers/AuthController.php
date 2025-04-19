@@ -21,6 +21,17 @@ class AuthController extends Controller
     }
 
 
+    public function showRegistrationForm()
+    {
+        return view('user.create');
+    }
+
+
+    public function showLoginForm()
+    {
+        return view('sign-in');
+    }
+
 
     public function login(Request $request)
     {
@@ -46,9 +57,8 @@ class AuthController extends Controller
             return redirect('/profile');
         }
 
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ]);
+
+        return back()->with('auth.failed', 'The provided credentials are incorrect.');
     }
 
 

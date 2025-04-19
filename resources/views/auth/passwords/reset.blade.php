@@ -32,6 +32,9 @@
                     <label for="password" class="block text-sm/6 font-medium text-gray-900">New Password</label>
                     <div class="mt-2">
                         <input type="password" name="password" id="password" autocomplete="new-password" required class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                        @error('password')
+                          <span class="text-red-600 text-sm">{{ $message }}</span>
+                        @enderror
                     </div>
                 </div>
                 
@@ -40,6 +43,9 @@
                     <label for="password_confirmation" class="block text-sm/6 font-medium text-gray-900">Confirm New Password</label>
                     <div class="mt-2">
                         <input type="password" name="password_confirmation" id="password_confirmation" autocomplete="new-password" required class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                        @error('password_confirmation')
+                          <span class="text-red-600 text-sm">{{ $message }}</span>
+                      @enderror
                     </div>
                 </div>
                 

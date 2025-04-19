@@ -17,8 +17,12 @@ class AdminController extends Controller
     {
         $this->userService = $userService;
     }
+ 
 
-
+    public function showCreateUserForm()
+    {
+        return view('user.create');
+    }
 
     /**
      * Create a new user (admin action).

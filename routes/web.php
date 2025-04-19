@@ -6,15 +6,21 @@ use App\Http\Controllers\UserController;
 use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/create', function () {
-    return view('user.create');
+Route::get('/', [AuthController::class, 'showLoginForm'])->name('login.form');
+
+Route::group([], function () {
+    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login.form');
+    Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
+    Route::post('/login', [AuthController::class, 'login'])->name('login');
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
-// Default / route for GET and POST
-Route::match(['get', 'post'], '/', [AuthController::class, 'login'])->name('login');
-
-// Logout route
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+// Password reset routes
+Route::prefix('password')->group(function () {
+    Route::post('/email', [AuthController::class, 'sendResetLink'])->name('password.email');
+    Route::get('/reset/{token}', [AuthController::class, 'showResetForm'])->name('password.reset');
+    Route::post('/reset', [AuthController::class, 'resetPassword'])->name('password.update');
+});
 
 // Protected User Routes
 Route::middleware('auth:web')->group(function () {
@@ -26,6 +32,7 @@ Route::middleware('auth:web')->group(function () {
 // Protected Admin Routes
 Route::middleware(AdminMiddleware::class)->group(function () {
 
+    Route::get('/create', [AdminController::class, 'showCreateUserForm'])->name('users.create');
     Route::post('/users', [AdminController::class, 'store'])->name('users.store');
     Route::get('/users', [AdminController::class, 'index'])->name('users.index');
     Route::get('/users/filter', [AdminController::class, 'filter'])->name('users.filter');
@@ -33,7 +40,4 @@ Route::middleware(AdminMiddleware::class)->group(function () {
     Route::patch('/users/{user}', [AdminController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [AdminController::class, 'destroy'])->name('users.destroy');
 
-    Route::post('password/email', [AuthController::class, 'sendResetLink'])->name('password.email');
-    Route::get('password/reset/{token}', [AuthController::class, 'showResetForm'])->name('password.reset');
-    Route::post('password/reset', [AuthController::class, 'resetPassword'])->name('password.update');
 });

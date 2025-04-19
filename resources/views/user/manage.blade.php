@@ -49,49 +49,83 @@
 
 							<!-- Left Column -->
 							<div class="lg:col-span-1 lg:col-start-1">
-								<x-form-input class="h-8" type="text" name="first_name" id="firstName" label="First Name"
+								<x-form-input class="h-8" type="text" name="first_name" id="firstName" label="First Name" 
 									:value="$user->first_name" autocomplete="given-name" />
+								@error('first_name')
+									<span class="text-red-600 text-sm">{{ $message }}</span>
+								@enderror
 								<br>
-								<x-form-input class="h-8" type="text" name="last_name" id="lastName" label="Last Name"
+						
+								<x-form-input class="h-8" type="text" name="last_name" id="lastName" label="Last Name" 
 									:value="$user->last_name" autocomplete="family-name" />
+								@error('last_name')
+									<span class="text-red-600 text-sm">{{ $message }}</span>
+								@enderror
 								<br>
-								<x-form-input class="h-8" type="email" name="email" id="email" label="Email"
+						
+								<x-form-input class="h-8" type="email" name="email" id="email" label="Email" 
 									:value="$user->email" autocomplete="email" />
+								@error('email')
+									<span class="text-red-600 text-sm">{{ $message }}</span>
+								@enderror
 								<br>
-								<x-upload-photo label="Upload / Change Profile Picture" id="profilePicture"
-									name="profile_picture" dragText="or drag and drop your file here"
-									fileNameId="profile-picture-name" filePreviewId="profile-picture-preview">
+						
+								<x-upload-photo label="Upload / Change Profile Picture" id="profilePicture" name="profile_picture" 
+									dragText="or drag and drop your file here" fileNameId="profile-picture-name" 
+									filePreviewId="profile-picture-preview">
 									Upload a file
 								</x-upload-photo>
+								@error('profile_picture')
+									<span class="text-red-600 text-sm">{{ $message }}</span>
+								@enderror
 							</div>
-
+						
 							<!-- Right Column -->
 							<div class="lg:col-span-1 lg:col-start-2">
-								<x-form-input class="h-8" type="tel" name="phone" id="phone" label="Phone Number"
+								<x-form-input class="h-8" type="tel" name="phone" id="phone" label="Phone Number" 
 									:value="$user->phone" pattern="[\+]?[\d\s\-]+" />
+								@error('phone')
+									<span class="text-red-600 text-sm">{{ $message }}</span>
+								@enderror
 								<br>
-								<x-select-dropdown class="h-8" name="country" id="country" label="Country"
-									:options="array_combine(config('countries'), config('countries'))"
+						
+								<x-select-dropdown class="h-8" name="country" id="country" label="Country" 
+									:options="array_combine(config('countries'), config('countries'))" 
 									:selected="$user->country" placeholder="Select a country" />
+								@error('country')
+									<span class="text-red-600 text-sm">{{ $message }}</span>
+								@enderror
 								<br>
-								<x-select-dropdown class="h-8" name="gender" id="gender" label="Gender"
-									:options="['male' => 'Male', 'female' => 'Female', 'other' => 'Other']"
+						
+								<x-select-dropdown class="h-8" name="gender" id="gender" label="Gender" 
+									:options="['male' => 'Male', 'female' => 'Female', 'other' => 'Other']" 
 									:selected="$user->gender" placeholder="Select your gender" />
+								@error('gender')
+									<span class="text-red-600 text-sm">{{ $message }}</span>
+								@enderror
 								<br>
+						
 								<x-form-input class="h-8" type="password" name="password" id="password" label="Password" />
+								@error('password')
+									<span class="text-red-600 text-sm">{{ $message }}</span>
+								@enderror
 								<br>
-								<x-form-input class="h-8" type="password" name="password_confirmation" id="repeatPassword"
+						
+								<x-form-input class="h-8" type="password" name="password_confirmation" id="repeatPassword" 
 									label="Repeat Password" />
-
+								@error('password_confirmation')
+									<span class="text-red-600 text-sm">{{ $message }}</span>
+								@enderror
+						
 								<!-- Submit Button -->
 								<div class="mt-6 lg:col-span-2">
-									<button type="submit"
+									<button type="submit" 
 										class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
 										Update User
 									</button>
 								</div>
 							</div>
-
+						
 						</div>
 
 					</div>

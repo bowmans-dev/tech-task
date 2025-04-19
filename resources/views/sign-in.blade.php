@@ -36,26 +36,57 @@
           <div class="flex items-center justify-between">
             <label for="password" class="block text-sm/6 font-medium text-gray-900">Password</label>
             <div class="text-sm">
-              <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-500">Forgot password?</a>
+              <a href="javascript:void(0);" onclick="sendPasswordResetLink()" class="font-semibold text-indigo-600 hover:text-indigo-500">Forgot password?</a>
             </div>
           </div>
           <div class="mt-2">
             <input type="password" name="password" id="password" autocomplete="current-password" required class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+            @error('password')
+                <span class="text-red-600 text-sm">{{ $message }}</span>
+            @enderror
+            <!-- Check for authentication errors -->
+              @if(session('auth.failed'))
+                <span class="text-red-600 text-sm">{{ session('auth.failed') }}</span>
+            @endif
+
           </div>
         </div>
   
-        <div>
+        <div class="mt-2">
           <button type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Sign in</button>
         </div>
+      </form>
+      <form id="password-reset-form" method="POST" action="{{ route('password.email') }}" style="display: none;">
+        @csrf
+        <input type="hidden" name="email" id="reset-email">
       </form>
   
       <p class="mt-10 text-center text-sm/6 text-gray-500">
         Not a member?
-        <a href="/create" class="font-semibold text-indigo-600 hover:text-indigo-500">Sign Up</a>
+        <a href="/register" class="font-semibold text-indigo-600 hover:text-indigo-500">Sign Up</a>
       </p>
     </div>
   </div>
-  
-  
+  <script>
+    // document.addEventListener('DOMContentLoaded', () => {
+      function sendPasswordResetLink() {
+          // Prompt the user for their email
+          const email = prompt("Please enter your email address to reset your password:");
+
+          if (email) {
+              // Populate the hidden form's email field
+              document.getElementById('reset-email').value = email;
+
+              // Submit the form
+              document.getElementById('password-reset-form').submit();
+
+              // Display an alert to confirm the action
+              alert("If the email exists in our system, a password reset link has been sent.");
+          } else {
+              alert("Password reset process was canceled.");
+          }
+      }
+    // });
+  </script>
 </body>
 </html>

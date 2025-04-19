@@ -25,32 +25,66 @@
     
                     <!-- Left Column -->
                     <div class="lg:col-span-1 lg:col-start-1">
-                      <x-form-input class="h-8" type="text" name="first_name" id="firstName" label="First Name" autocomplete="given-name" required />
+                      <x-form-input class="h-8" type="text" name="first_name" id="firstName" label="First Name" value="{{ old('first_name') }}" autocomplete="given-name" required />
+                      @error('first_name')
+                          <span class="text-red-600 text-sm">{{ $message }}</span>
+                      @enderror
                       <br>
-                      <x-form-input class="h-8" type="text" name="last_name" id="lastName" label="Last Name" autocomplete="family-name" required />
+
+                      <x-form-input class="h-8" type="text" name="last_name" id="lastName" label="Last Name" value="{{ old('last_name') }}" autocomplete="family-name" required />
+                      @error('last_name')
+                          <span class="text-red-600 text-sm">{{ $message }}</span>
+                      @enderror
                       <br>
-                      <x-form-input class="h-8" type="email" name="email" id="email" label="Email" autocomplete="email" required />
+
+                      <x-form-input class="h-8" type="email" name="email" id="email" label="Email" value="{{ old('email') }}" autocomplete="email" required />
+                      @error('email')
+                          <span class="text-red-600 text-sm">{{ $message }}</span>
+                      @enderror
                       <br>
-                      <x-upload-photo label="Upload Profile Picture" id="profilePicture" name="profile_picture"
+
+                      <x-upload-photo label="Upload Profile Picture" id="profilePicture" name="profile_picture" value="{{ old('profile_picture') }}"
                         dragText="or drag and drop your file here" fileNameId="profile-picture-name" filePreviewId="profile-picture-preview">
                         Upload a file
                       </x-upload-photo>
+                      @error('profile_picture')
+                          <span class="text-red-600 text-sm">{{ $message }}</span>
+                      @enderror
                     </div>
     
                     <!-- Right Column -->
                     <div class="lg:col-span-1 lg:col-start-2">
-                      <x-form-input class="h-8" type="tel" name="phone" id="phone" label="Phone Number" pattern="[\+]?[\d\s\-]+" required />
+                      <x-form-input class="h-8" type="tel" name="phone" id="phone" label="Phone Number" value="{{ old('phone') }}" pattern="[\+]?[\d\s\-]+" required />
+                      @error('phone')
+                          <span class="text-red-600 text-sm">{{ $message }}</span>
+                      @enderror
                       <br>
-                      <x-select-dropdown class="h-8" name="country" id="country" label="Country" :options="array_combine(config('countries'), config('countries'))"
+
+                      <x-select-dropdown class="h-8" name="country" id="country" label="Country" :options="array_combine(config('countries'), config('countries'))" :selected="old('country')"
                         placeholder="Select a country" required />
-                        <br>
-                      <x-select-dropdown  class="h-8" name="gender" id="gender" label="Gender" :options="['male' => 'Male', 'female' => 'Female', 'other' => 'Other']"
-                        placeholder="Select your gender" required />
-                        <br>
-                      <x-form-input class="h-8" type="password" name="password" id="password" label="Password" autocomplete="new-password" required />
+                      @error('country')
+                           <span class="text-red-600 text-sm">{{ $message }}</span>
+                       @enderror
                       <br>
+
+                      <x-select-dropdown  class="h-8" name="gender" id="gender" label="Gender" value="{{ old('gender') }}" :options="['male' => 'Male', 'female' => 'Female', 'other' => 'Other']" :selected="old('gender')"
+                        placeholder="Select your gender" required />
+                      @error('gender')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                      @enderror
+                      <br>
+
+                      <x-form-input class="h-8" type="password" name="password" id="password" label="Password" autocomplete="new-password" required />
+                      @error('password')
+                          <span class="text-red-600 text-sm">{{ $message }}</span>
+                      @enderror
+                      <br>
+
                       <x-form-input class="h-8" type="password" name="password_confirmation" id="repeatPassword" label="Repeat Password" autocomplete="new-password" required />
-                      
+                      @error('password_confirmation')
+                          <span class="text-red-600 text-sm">{{ $message }}</span>
+                      @enderror
+
                       <!-- Submit Button -->
                       <div class="mt-6 lg:col-span-2">
                         <button type="submit"

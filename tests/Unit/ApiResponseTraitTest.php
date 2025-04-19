@@ -18,7 +18,7 @@ class ApiResponseTraitTest extends TestCase
         $statusCode = 201;
 
         // Act
-        $response = $this->successResponse($data, $message, $statusCode);
+        $response = $this->successResponse($message, $statusCode, $data);
 
         // Assert
         $this->assertInstanceOf(JsonResponse::class, $response);
@@ -52,13 +52,12 @@ class ApiResponseTraitTest extends TestCase
     {
         // Act
         $response = $this->successResponse();
-
+        
         // Assert
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(200, $response->getStatusCode()); // Default status code
         $this->assertEquals([
-            'message' => 'Success', // Default message
-            'data' => null,         // Default data
+            'message' => 'Success', // Default message         // Default data
         ], $response->getData(true));
     }
 

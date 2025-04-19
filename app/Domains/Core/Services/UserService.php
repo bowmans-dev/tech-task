@@ -10,9 +10,6 @@ use App\Domains\Shared\Events\UserCreatedEvent;
 use App\Domains\Shared\Events\UserUpdatedEvent;
 use App\Domains\Shared\Events\UserDeletedEvent;
 use App\Domains\Supporting\ImageUpload\ImageService;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class UserService
@@ -34,7 +31,7 @@ class UserService
     public function createUser(array $data)
     {
 
-        $this->uploadProfilePicture($data);
+        $this->imageService->uploadProfilePicture($data);
 
         $userAggregate = UserAggregate::create($data);
 
@@ -42,14 +39,14 @@ class UserService
 
         return $userAggregate->getProcessedData();
     }
-
+ 
 
 
 
     public function updateUser(User $user, array $data)
     {
 
-        $this->replaceProfilePicture($data, $user->profile_picture);
+        $this->imageService->replaceProfilePicture($data, $user->profile_picture);
 
         $userAggregate = $this->userRepository->findById($user->id);
 
@@ -65,33 +62,24 @@ class UserService
 
         $userAggregate = $this->userRepository->findById($user->id);
 
-        $this->deleteProfilePicture($userAggregate->getProcessedData()['profile_picture']);
+        $this->imageService->deleteProfilePicture($userAggregate->getProcessedData()['profile_picture']);
 
         DomainEventPublisher::publish(new UserDeletedEvent($userAggregate));
     }
 
 
 
-    public function listUsers(): LengthAwarePaginator
+    public function deleteProfile($user): void
     {
-        return User::paginate($this->paginationCount);
-    }
+        $profile = $user;
 
+        $userAggregate = $this->userRepository->findById($profile->id);
 
+        $this->imageService->deleteProfilePicture($profile->profile_picture);
 
-    public function filterUsers(?string $search)
-    {
-        $query = User::query();
+        auth('web')->logout();
 
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('first_name', 'like', "%{$search}%")
-                    ->orWhere('last_name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
-
-        return $query->paginate($this->paginationCount);
+        DomainEventPublisher::publish(new UserDeletedEvent($userAggregate));
     }
 
 
@@ -103,45 +91,18 @@ class UserService
 
 
 
-    public function deleteProfile(): void
+
+    public function listUsers(): LengthAwarePaginator
     {
-        $profile = auth('web')->user();
-
-        if ($profile->profile_picture && Storage::disk('public')->exists($profile->profile_picture)) {
-            Storage::disk('public')->delete($profile->profile_picture);
-        }
-
-        $profile->delete();
-        auth('web')->logout();
+        return $this->userRepository->list($this->paginationCount);
     }
 
 
 
-    private function uploadProfilePicture(array &$data): void
+    public function filterUsers(?string $search): LengthAwarePaginator
     {
-        if (isset($data['profile_picture'])) {
-            $data['profile_picture'] = $this->imageService->upload($data['profile_picture']);
-        }
+        return $this->userRepository->filter($search, $this->paginationCount);
     }
+    
 
-
-
-    private function replaceProfilePicture(array &$data, ?string $currentPicture): void
-    {
-        if (isset($data['profile_picture'])) {
-            if ($currentPicture && Storage::disk('public')->exists($currentPicture)) {
-                $this->imageService->delete($currentPicture);
-            }
-            $data['profile_picture'] = $this->imageService->upload($data['profile_picture']);
-        }
-    }
-
-
-
-    private function deleteProfilePicture(?string $profilePicture): void
-    {
-        if ($profilePicture && Storage::disk('public')->exists($profilePicture)) {
-            Storage::disk('public')->delete($profilePicture);
-        }
-    }
 }

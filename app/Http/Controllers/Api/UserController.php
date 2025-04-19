@@ -8,6 +8,7 @@ use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
 use App\Http\Requests\UserUpdateRequest;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -27,13 +28,17 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function showProfile()
+    public function showProfile(Request $request)
     {
         try {
-            // Call the service to retrieve the user's profile
-            $profile = $this->userService->showProfile();
+            $user = $request->user();
 
-            return $this->successResponse($profile, 'Profile retrieved successfully.', 200);
+            if (!$user) {
+                return $this->errorResponse('Unauthorized access.', 401);
+            }
+
+
+            return $this->successResponse('Profile retrieved successfully.', 200, $user);
 
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to retrieve profile.', 500, $e->getMessage());
@@ -51,19 +56,23 @@ class UserController extends Controller
     public function updateProfile(UserUpdateRequest $request)
     {
         try {
+            $user = $request->user();
+
+            if (!$user) {
+                return $this->errorResponse('Unauthorized access.', 401);
+            }
 
             $data = $request->validated();
 
             $updatedUser = $this->userService->updateUser(
-                auth()->user(), 
+                $request->user(), 
                 $data          
             );
 
-            return $this->successResponse($updatedUser, 'Profile updated successfully.', 200);
+            return $this->successResponse('Profile updated successfully.', 200, $updatedUser);
 
         } catch (\Exception $e) {
 
-            Log::error('Error updating profile: ' . $e->getMessage());
             return $this->errorResponse('Failed to update profile.', 500, $e->getMessage());
         }
     }
@@ -75,12 +84,20 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function deleteProfile()
+    public function deleteProfile(Request $request)
     {
-        try {
-            $this->userService->deleteProfile();
 
-            return $this->successResponse(null, 'Your profile has been deleted successfully.', 200);
+        try {
+            $user = $request->user();
+
+            if (!$user) {
+                return $this->errorResponse('Unauthorized access.', 401);
+            }
+
+            $this->userService->deleteProfile($user);
+
+            return $this->successResponse('Your profile has been deleted successfully.', 200);
+
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to delete profile.', 500, $e->getMessage());
         }

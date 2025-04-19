@@ -26,7 +26,13 @@ class UserStoreRequest extends FormRequest
             'last_name' => 'required|string|max:255',
             'gender' => 'required|string',
             'country' => 'required|string',
-            'phone' => 'required|string|max:20',
+            'phone' => [
+                'required',
+                'string',
+                'regex:/^(\+?[0-9\- ]+|[0-9]{7,20})$/',
+                'min:7',
+                'max:20',
+            ],
             'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|confirmed|min:8', // Password is required
             'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',

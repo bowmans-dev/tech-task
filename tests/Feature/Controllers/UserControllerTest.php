@@ -23,6 +23,18 @@ class UserControllerTest extends TestCase
     }
 
     /**
+     * Test unauthenticated access redirects to login.
+     */
+    public function test_unauthenticated_access_redirects_to_login()
+    {
+        auth()->logout(); // Log out the authenticated user
+
+        $response = $this->get(route('profile.show')); // Try to access showProfile
+
+        $response->assertRedirect(route('login')); // Ensure redirected to login
+    }
+
+    /**
      * Test the showProfile method.
      */
     public function test_show_profile_displays_user_profile()
@@ -61,6 +73,25 @@ class UserControllerTest extends TestCase
     }
 
     /**
+     * Test the updateProfile method fails with invalid data.
+     */
+    public function test_update_profile_fails_with_invalid_data()
+    {
+        $data = [
+            'first_name' => '', // Missing required field
+            'last_name' => 'Doe',
+            'gender' => 'male',
+            'country' => 'United Kingdom',
+            'email' => 'invalid-email', // Invalid email format
+            'phone' => 'not-a-phone-number', // Invalid phone format
+        ];
+
+        $response = $this->patch(route('profile.update'), $data);
+
+        $response->assertSessionHasErrors(['first_name', 'email', 'phone']); // Assert only these fields fail
+    }
+
+    /**
      * Test the deleteProfile method for deleting a user profile.
      */
     public function test_delete_profile_deletes_user_and_redirects()
@@ -77,7 +108,7 @@ class UserControllerTest extends TestCase
         // Call the delete route.
         $response = $this->delete(route('profile.delete'));
 
-        $this->assertSoftDeleted('users', ['id' => $user->id]);
+        $this->assertDatabaseMissing('users', ['id' => $user->id]);
         // $this->assertNull(auth('web')->user());
 
         $response->assertRedirect(route('login'));

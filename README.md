@@ -14,6 +14,9 @@ cp .env.example .env
 php artisan key:generate
 ```
 ```bash
+php artisan jwt:secret
+```
+```bash
 npm i
 ```
 ```bash

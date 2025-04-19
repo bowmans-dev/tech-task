@@ -7,6 +7,7 @@ use App\Domains\Core\DTOs\UserData;
 use App\Domains\Core\Entities\User;
 use App\Domains\Core\Repositories\UserRepositoryInterface;
 use App\Models\User as EloquentUserModel;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class EloquentUserRepository implements UserRepositoryInterface
 {
@@ -56,12 +57,23 @@ class EloquentUserRepository implements UserRepositoryInterface
     /**
      * List all UserAggregates with optional pagination.
      */
-    public function list(int $perPage = 10): array
+    public function list(int $perPage): LengthAwarePaginator
     {
-        $userModels = EloquentUserModel::paginate($perPage);
+        return EloquentUserModel::paginate($perPage);
+    }
 
-        return $userModels->map(fn($userModel) => new UserAggregate(
-            new User(UserData::fromModel($userModel))
-        ))->toArray();
+    public function filter(?string $search, int $perPage): LengthAwarePaginator
+    {
+        $query = EloquentUserModel::query();
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        return $query->paginate($perPage);
     }
 }

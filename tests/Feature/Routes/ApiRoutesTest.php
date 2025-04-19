@@ -9,48 +9,37 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 use Illuminate\Support\Facades\Log;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Hash;
 
 class ApiRoutesTest extends TestCase
 {
     use DatabaseTransactions;
 
-    /**
-     * Test setup - authenticate as admin for admin routes.
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        // Push the StartSession middleware into the application's middleware stack
-        $this->app->make(\Illuminate\Contracts\Http\Kernel::class)
-            ->pushMiddleware(\Illuminate\Session\Middleware\StartSession::class);
-
-        // Authenticate as admin
-        $admin = Admin::factory()->create();
-        $this->actingAs($admin, 'admin'); // Use the admin guard
-    }
 
     /**
      * Test admin login functionality (POST).
      */
     public function test_admin_can_login()
     {
+        // Create an admin with hashed password
         $admin = Admin::factory()->create([
             'email' => 'admin@test.com',
-            'password' => bcrypt('password123'),
+            'password' => Hash::make('password123'),
         ]);
 
-        $response = $this->postJson(route('api.login'), [
+
+        $response = $this->postJson('/api/login', [
             'email' => 'admin@test.com',
             'password' => 'password123',
         ]);
 
         $response->assertStatus(200)
             ->assertJson([
-                'message' => 'Admin logged in successfully.',
+                'message' => 'Admin:api logged in successfully.',
             ]);
 
-        $this->assertAuthenticatedAs($admin, 'admin');
+        $this->assertAuthenticatedAs($admin, 'admin:api');
     }
 
     /**
@@ -60,7 +49,7 @@ class ApiRoutesTest extends TestCase
     {
         $user = User::factory()->create([
             'email' => 'user@test.com',
-            'password' => bcrypt('password123'),
+            'password' => Hash::make('password123'),
         ]);
 
         $response = $this->postJson(route('api.login'), [
@@ -70,10 +59,10 @@ class ApiRoutesTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJson([
-                'message' => 'User logged in successfully.',
+                'message' => 'User:api logged in successfully.',
             ]);
 
-        $this->assertAuthenticatedAs($user, 'web');
+        $this->assertAuthenticatedAs($user, 'user:api');
     }
 
     /**
@@ -99,6 +88,9 @@ class ApiRoutesTest extends TestCase
      */
     public function test_admin_can_create_user()
     {
+        $admin = Admin::factory()->create();
+        $adminToken = JWTAuth::fromUser($admin);
+
         $file = UploadedFile::fake()->image('profile.jpg');
 
         $data = [
@@ -113,7 +105,8 @@ class ApiRoutesTest extends TestCase
             'profile_picture' => $file,
         ];
 
-        $response = $this->postJson('/api/users', $data); // API route
+        $response = $this->withHeader('Authorization', 'Bearer ' . $adminToken)
+        ->postJson('/api/users', $data);
 
         $response->assertStatus(201)
             ->assertJson([
@@ -143,7 +136,7 @@ class ApiRoutesTest extends TestCase
     {
         // Create an admin and authenticate
         $admin = Admin::factory()->create();
-        $this->actingAs($admin, 'admin');
+        $adminToken = JWTAuth::fromUser($admin);
 
         // Create a user to update
         $user = User::factory()->create([
@@ -167,7 +160,8 @@ class ApiRoutesTest extends TestCase
         
 
         // Make PATCH request to update the user
-        $response = $this->patchJson(route('api.users.update', $user), $data);
+        $response = $this->withHeader('Authorization', 'Bearer ' . $adminToken)
+                        ->patchJson('/api/users/' . $user->id, $data);
 
         // Assert the response
         $response->assertStatus(200)
@@ -194,12 +188,16 @@ class ApiRoutesTest extends TestCase
      */
     public function test_admin_can_delete_user()
     {
+        // Create an admin and authenticate
+        $admin = Admin::factory()->create();
+        $adminToken = JWTAuth::fromUser($admin);
+
         $user = User::factory()->create(['profile_picture' => 'profile_pictures/profile.webp']);
 
         Storage::fake('public');
         Storage::disk('public')->put('profile_pictures/profile.webp', 'content');
 
-        $response = $this->deleteJson('/api/users/'.$user->id); // API route
+        $response = $this->withHeader('Authorization', 'Bearer ' . $adminToken)->deleteJson('/api/users/' . $user->id);
 
         $response->assertStatus(200)
             ->assertJson([
@@ -215,9 +213,14 @@ class ApiRoutesTest extends TestCase
      */
     public function test_admin_can_retrieve_all_users()
     {
+        // Create an admin and authenticate
+        $admin = Admin::factory()->create();
+        $adminToken = JWTAuth::fromUser($admin);
+
         User::factory()->count(10)->create();
 
-        $response = $this->getJson('/api/users'); // API route
+        $response = $this->withHeader('Authorization', 'Bearer ' . $adminToken)
+                        ->getJson('/api/users/' );
 
         $response->assertStatus(200)
             ->assertJsonPath('message', 'Users retrieved successfully.')
@@ -237,10 +240,15 @@ class ApiRoutesTest extends TestCase
      */
     public function test_admin_can_filter_users()
     {
+        // Create an admin and authenticate
+        $admin = Admin::factory()->create();
+        $adminToken = JWTAuth::fromUser($admin);
+
         User::factory()->count(3)->create(['first_name' => 'Jerri']);
         User::factory()->create(['first_name' => 'Jane']);
 
-        $response = $this->getJson('/api/users/filter?search=Jerri'); // API route
+        $response = $this->withHeader('Authorization', 'Bearer ' . $adminToken)
+                  ->getJson('/api/users/filter?search=Jerri'); // Pass search explicitly in query string
 
         $response->assertStatus(200)
             ->assertJsonPath('message', 'Users filtered successfully.')
@@ -253,9 +261,10 @@ class ApiRoutesTest extends TestCase
     public function test_user_can_retrieve_profile()
     {
         $user = User::factory()->create();
-        $this->actingAs($user, 'web');
+        $userToken = JWTAuth::fromUser($user);
 
-        $response = $this->getJson(route('api.profile.show')); // API route
+        $response = $this->withHeader('Authorization', 'Bearer ' . $userToken)
+                        ->getJson('/api/profile');
 
         $response->assertStatus(200)
             ->assertJson([
@@ -273,7 +282,7 @@ class ApiRoutesTest extends TestCase
     public function test_user_can_update_profile()
     {
         $user = User::factory()->create();
-        $this->actingAs($user, 'web');
+        $userToken = JWTAuth::fromUser($user);
 
         $data = [
             'first_name' => 'New',
@@ -287,7 +296,8 @@ class ApiRoutesTest extends TestCase
             'password_confirmation' => 'newpassword123',
         ];
 
-        $response = $this->patchJson(route('api.profile.update'), $data); // API route
+        $response = $this->withHeader('Authorization', 'Bearer ' . $userToken)
+                        ->patchJson('/api/profile', $data);
 
         $response->assertStatus(200)
             ->assertJson(['message' => 'Profile updated successfully.']);
@@ -305,11 +315,12 @@ class ApiRoutesTest extends TestCase
     {
 
         $user = User::factory()->create();
-        $this->actingAs($user, 'web');
+        $userToken = JWTAuth::fromUser($user);
 
-        $response = $this->deleteJson(route('api.profile.delete')); // API route
+        $response = $this->withHeader('Authorization', 'Bearer ' . $userToken)
+                        ->deleteJson('/api/profile');
 
-        $this->assertSoftDeleted('users', ['id' => $user->id]);
+        $this->assertDatabaseMissing('users', ['id' => $user->id]);
         $response->assertStatus(200)
             ->assertJson(['message' => 'Your profile has been deleted successfully.']);
     }

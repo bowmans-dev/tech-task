@@ -57,9 +57,11 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function deleteProfile()
+    public function deleteProfile(Request $request)
     {
-        $this->userService->deleteProfile();
+        $user = $request->user();
+
+        $this->userService->deleteProfile($user);
 
         return redirect()->route('login')->with('success', 'Your profile has been deleted successfully.');
     }

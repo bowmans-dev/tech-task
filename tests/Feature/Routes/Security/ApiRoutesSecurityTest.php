@@ -6,6 +6,7 @@ use App\Models\Admin;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ApiRoutesSecurityTest extends TestCase
 {
@@ -16,11 +17,18 @@ class ApiRoutesSecurityTest extends TestCase
      */
     public function test_access_admin_route_without_authentication_fails()
     {
-        $response = $this->postJson('/api/users', []);
+        $response = $this->postJson('/api/users', ['first_name' => 'John',
+            'last_name' => 'Doe',
+            'email' => 'tim.doe@example.com',
+            'phone' => '123456789',
+            'country' => 'United Kingdom',
+            'gender' => 'male',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',]);
 
-        $response->assertStatus(403) // Unauthorized
+        $response->assertStatus(401) // Unauthenticated
             ->assertJson([
-                'message' => 'Unauthorized',
+                'message' => 'Unauthenticated.',
             ]);
     }
 
@@ -30,13 +38,20 @@ class ApiRoutesSecurityTest extends TestCase
     public function test_access_admin_route_with_regular_user_authentication_fails()
     {
         $user = User::factory()->create();
-        $this->actingAs($user, 'web'); // Simulate a regular user login
+        $userToken = JWTAuth::fromUser($user);
 
-        $response = $this->postJson('/api/users', []);
+        $response = $this->withHeader('Authorization', 'Bearer ' . $userToken)->postJson('/api/users', ['first_name' => 'John',
+            'last_name' => 'Doe',
+            'email' => 'tim.doe@example.com',
+            'phone' => '123456789',
+            'country' => 'United Kingdom',
+            'gender' => 'male',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',]);
 
-        $response->assertStatus(403) // Unauthorized
+        $response->assertStatus(401) // Unauthorized
             ->assertJson([
-                'message' => 'Unauthorized',
+                'message' => 'Unauthenticated.',
             ]);
     }
 
@@ -46,9 +61,9 @@ class ApiRoutesSecurityTest extends TestCase
     public function test_create_user_fails_with_invalid_email_format()
     {
         $admin = Admin::factory()->create();
-        $this->actingAs($admin, 'admin'); // Simulate admin authentication
+        $adminToken = JWTAuth::fromUser($admin);
 
-        $response = $this->postJson('/api/users', [
+        $response = $this->withHeader('Authorization', 'Bearer ' . $adminToken)->postJson('/api/users', [
             'first_name' => 'John',
             'last_name' => 'Doe',
             'email' => 'invalid-email-format',

@@ -3,6 +3,7 @@
 namespace Tests\Feature\Controllers;
 
 use App\Models\Admin;
+use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
@@ -86,5 +87,24 @@ class AuthControllerTest extends TestCase
         // Assert that the admin is redirected to login and no longer authenticated
         $response->assertRedirect(route('login'));
         $this->assertGuest('admin');
+    }
+
+    /**
+     * Test sending password reset link.
+     */
+    public function test_send_reset_link_success()
+    {
+        $admin = User::factory()->create(['email' => 'admin@test.com']);
+
+        $response = $this->post(route('password.email'), ['email' => 'admin@test.com']);
+
+        $response->assertSessionHas('status', 'Password reset link sent.');
+    }
+
+    public function test_send_reset_link_failure()
+    {
+        $response = $this->post(route('password.email'), ['email' => 'nonexistent@test.com']);
+
+        $response->assertSessionHasErrors(['email']);
     }
 }

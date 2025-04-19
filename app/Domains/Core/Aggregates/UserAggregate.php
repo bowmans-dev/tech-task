@@ -2,9 +2,7 @@
 
 namespace App\Domains\Core\Aggregates;
 
-use App\Domains\Core\DTOs\UserData;
 use App\Domains\Core\Entities\User;
-
 
 class UserAggregate
 {

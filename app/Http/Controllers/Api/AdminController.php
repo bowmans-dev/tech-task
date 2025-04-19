@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Admin;
 use App\Domains\Core\Services\UserService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
@@ -11,6 +12,9 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use App\Http\Requests\UserStoreRequest;
 use App\Http\Requests\UserUpdateRequest;
+use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 
 class AdminController extends Controller
@@ -37,15 +41,20 @@ class AdminController extends Controller
     public function store(UserStoreRequest $request)
     {
         try {
+
+            $admin = $request->user();
+
+            if (!$admin) {
+                return $this->errorResponse('Unauthorized access.', 401);
+            }
+
             $data = $request->validated();
             $user = $this->userService->createUser($data);
 
-            return $this->successResponse($user, 'User created successfully!', 201);
+            return $this->successResponse('User created successfully!', 201, $user);
 
-        } catch (\Exception $e) {
-
-            Log::error('Error creating user: ' . $e->getMessage());
-
+        }  catch (\Exception $e) {
+            Log::error('Error creating user:', ['message' => $e->getMessage()]);
             return $this->errorResponse('Internal server error', 500, $e->getMessage());
         }
     }
@@ -53,7 +62,7 @@ class AdminController extends Controller
 
 
     /**
-     * Update a user's details.
+     * Update a user's details (admin action).
      *
      * @param \App\Http\Requests\UserUpdateRequest $request
      * @param \App\Models\User $user
@@ -62,15 +71,19 @@ class AdminController extends Controller
     public function update(UserUpdateRequest $request, User $user)
     {
         try {
+            $admin = $request->user();
+
+            if (!$admin) {
+                return $this->errorResponse('Unauthorized access.', 401);
+            }
+
             $data = $request->validated();
             $updatedUser = $this->userService->updateUser($user, $data);
 
-            return $this->successResponse($updatedUser, 'User updated successfully!', 200);
+            return $this->successResponse('User updated successfully!', 200, $updatedUser);
 
         } catch (\Exception $e) {
-
-            Log::error('Error updating user: ' . $e->getMessage());
-
+            Log::error('Error updating user:', ['message' => $e->getMessage()]);
             return $this->errorResponse('Failed to update user.', 500, $e->getMessage());
         }
     }
@@ -82,10 +95,17 @@ class AdminController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show(User $user)
+    public function show(Request $request, User $user)
     {
         try {
-            return $this->successResponse($user, 'User details retrieved successfully.', 200);
+            $admin = $request->user();
+
+            if (!$admin) {
+                return $this->errorResponse('Unauthorized access.', 401);
+            }
+
+            return $this->successResponse('User details retrieved successfully.', 200, $user);
+
         } catch (\Exception $e) {
             Log::error('Error showing user: '.$e->getMessage());
 
@@ -100,12 +120,19 @@ class AdminController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(Request $request)
     {
+
         try {
+            $admin = $request->user();
+
+            if (!$admin) {
+                return $this->errorResponse('Unauthorized access.', 401);
+            }
+
             $users = $this->userService->listUsers();
 
-            return $this->successResponse($users, 'Users retrieved successfully.', 200);
+            return $this->successResponse('Users retrieved successfully.', 200, $users);
 
         } catch (\Exception $e) {
             Log::error('Error retrieving users: '.$e->getMessage());
@@ -117,42 +144,53 @@ class AdminController extends Controller
 
 
     /**
-     * Filter users.
+     * Filter users based on a search query.
      *
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function filter(Request $request)
     {
         try {
+            $admin = $request->user();
+
+            if (!$admin) {
+                return $this->errorResponse('Unauthorized access.', 401);
+            }
+        
             $users = $this->userService->filterUsers($request->query('search'));
 
-            return $this->successResponse($users, 'Users filtered successfully.', 200);
-
+            return $this->successResponse('Users filtered successfully.', 200, $users);
+        
         } catch (\Exception $e) {
-            Log::error('Error filtering users: '.$e->getMessage());
-
+            Log::error('Error filtering users:', ['message' => $e->getMessage()]);
             return $this->errorResponse('Failed to filter users.', 500, $e->getMessage());
         }
     }
-
+    
 
     
     /**
-     * Delete a user.
+     * Delete a user (admin action).
      *
+     * @param \App\Models\User $user
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(User $user)
+    public function destroy(Request $request, User $user)
     {
         try {
+            $admin = $request->user();
+
+            if (!$admin) {
+                return $this->errorResponse('Unauthorized access.', 401);
+            }
+
             $this->userService->deleteUser($user, 'admin');
 
-            return $this->successResponse(null, 'User deleted successfully!', 200);
+            return $this->successResponse('User deleted successfully!', 200);
 
         } catch (\Exception $e) {
-
-            Log::error('Error deleting user: '.$e->getMessage());
-
+            Log::error('Error deleting user:', ['message' => $e->getMessage()]);
             return $this->errorResponse('Failed to delete user.', 500, $e->getMessage());
         }
     }

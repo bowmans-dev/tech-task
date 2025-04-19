@@ -68,14 +68,13 @@ class AuthController extends Controller
 
     protected function broker()
     {
-        return Password::broker(); // Default broker ('users')
+        return Password::broker();
     }
 
 
 
     public function sendResetLink(Request $request)
     {
-
         $request->validate(['email' => 'required|email']);
 
         try {
@@ -83,7 +82,7 @@ class AuthController extends Controller
 
             return back()->with('status', 'Password reset link sent.');
         } catch (\Exception $e) {
-            return back()->withErrors(['email' => 'Unable to send reset link.']);
+            return back()->withErrors(['email' => $e->getMessage()]);
         }
     }
 

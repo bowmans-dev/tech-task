@@ -42,7 +42,15 @@ return [
         ],
         'admin' => [
             'driver' => 'session',
-            'provider' => 'admins', // Points to the new admin provider
+            'provider' => 'admins',
+        ],
+        'admin:api' => [
+            'driver' => 'jwt',
+            'provider' => 'admins',
+        ],
+        'user:api' => [
+            'driver' => 'jwt',
+            'provider' => 'users',
         ],
     ],
 
@@ -66,7 +74,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\User::class), // Keeps the default User model
+            'model' => App\Models\User::class, // Keeps the default User model
         ],
         'admins' => [
             'driver' => 'eloquent',

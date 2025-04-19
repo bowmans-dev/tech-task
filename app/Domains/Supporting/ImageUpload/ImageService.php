@@ -30,8 +30,40 @@ class ImageService
         }
     }
 
+
+
     public function delete($profilePicturePath): void
     {
         Storage::disk('public')->delete($profilePicturePath);
+    }
+
+
+
+    public function uploadProfilePicture(array &$data): void
+    {
+        if (isset($data['profile_picture'])) {
+            $data['profile_picture'] = $this->upload($data['profile_picture']);
+        }
+    }
+
+
+
+    public function replaceProfilePicture(array &$data, ?string $currentPicture): void
+    {
+        if (isset($data['profile_picture'])) {
+            if ($currentPicture && Storage::disk('public')->exists($currentPicture)) {
+                $this->delete($currentPicture);
+            }
+            $data['profile_picture'] = $this->upload($data['profile_picture']);
+        }
+    }
+
+
+
+    public function deleteProfilePicture(?string $profilePicture): void
+    {
+        if ($profilePicture && Storage::disk('public')->exists($profilePicture)) {
+            $this->delete($profilePicture);
+        }
     }
 }

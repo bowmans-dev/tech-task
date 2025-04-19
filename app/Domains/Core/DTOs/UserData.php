@@ -2,10 +2,10 @@
 
 namespace App\Domains\Core\DTOs;
 
-use App\Domains\Core\ValueObjects\Country;
 use App\Domains\Core\ValueObjects\Email;
 use App\Domains\Core\ValueObjects\Password;
 use App\Domains\Core\ValueObjects\Phone;
+use App\Domains\Core\ValueObjects\Country;
 use App\Domains\Core\ValueObjects\ProfilePicture;
 use App\Models\User as EloquentUserModel;
 

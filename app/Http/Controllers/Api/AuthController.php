@@ -9,6 +9,11 @@ use Illuminate\Http\Request; // Add logging
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Hash;
+use App\Models\Admin;
+use App\Models\User;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class AuthController extends Controller
 {
@@ -21,7 +26,6 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-
         try {
 
             $credentials = $request->validate([
@@ -29,29 +33,35 @@ class AuthController extends Controller
                 'password' => 'required|string',
             ]);
 
+            $isAdmin = Admin::where('email', $credentials['email'])->exists();
+            $isUser  = User::where('email', $credentials['email'])->exists();
 
-            if (Auth::guard('admin')->attempt($credentials)) {
-                Log::info('Admin login successful');
-                $request->session()->regenerate();
+            if ($isAdmin) {
+                $guard = 'admin:api';
+            } 
+            if ($isUser) {
+                $guard = 'user:api';
+            } 
 
-                return $this->successResponse(null, 'Admin logged in successfully.', 200);
+            if (!isset($guard)) {
+                return $this->errorResponse('Invalid credentials provided.', 401);
             }
 
+            auth()->shouldUse($guard);
 
-            if (Auth::guard('web')->attempt($credentials)) {
-                Log::info('User login successful');
-                $request->session()->regenerate();
-
-                return $this->successResponse(null, 'User logged in successfully.', 200);
+            if (!$token = JWTAuth::attempt($credentials)) {
+                Log::warning('JWT Attempt Failed', ['credentials' => $credentials['email']]);
+                return $this->errorResponse('Invalid credentials provided.', 401);
             }
 
-            Log::info('Login failed: Invalid credentials'); 
-
-            return $this->errorResponse('Invalid credentials provided.', 401);
+            return $this->successResponse(ucfirst($guard) . ' logged in successfully.', 200, null, $token);
+            
+        } catch (JWTException $e) {
+            Log::error('JWT Exception:', ['message' => $e->getMessage()]);
+            return $this->errorResponse('Could not create token.', 500, $e->getMessage());
 
         } catch (\Exception $e) {
-            Log::error('Login exception:', ['message' => $e->getMessage()]); 
-
+            Log::error('Login Exception:', ['message' => $e->getMessage()]);
             return $this->errorResponse('Login failed.', 500, $e->getMessage());
         }
     }
@@ -66,33 +76,47 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         try {
-            Log::info('Entering logout method');
 
+            $token = $request->bearerToken();
 
-            if (Auth::guard('admin')->check()) {
+            if (!$token) {
+                return $this->errorResponse('Token not provided.', 401);
+            }
+            
+            // Bind the token to the JWTAuth instance.
+            JWTAuth::setToken($token);
+            
 
-                Log::info('Admin guard detected, logging out');
-                Auth::guard('admin')->logout();
+            $admin = Auth::guard('admin:api')->user();
 
-            } else {
-
-                Log::info('Web guard detected, logging out'); 
-                Auth::guard('web')->logout();
+            if ($admin) {
+                Log::info('Admin authenticated for logout:', ['user' => $admin]);
+                JWTAuth::invalidate($token); // Invalidate the provided token.
+                return $this->successResponse('Admin logged out successfully.', 200);
             }
 
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-            Log::info('Session invalidated and token regenerated');
+            $user = Auth::guard('user:api')->user();
 
-            return $this->successResponse(null, 'Logged out successfully.', 200);
+            if ($user) {
+                Log::info('User authenticated for logout:', ['user' => $user]);
+                JWTAuth::invalidate($token);
+                return $this->successResponse('User logged out successfully.', 200);
+            }
+
+            Log::warning('Unauthorized logout attempt.');
+            return $this->errorResponse('Unauthorized.', 401);
+            
+        } catch (JWTException $e) {
+            Log::error('Logout failed due to invalid token:', ['message' => $e->getMessage()]);
+            return $this->errorResponse('Invalid or expired token.', 401);
+
         } catch (\Exception $e) {
             Log::error('Logout exception:', ['message' => $e->getMessage()]);
-
             return $this->errorResponse('Logout failed.', 500, $e->getMessage());
         }
     }
-
-    #
+  
+    
 
     /**
      * Send reset password link.
@@ -122,7 +146,7 @@ class AuthController extends Controller
             $user->notify(new ResetPasswordNotification($token));
             Log::info('Notification sent');
 
-            return $this->successResponse(null, 'Reset password link sent successfully.', 200);
+            return $this->successResponse('Reset password link sent successfully.', 200);
 
         } catch (\Exception $e) {
             
@@ -133,7 +157,7 @@ class AuthController extends Controller
     }
 
 
-
+ 
     /**
      * Handle password reset requests.
      *
@@ -142,14 +166,12 @@ class AuthController extends Controller
     public function resetPassword(Request $request)
     {
         try {
-            Log::info('Entering resetPassword method');
 
             $request->validate([
                 'email' => 'required|email',
                 'password' => 'required|confirmed|min:8',
                 'token' => 'required',
             ]);
-            Log::info('Reset request validated:', $request->all());
 
             $response = $this->broker()->reset(
                 $request->only('email', 'password', 'password_confirmation', 'token'),
@@ -163,14 +185,12 @@ class AuthController extends Controller
             if ($response == Password::PASSWORD_RESET) {
                 Log::info('Password reset successful');
 
-                return $this->successResponse(null, 'Password reset successfully.', 200);
+                return $this->successResponse('Password reset successfully.', 200);
             }
 
-            Log::info('Password reset failed:', ['response' => $response]);
-
             return $this->errorResponse('Failed to reset password.', 400, trans($response));
+
         } catch (\Exception $e) {
-            Log::error('ResetPassword exception:', ['message' => $e->getMessage()]);
 
             return $this->errorResponse('An error occurred while resetting the password.', 500, $e->getMessage());
         }

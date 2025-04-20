@@ -5,52 +5,116 @@
 ![Users List Screenshot](./screenshots/users_list_screenshot.png)
 
 ---
-# Set Up Guide
+
+### **Environment Setup**
+These steps set up the environment variables and generate necessary keys for authentication:
 ```bash
 cp .env.example .env
-```
-
-```bash
 php artisan key:generate
-```
-```bash
 php artisan jwt:secret
 ```
+
+---
+
+### **Install Dependencies**
+Install the required dependencies for the project:
 ```bash
 npm i
-```
-```bash
 composer install
 ```
 
+---
+
+### **Setup Database**
+Set up the database and populate it with initial data:
 ```bash
 php artisan migrate
-```
-```bash
 php artisan db:seed
 ```
+
 ```bash
 Generates Users & Admin Login:
-'email' => 'admin@example.com',
-'password' => 'test1234',
+'email': admin@example.com
+'password': test1234
 ```
+
+---
+
+### **Run The Application**
+Build front-end assets and start the local development server:
 ```bash
 npm run dev
-```
-```bash
 php artisan serve
 ```
-#### ! Important (required to simulate password reset link email found in storage/laravel.log)
+
+---
+
+### **Start The Queue (Important)**
+(required to simulate password reset link email found in storage/laravel.log):
 ```bash
 php artisan queue:work
 ```
 
 ---
+<br>
 
-# System Diagram
-![System Diagram](./screenshots/system_diagram.png)
+# Core Domain Model - User Diagram (Conceptual Flow)
+![System Diagram](./screenshots/Core_Domain_Model_Diagram_(Conceptual_Flow).png)
+
+### The User Service acts as the entry point for managing user-related CRUD operations. (It delegates core domain responsibilities to the User Aggregate).
+
+### The User Aggregate enforces business rules, validates input via the DTO (UserData), and constructs the User Entity. 
+
+### The User Entity encapsulates key aspects of user data through Value Objects such as Email, Password, Phone, Country, and Profile Picture.
+
+<br>
+
+### The User Service, after ensuring domain logic consistency and business rules through the User Aggregate, is then responsible for publishing domain events through the Domain Event Publisher. 
+
+### The Domain Event Publisher broadcasts changes in the system, such as UserCreatedEvent or UserUpdatedEvent, which are then handled by Event Subscribers and Event Listeners. 
+
+### These listeners perform actions like persisting user data to the database through the User Repository, ensuring the domain remains decoupled and reactive.
 
 
+
+
+<br><br>
+
+# System Diagram 
+![System Diagram](./screenshots/System_Diagram_(Conceptual_Flow).png)
+
+
+### This diagram shows the complete flow from a given request and emphasizes the authentication methods and modular approach of this user management system. 
+
+<br>
+
+### Web routes use *session-based authentication* and are handled by dedicated Web controllers for browser-based interactions:
+
+- ### (Web) Auth Controller (Managing registration, session based *(user / admin)* authentication and login, and logout functionality)
+- ### (Web) Users Controller 
+- ### (Web) Admin Controller
+
+<br>
+
+### API routes rely on *JWT-based* authentication and feature their own set of API controllers for managing API calls:
+
+- ### (API) Auth Controller  (Managing JWT-based *(user / admin)* authentication and login, logout functionality)
+- ### (API) Users Controller
+- ### (API) Admin Controller
+
+<br>
+
+ ### The Auth Controllers also integrates with a password reset service to handle user recovery workflows. 
+ 
+ ### The User Service incorporates an Image Service for handling external tasks like image optimisation through conversion to webp format and for profile picture uploads. 
+ 
+ ### The User Service, being decoupled from the application layer's controllers and the infrastructure layer, coordinates with domain constructs and external services efficiently.
+ 
+ ### This allows integration with any additional services while maintaining scalability and modularity across the architecture. 
+
+ ---
+
+<br><br><br>
 
 
 

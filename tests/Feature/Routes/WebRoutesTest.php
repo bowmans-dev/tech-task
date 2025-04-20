@@ -63,7 +63,7 @@ class WebRoutesTest extends TestCase
         ]);
 
         $response->assertStatus(302)
-            ->assertSessionHasErrors(['email' => 'The provided credentials do not match our records.']);
+            ->assertSessionHasErrors(['email' => 'The provided credentials are incorrect.']);
     }
 
     /**
@@ -75,7 +75,7 @@ class WebRoutesTest extends TestCase
         $this->actingAs($user, 'web');
 
         $response = $this->post(route('logout'));
-        $response->assertRedirect('/')->assertSessionHas('success', 'You have been logged out successfully.');
+        $response->assertRedirect('/login')->assertSessionHas('success', 'You have been logged out successfully.');
         $this->assertGuest('web');
     }
 

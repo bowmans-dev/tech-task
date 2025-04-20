@@ -58,7 +58,11 @@ class AuthController extends Controller
         }
 
 
-        return back()->with('auth.failed', 'The provided credentials are incorrect.');
+        $errorMessage = 'The provided credentials are incorrect.';
+        return back()
+            ->withErrors(['email' => $errorMessage])
+            ->with('auth.failed', $errorMessage)
+            ->withInput();
     }
 
 
@@ -71,7 +75,7 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/')->with('success', 'You have been logged out successfully.');
+        return redirect('/login')->with('success', 'You have been logged out successfully.');
     }
 
 

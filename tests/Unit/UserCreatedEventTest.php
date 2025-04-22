@@ -3,7 +3,7 @@
 namespace Tests\Unit;
 
 use App\Domains\Core\Aggregates\UserAggregate;
-use App\Domains\Shared\Events\UserCreatedEvent;
+use App\Domains\Shared\Events\DomainEvents\Users\UserCreatedEvent;
 use Tests\TestCase;
 
 class UserCreatedEventTest extends TestCase

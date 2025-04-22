@@ -3,7 +3,7 @@
 namespace Tests\Unit;
 
 use App\Domains\Core\Aggregates\UserAggregate;
-use App\Domains\Shared\Events\UserUpdatedEvent;
+use App\Domains\Shared\Events\DomainEvents\Users\UserUpdatedEvent;
 use App\Domains\Core\ValueObjects\Email;
 use App\Domains\Core\ValueObjects\Password;
 use App\Domains\Core\ValueObjects\Phone;

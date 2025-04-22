@@ -6,9 +6,9 @@ use App\Models\User;
 use App\Domains\Core\Aggregates\UserAggregate;
 use App\Domains\Core\Repositories\UserRepositoryInterface;
 use App\Domains\Shared\Events\DomainEventPublisher;
-use App\Domains\Shared\Events\UserCreatedEvent;
-use App\Domains\Shared\Events\UserUpdatedEvent;
-use App\Domains\Shared\Events\UserDeletedEvent;
+use App\Domains\Shared\Events\DomainEvents\Users\UserCreatedEvent;
+use App\Domains\Shared\Events\DomainEvents\Users\UserUpdatedEvent;
+use App\Domains\Shared\Events\DomainEvents\Users\UserDeletedEvent;
 use App\Domains\Supporting\ImageUpload\ImageService;
 use Illuminate\Pagination\LengthAwarePaginator;
 

@@ -1,8 +1,9 @@
 <?php
 
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\Web\AdminController;
+use App\Http\Controllers\Web\AuthController;
+use App\Http\Controllers\Web\UserController;
+use App\Http\Controllers\Web\UserGroupController;
 use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Route;
 
@@ -13,6 +14,9 @@ Route::group([], function () {
     Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
     Route::post('/login', [AuthController::class, 'login'])->name('login');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::post('/user-groups/add-user', [UserGroupController::class, 'store'])->name('user_groups.store');
+    Route::post('/user-groups/add-group', [UserGroupController::class, 'store'])->name('groups.store'); 
+    Route::post('/user-groups/remove-user', [UserGroupController::class, 'removeUser'])->name('user_groups.remove');
 });
 
 // Password reset routes

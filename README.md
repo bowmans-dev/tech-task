@@ -31,12 +31,18 @@ Set up the database and populate it with initial data:
 php artisan migrate
 php artisan db:seed
 ```
-
 ```bash
 Generates Users & Admin Login:
 'email': admin@example.com
 'password': test1234
 ```
+
+(optional) seed groups
+```bash
+php artisan db:seed --class=GroupSeeder
+```
+
+
 
 ---
 

@@ -44,10 +44,6 @@ class User extends Authenticatable implements JWTSubject
         ];
     }
 
-    // public function groups()
-    // {
-    //     return $this->belongsToMany(Group::class, 'user_groups'); // Specifies the pivot table
-    // }
     public function groups()
     {
         return $this->belongsToMany(Group::class, 'user_groups', 'user_id', 'group_id');

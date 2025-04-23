@@ -17,6 +17,7 @@ Route::group([], function () {
     Route::post('/user-groups/add-user', [UserGroupController::class, 'store'])->name('user_groups.store');
     Route::post('/user-groups/add-group', [UserGroupController::class, 'store'])->name('groups.store'); 
     Route::post('/user-groups/remove-user', [UserGroupController::class, 'removeUser'])->name('user_groups.remove');
+    Route::delete('/groups/{id}', [UserGroupController::class, 'deleteGroup'])->name('groups.destroy');
 });
 
 // Password reset routes

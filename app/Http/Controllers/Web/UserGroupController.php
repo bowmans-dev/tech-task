@@ -50,6 +50,24 @@ class UserGroupController extends Controller
     }
 
     /**
+     * Delete a group.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function deleteGroup(Request $request)
+    {
+        // Validate the request
+        $validated = $request->validate([
+            'group_id' => 'required|exists:groups,id',
+        ]);
+
+        // Delegate to the GroupService and return the response directly
+        return $this->groupService->deleteGroup($validated['group_id']);
+    }
+
+
+    /**
      * Remove a user from a group.
      *
      * @param \Illuminate\Http\Request $request

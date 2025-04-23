@@ -17,13 +17,25 @@
         </div>
       
         <!-- Center Block -->
-        <div class="left-1/2 pl-24 w-40">
+        <div class="center-block left-1/2 pl-24 w-40">
             <p class="text-xs text-gray-500 w-20 truncate">{{ $user->country ?? 'N/A' }}</p>
             <p class="text-xs text-gray-500 no-wrap w-40">{{ $user->phone ?? 'N/A' }}</p>
         </div>
+
+        <!-- Center Right LG Screen Group Badge Block -->
+        <div data-user-id="{{ $user->id }}"  class="group-badges-container hidden xl:flex xl:flex-wrap ml-[2rem] w-[250px] max-w-[250px]">
+          @isset($groups)
+            @foreach ($groups as $group)
+            <p data-group-id="{{ $group->id }}" data-user-id="{{ $user->id }}" 
+              class="group-badge {{ in_array($group->id, $user->groupIds) ? 'whitespace-nowrap inline-block text-[0.58rem] font-semibold text-white bg-gray-400 rounded-full mb-0.25 px-1.5 py-[0.1px] m-[1px] ml-2' : 'hidden' }}">
+              {{ in_array($group->id, $user->groupIds) ? $group->name : '' }}
+           </p>
+            @endforeach
+          @endisset
+        </div>
       
         <!-- Right Block -->
-        <div class="absolute hidden sm:block right-12 w-full text-right">
+        <div class="right-block absolute hidden sm:block right-12 text-right">
           <p class="text-xs text-gray-500 truncate">Created: {{ $user->created_at->diffForHumans() }}</p>
           <p class="text-xs text-gray-900 truncate">Updated: {{ $user->updated_at->diffForHumans() }}</p>
         </div>
@@ -44,7 +56,7 @@
               <div class="relative block px-4 py-2 hover:bg-gray-100 whitespace-nowrap" onclick="toggleSubMenu(event)">
                 Add to Group
                 <!-- Sub-context menu -->
-                <div class="absolute hidden bg-white shadow-md rounded-md py-2 text-sm text-gray-700 top-0 right-full w-auto sub-context-menu">
+                <div data-user-id="{{ $user->id }}" class="absolute hidden bg-white shadow-md rounded-md py-2 text-sm text-gray-700 top-0 right-full w-auto sub-context-menu">
                   <!-- Create New Group -->
                   <div class="flex items-center px-4 py-2">
                     <input
@@ -65,7 +77,7 @@
                   <!-- Existing Groups -->
                   @isset($groups)
                     @foreach ($groups as $group)
-                    <div class="relative block px-4 py-2 whitespace-nowrap {{ in_array($group->id, $user->groupIds) ? 'bg-green-100' : 'bg-white-100' }}" onclick="addUserToGroup(event, {{ $group->id }}, {{ $user->id }})">
+                    <div data-group-id="{{ $group->id }}" class="group-{{ $group->id }} relative block px-4 py-2 whitespace-nowrap {{ in_array($group->id, $user->groupIds) ? 'bg-green-100' : 'bg-white-100' }}" onclick="addUserToGroup(event, {{ $group->id }}, {{ $user->id }}, '{{ addslashes($group->name) }}')">
                       {{ $group->name }}
                       <div class="absolute right-6 top-0 bottom-0 flex items-center remove-user-from-group" style="{{ in_array($group->id, $user->groupIds) ? 'display: flex;' : 'display: none;' }}">
                             <svg

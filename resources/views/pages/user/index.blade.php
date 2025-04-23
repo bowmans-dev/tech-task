@@ -15,7 +15,7 @@
     
     <main class="container mx-auto py-8">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div class="mx-auto max-w-2xl">
+            <div class="mx-auto max-w-2xl lg:mx-0 lg:[max-width:calc(100vw-400px)] lg:[margin-left:250px]">
                 <!-- Search Input -->
                 <div class="relative mb-6 m-4">
                     <div class="absolute inset-y-0 start-0 flex items-center pointer-events-none z-20 ps-3.5">
@@ -39,3 +39,33 @@
         </div>
     </main>
 @endsection
+<script>
+      function adjustGroupBadgeWidth() {
+  // Loop through all user rows
+  const userRows = document.querySelectorAll('.user-row li');
+
+  userRows.forEach((row) => {
+    // Get the Center Block, Group Badges Container, and Right Block
+    const centerBlock = row.querySelector('.center-block');
+    const rightBlock = row.querySelector('.right-block');
+    const badgesContainer = row.querySelector('.group-badges-container');
+
+    if (centerBlock && rightBlock && badgesContainer) {
+      // Calculate the available space between the center block and right block
+      const centerBlockRect = centerBlock.getBoundingClientRect();
+      const rightBlockRect = rightBlock.getBoundingClientRect();
+
+      const availableSpace = rightBlockRect.left - centerBlockRect.right;
+
+      // Dynamically set the width and max-width of the badges container
+      const adjustedWidth = Math.max(0, availableSpace - 34); // Add padding/margin buffer if needed
+      badgesContainer.style.width = `${adjustedWidth}px`;
+      badgesContainer.style.maxWidth = `${adjustedWidth}px`;
+    }
+  });
+}
+
+// Run the function on page load and window resize
+window.addEventListener('load', adjustGroupBadgeWidth);
+window.addEventListener('resize', adjustGroupBadgeWidth);
+</script>

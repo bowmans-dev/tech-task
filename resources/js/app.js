@@ -4,7 +4,7 @@ import './UserGroup.js';
 import { start } from "@hotwired/turbo";
 start();
 
-import { createGroup, addUserToGroup, removeUserFromGroup } from './UserGroup';
+import { createGroup, addUserToGroup, removeUserFromGroup, deleteGroup } from './UserGroup';
 
 // resources/js/app.js
 
@@ -30,5 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.createGroup = createGroup;
+window.deleteGroup = deleteGroup;
 window.addUserToGroup = addUserToGroup;
 window.removeUserFromGroup = removeUserFromGroup;

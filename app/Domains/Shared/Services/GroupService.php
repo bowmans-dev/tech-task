@@ -5,6 +5,7 @@ namespace App\Domains\Shared\Services;
 use App\Models\User;
 use App\Models\Group;
 use App\Domains\Shared\Events\DomainEvents\Groups\GroupCreatedEvent;
+use App\Domains\Shared\Events\DomainEvents\Groups\GroupDeletedEvent;
 use App\Domains\Shared\Events\DomainEvents\Groups\UserAddedToGroupEvent;
 use App\Domains\Shared\Events\DomainEvents\Groups\UserRemovedFromGroupEvent;
 use App\Domains\Shared\Events\DomainEventPublisher;
@@ -22,13 +23,10 @@ class GroupService
         $user = User::findOrFail($userId);
         $group = Group::findOrFail($groupId);
 
-        // Publish domain event using DomainEventPublisher
         DomainEventPublisher::publish(new UserAddedToGroupEvent($user, $group));
 
-        // Fetch updated groups for rendering the Turbo Stream
         $groups = Group::with('users')->get();
 
-        // Include additional data in the Turbo Stream template
         return response(
             turbo_stream()
                 ->target('groups-accordion')
@@ -47,22 +45,38 @@ class GroupService
     {
         $group = new Group(['name' => $name]);
 
-        // Publish domain event using DomainEventPublisher
         DomainEventPublisher::publish(new GroupCreatedEvent($group));
 
-        // Fetch the latest groups with their users
         $groups = Group::with('users')->get();
 
-        // Generate the Turbo Stream response.
         return response([
             'turbo_stream' => turbo_stream()
                 ->target('groups-accordion')
                 ->action('replace')
                 ->view('components.navigation.turbo-streams.group-accordion', compact('groups'))
                 ->render(),
-            'new_group_id' => $group->id, // Return the new group ID.
+            'new_group_id' => $group->id,
         ], 200)->header('Content-Type', 'application/json');
 
+    }
+
+    /**
+     * Delete a group and publish an event for its deletion.
+     *
+     * @param int $groupId
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteGroup($groupId)
+    {
+
+        DomainEventPublisher::publish(new GroupDeletedEvent($groupId));
+
+        $groups = Group::with('users')->get();
+
+        return turbo_stream()
+            ->target('groups-accordion')
+            ->action('replace')
+            ->view('components.navigation.turbo-streams.group-accordion', compact('groups'));
     }
     
 
@@ -77,13 +91,10 @@ class GroupService
         $user = User::findOrFail($userId);
         $group = Group::findOrFail($groupId);
 
-        // Publish domain event using DomainEventPublisher
         DomainEventPublisher::publish(new UserRemovedFromGroupEvent($user, $group));
 
-        // Fetch the latest groups with their users
         $groups = Group::with('users')->get();
 
-        // Generate the Turbo Stream response
         return turbo_stream()
             ->target('groups-accordion')
             ->action('replace')

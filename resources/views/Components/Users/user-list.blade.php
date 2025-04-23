@@ -62,7 +62,7 @@
                     <input
                         type="text"
                         id="new-group-name-{{ $user->id }}"
-
+                        onclick="event.stopPropagation()"
                         placeholder="Create New Group"
                         class="flex-grow border rounded-md px-2 py-1 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         value=""

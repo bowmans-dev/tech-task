@@ -31,7 +31,7 @@ class GroupService
             turbo_stream()
                 ->target('groups-accordion')
                 ->action('replace')
-                ->view('components.navigation.turbo-streams.group-accordion', compact('groups', 'user', 'group'))
+                ->view('components.navigation.group-accordion', compact('groups', 'user', 'group'))
         )->header('Content-Type', 'text/vnd.turbo-stream.html');
 
     }
@@ -53,7 +53,7 @@ class GroupService
             'turbo_stream' => turbo_stream()
                 ->target('groups-accordion')
                 ->action('replace')
-                ->view('components.navigation.turbo-streams.group-accordion', compact('groups'))
+                ->view('components.navigation.group-accordion', compact('groups'))
                 ->render(),
             'new_group_id' => $group->id,
         ], 200)->header('Content-Type', 'application/json');
@@ -76,7 +76,7 @@ class GroupService
         return turbo_stream()
             ->target('groups-accordion')
             ->action('replace')
-            ->view('components.navigation.turbo-streams.group-accordion', compact('groups'));
+            ->view('components.navigation.group-accordion', compact('groups'));
     }
     
 
@@ -98,7 +98,7 @@ class GroupService
         return turbo_stream()
             ->target('groups-accordion')
             ->action('replace')
-            ->view('components.navigation.turbo-streams.group-accordion', compact('groups'));
+            ->view('components.navigation.group-accordion', compact('groups'));
 
         return response()->json([
             'success' => true,

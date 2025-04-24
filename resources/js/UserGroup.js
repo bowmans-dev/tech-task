@@ -226,7 +226,7 @@ export function removeUserFromGroup(event, groupId, userId) {
         if (badgesContainer) {
           const groupBadge = badgesContainer.querySelector(`.group-badge[data-group-id="${groupId}"]`);
           if (groupBadge) {
-            groupBadge.classList.add('hidden'); // Hide the badge.
+            groupBadge.remove(); // Hide the badge.
           }
         }
 

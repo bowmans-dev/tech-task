@@ -103,19 +103,4 @@
         </div>
       </div>
     </main>
-
-    <script>
-        document.getElementById('search').addEventListener('input', function () {
-            let search = this.value;
-
-            // Send AJAX request to filter route
-            fetch(`/users/filter?search=${encodeURIComponent(search)}`)
-                .then(response => response.text())
-                .then(data => {
-                    // Replace the user list with the updated results
-                    document.getElementById('user-list').innerHTML = data;
-                })
-                .catch(error => console.error('Error:', error));
-        });
-    </script>
 @endsection

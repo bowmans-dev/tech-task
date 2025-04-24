@@ -23,16 +23,18 @@
         </div>
 
         <!-- Center Right LG Screen Group Badge Block -->
-        <div data-user-id="{{ $user->id }}"  class="group-badges-container hidden xl:flex xl:flex-wrap ml-[2rem] w-[250px] max-w-[250px]">
+        <div data-user-id="{{ $user->id }}" class="group-badges-container hidden xl:flex xl:flex-wrap ml-[2rem] w-[250px] max-w-[250px]">
           @isset($groups)
-            @foreach ($groups as $group)
-            <p data-group-id="{{ $group->id }}" data-user-id="{{ $user->id }}" 
-              class="group-badge {{ in_array($group->id, $user->groupIds) ? 'whitespace-nowrap inline-block text-[0.58rem] font-semibold text-white bg-gray-400 rounded-full mb-0.25 px-1.5 py-[0.1px] m-[1px] ml-2' : 'hidden' }}">
-              {{ in_array($group->id, $user->groupIds) ? $group->name : '' }}
-           </p>
-            @endforeach
+              @foreach ($groups as $group)
+                  @if (in_array($group->id, $user->groupIds))
+                      <p data-group-id="{{ $group->id }}" data-user-id="{{ $user->id }}"
+                          class="group-badge whitespace-nowrap inline-block text-[0.58rem] font-semibold text-white bg-gray-400 rounded-full mb-0.25 px-1.5 py-[0.1px] m-[1px] ml-2">
+                          {{ $group->name }}
+                      </p>
+                  @endif
+              @endforeach
           @endisset
-        </div>
+      </div>
       
         <!-- Right Block -->
         <div class="right-block absolute hidden sm:block right-12 text-right">
@@ -107,6 +109,23 @@
     </li>
 </ul>
 <!-- Pagination Links -->
-<div class="mt-4">
+<div id="pagination-buttons-container" class="mt-4">
   {{ $users->withQueryString()->links() }}
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const paginationContainer = document.getElementById('pagination-buttons-container');
+    if (!paginationContainer) return;
+
+    paginationContainer.addEventListener('click', function (event) {
+        const link = event.target.closest('a'); // Get the clicked link within the pagination container
+        if (link && link.href) {
+            event.preventDefault(); // Prevent the default link behavior
+            console.log('RELOADING');
+            // Redirect to the clicked pagination link, which will refresh the page
+            window.location.href = link.href;
+        }
+    });
+});
+</script>

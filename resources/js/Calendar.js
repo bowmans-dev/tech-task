@@ -48,7 +48,7 @@ export function handleDrop(event) {
 window.handleDrop = handleDrop;
 
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('turbo:load', function () {
     const calendarEl = document.getElementById('calendar');
     const sidebarEl = document.getElementById('groups-accordion');
 

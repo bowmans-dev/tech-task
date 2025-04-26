@@ -3,10 +3,12 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
+        "build:tailwind": "npx @tailwindcss/cli -i ./resources/css/app.css -o ./public/css/app.css --minify",
         "dev": "vite"
     },
     "devDependencies": {
         "@popperjs/core": "^2.11.8",
+        "@tailwindcss/cli": "^4.1.4",
         "@tailwindcss/postcss": "^4.1.4",
         "@tailwindcss/vite": "^4.1.4",
         "autoprefixer": "^10.4.21",
@@ -14,6 +16,7 @@
         "bootstrap": "^5.3.5",
         "concurrently": "^9.0.1",
         "laravel-vite-plugin": "^1.2.0",
+        "postcss": "^8.5.3",
         "sass": "^1.56.1",
         "tailwindcss": "^4.1.4",
         "vite": "^6.3.3"

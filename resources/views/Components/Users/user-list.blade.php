@@ -1,8 +1,20 @@
-<ul role="list" class="divide-y h-full divide-gray-100 p-3 user-row">
+<style>
+  @media (max-width: 500px) {
+    .center-block {
+      display: none;
+    }
+  }
+  @media (max-width: 435px) {
+    .sub-context-menu {
+      position: static;
+    }
+  }
+</style>
+<ul role="list" class="divide-y h-full divide-gray-100 p-3">
     @foreach ($users as $user)
-    <li class="relative rounded-full flex flex-row p-1 h-10 mb-3 cursor-pointer hover:bg-gray-200"> <!-- Make it relative for children -->
-      <a href="{{ route('users.show', $user->id) }}" class="flex items-center w-full">
-        <!-- Profile Image (optional, aligned to the left) -->
+    <li class="user-row relative rounded-full flex flex-row p-1 h-10 mb-3 cursor-pointer hover:bg-gray-200">
+      <a href="{{ route('users.show', $user->id) }}" class="user-drop-link flex items-center w-full" draggable="true" data-user-id="{{ $user->id }}" data-profile-picture="./storage/{{ $user->profile_picture }}" data-first-name="{{ $user->first_name }}" data-last-name="{{ $user->last_name }}">
+        
         <img 
           class="rounded-full bg-gray-50 h-8 w-8 left-1 flex-shrink-0 object-cover" 
           src="{{ $user->profile_picture ? asset('storage/' . $user->profile_picture) : asset('storage/default_profile_image.png') }}" 
@@ -34,7 +46,7 @@
                   @endif
               @endforeach
           @endisset
-      </div>
+        </div>
       
         <!-- Right Block -->
         <div class="right-block absolute hidden sm:block right-12 text-right">
@@ -82,17 +94,17 @@
                     <div data-group-id="{{ $group->id }}" class="group-{{ $group->id }} relative block px-4 py-2 whitespace-nowrap {{ in_array($group->id, $user->groupIds) ? 'bg-green-100' : 'bg-white-100' }}" onclick="addUserToGroup(event, {{ $group->id }}, {{ $user->id }}, '{{ addslashes($group->name) }}')">
                       {{ $group->name }}
                       <div class="absolute right-6 top-0 bottom-0 flex items-center remove-user-from-group" style="{{ in_array($group->id, $user->groupIds) ? 'display: flex;' : 'display: none;' }}">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                height="20px"
-                                viewBox="0 -960 960 960"
-                                width="20px"
-                                fill="#5D0E07"
-                                onclick="removeUserFromGroup(event, {{ $group->id }}, {{ $user->id }})"
-                                class="cursor-pointer hover:fill-red-600"
-                            >
-                                <path d="M288-444h384v-72H288v72ZM480.28-96Q401-96 331-126t-122.5-82.5Q156-261 126-330.96t-30-149.5Q96-560 126-629.5q30-69.5 82.5-122T330.96-834q69.96-30 149.5-30t149.04 30q69.5 30 122 82.5T834-629.28q30 69.73 30 149Q864-401 834-331t-82.5 122.5Q699-156 629.28-126q-69.73 30-149 30Zm-.28-72q130 0 221-91t91-221q0-130-91-221t-221-91q-130 0-221 91t-91 221q0 130 91 221t221 91Zm0-312Z" />
-                            </svg>
+                        <svg
+                           xmlns="http://www.w3.org/2000/svg"
+                           height="20px"
+                           viewBox="0 -960 960 960"
+                           width="20px"
+                           fill="#5D0E07"
+                           onclick="removeUserFromGroup(event, {{ $group->id }}, {{ $user->id }})"
+                           class="cursor-pointer hover:fill-red-600"
+                        >
+                          <path d="M288-444h384v-72H288v72ZM480.28-96Q401-96 331-126t-122.5-82.5Q156-261 126-330.96t-30-149.5Q96-560 126-629.5q30-69.5 82.5-122T330.96-834q69.96-30 149.5-30t149.04 30q69.5 30 122 82.5T834-629.28q30 69.73 30 149Q864-401 834-331t-82.5 122.5Q699-156 629.28-126q-69.73 30-149 30Zm-.28-72q130 0 221-91t91-221q0-130-91-221t-221-91q-130 0-221 91t-91 221q0 130 91 221t221 91Zm0-312Z" />
+                        </svg>
                       </div>
                     </div>
                     @endforeach
@@ -108,6 +120,7 @@
         @endforeach
     </li>
 </ul>
+
 <!-- Pagination Links -->
 <div id="pagination-buttons-container" class="mt-4">
   {{ $users->withQueryString()->links() }}
@@ -119,11 +132,10 @@
     if (!paginationContainer) return;
 
     paginationContainer.addEventListener('click', function (event) {
-        const link = event.target.closest('a'); // Get the clicked link within the pagination container
+        const link = event.target.closest('a');
         if (link && link.href) {
-            event.preventDefault(); // Prevent the default link behavior
+            event.preventDefault();
             console.log('RELOADING');
-            // Redirect to the clicked pagination link, which will refresh the page
             window.location.href = link.href;
         }
     });

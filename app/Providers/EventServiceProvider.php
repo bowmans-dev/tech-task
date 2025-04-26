@@ -20,6 +20,9 @@ use App\Domains\Shared\Events\Listeners\Groups\HandleGroupDeleted;
 use App\Domains\Shared\Events\Listeners\Groups\PersistUserOnUserAddedToGroup;
 use App\Domains\Shared\Events\Listeners\Groups\HandleUserRemovedFromGroup;
 
+use App\Domains\Shared\Events\DomainEvents\Calendar\CalendarEntryCreatedEvent;
+use App\Domains\Shared\Events\Listeners\Calendar\PersistCalendarEntryOnCreated;
+
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -45,6 +48,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         UserRemovedFromGroupEvent::class => [
             HandleUserRemovedFromGroup::class,
+        ],
+        CalendarEntryCreatedEvent::class => [
+            PersistCalendarEntryOnCreated::class,
         ],
 
     ];

@@ -6,30 +6,32 @@ start();
 
 import { createGroup, addUserToGroup, removeUserFromGroup, deleteGroup } from './UserGroup';
 
-// resources/js/app.js
+window.createGroup = createGroup;
+window.deleteGroup = deleteGroup;
+window.addUserToGroup = addUserToGroup;
+window.removeUserFromGroup = removeUserFromGroup;
 
 import { setupAccordionToggles } from './Accordion';
 import { toggleSidebar } from './Sidebar';
 import { setupSearchInput } from './Search';
 import { setupContextMenu, toggleContextMenu, toggleSubMenu } from './ContextMenu';
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Setup accordion toggles
+document.addEventListener('turbo:load', () => {
+
   setupAccordionToggles();
 
-  // Setup search functionality
   setupSearchInput();
 
-  // Setup context menu functionality
   setupContextMenu();
 
-  // Attach toggleSidebar, toggleContextMenu, and toggleSubMenu to the window for inline event handlers
   window.toggleSidebar = toggleSidebar;
   window.toggleContextMenu = toggleContextMenu;
   window.toggleSubMenu = toggleSubMenu;
 });
 
-window.createGroup = createGroup;
-window.deleteGroup = deleteGroup;
-window.addUserToGroup = addUserToGroup;
-window.removeUserFromGroup = removeUserFromGroup;
+
+import './Calendar';
+
+import { handleDrop } from './Calendar';
+
+window.handleDrop = handleDrop;

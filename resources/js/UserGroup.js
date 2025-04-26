@@ -22,7 +22,7 @@ export function createGroup(event, userId) {
     return;
   }
 
-  fetch('/user-groups/add-group', {
+  fetch('/groups/create-group', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

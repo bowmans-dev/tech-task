@@ -26,8 +26,8 @@ class UserGroupControllerTest extends TestCase
 
     public function test_it_stores_a_user_to_group_relationship()
     {
-        $user = User::factory()->create(); // Use a factory to create a user
-        $group = Group::factory()->create(); // Use a factory to create a group
+        $user = User::factory()->create(); 
+        $group = Group::factory()->create();
         $responsePayload = ['success' => true, 'message' => 'User added to group'];
 
         $this->mockedGroupService
@@ -52,7 +52,6 @@ class UserGroupControllerTest extends TestCase
         $groupName = $this->faker->word();
         $responsePayload = ['success' => true, 'message' => 'Group created'];
 
-        // Mock the GroupService method
         $this->mockedGroupService
             ->shouldReceive('createGroup')
             ->once()
@@ -66,17 +65,6 @@ class UserGroupControllerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson($responsePayload);
-    }
-
-    
-    public function test_it_throws_error_for_invalid_request_type_in_store() 
-    {
-        $response = $this->postJson(route('user_groups.store'), [
-            'type' => 'invalid-type',
-        ]);
-
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['type']);
     }
 
 

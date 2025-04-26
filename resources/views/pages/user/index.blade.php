@@ -40,6 +40,7 @@
     </main>
 @endsection
 <script>
+
       function adjustGroupBadgeWidth() {
   // Loop through all user rows
   const userRows = document.querySelectorAll('.user-row li');

@@ -72,7 +72,6 @@ class AdminController extends Controller
     }
 
 
-
     /**
      * Display a paginated list of all users.
      *

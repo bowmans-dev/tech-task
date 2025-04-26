@@ -7,16 +7,23 @@
     },
     "devDependencies": {
         "@popperjs/core": "^2.11.8",
-        "@tailwindcss/vite": "^4.0.0",
+        "@tailwindcss/postcss": "^4.1.4",
+        "@tailwindcss/vite": "^4.1.4",
+        "autoprefixer": "^10.4.21",
         "axios": "^1.8.2",
         "bootstrap": "^5.3.5",
         "concurrently": "^9.0.1",
         "laravel-vite-plugin": "^1.2.0",
         "sass": "^1.56.1",
-        "tailwindcss": "^4.0.0",
-        "vite": "^6.0.11"
+        "tailwindcss": "^4.1.4",
+        "vite": "^6.3.3"
     },
     "dependencies": {
-        "@hotwired/turbo": "^8.0.13"
+        "@fullcalendar/core": "^6.1.17",
+        "@fullcalendar/daygrid": "^6.1.17",
+        "@fullcalendar/interaction": "^6.1.17",
+        "@fullcalendar/timegrid": "^6.1.17",
+        "@hotwired/turbo": "^8.0.13",
+        "fullcalendar": "^6.1.17"
     }
 }

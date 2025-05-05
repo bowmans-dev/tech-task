@@ -5,7 +5,7 @@
             <div id='calendar' style="min-height: auto; padding: 17px; padding-bottom: 0px;"></div>
         </div>
 
-         {{-- CALENDAR EVENT MODAL--}}
+        {{-- CALENDAR EVENT MODAL--}}
    
         {{-- left-0 lg:left-[250px] lg:w-[calc(100%-250px)]--}}
         <div id="event-modal" class="relative w-full bg-white z-[99] hidden shadow-lg overflow-visible scale-90">
@@ -19,8 +19,8 @@
     
             <div class="bg-white rounded-lg shadow-lg p-6 contain-content w-full">
                 <div class="modal-content flex mb-4 w-full">
-                    <div>
-                        <div class="flex items-center mb-4 w-full">
+                    <div class="min-w-[300px]">
+                        <div id="eventOrganiserNameAndProfilePicture" class="flex items-center mb-4 w-full">
                             <img id="modal-profile-picture" 
                                 class="w-16 h-16 rounded-full object-cover mr-4" 
                                 src="" 
@@ -78,7 +78,7 @@
     
                 </div>
                 <div class="flex flex-row items-center">
-                    <button onclick="saveCalendarEvent()" 
+                    <button data-user-id="{{ auth('web')->id() }}" data-profile-picture="{{ auth('web')->user()->profile_picture ?? asset('/storage/default_profile_image.png') }}" data-first-name="{{ auth('web')->user()->first_name }}" data-last-name="{{ auth('web')->user()->last_name }}" onclick="saveCalendarEvent()" 
                             class="save-event-button w-full max-w-[300px] py-2 px-4 text-white bg-blue-500 hover:bg-blue-600 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2">
                         Save Event
                     </button>

@@ -87,6 +87,7 @@ function renderCalendar() {
         droppable: true,
         eventReceive: function (info) {
             console.log('[FullCalendar] Event received:', info.event);
+            document.getElementById('messages').innerHTML = "";
 
             const teamMembersDiv = document.getElementById('team-members');
             teamMembersDiv.innerHTML = '';
@@ -130,6 +131,8 @@ function renderCalendar() {
         
             const profilePicture = user.profile_picture ? `/storage/${user.profile_picture}` : '/storage/default_profile_image.png';
             document.getElementById('modal-profile-picture').src = profilePicture;
+
+            document.getElementById('messages').innerHTML = "";
         
             showModalWithEvent({ id, title, userId, date, time, files, teamMembers });
 
@@ -139,6 +142,33 @@ function renderCalendar() {
                     behavior: 'smooth',
                 });
             }
+        },
+        dateClick: function (info) {
+
+            calendar.addEvent({
+                title: 'New Event',
+                start: info.date,
+                allDay: info.allDay
+            });
+        
+            const teamMembersDiv = document.getElementById('team-members');
+            teamMembersDiv.innerHTML = '';
+
+            const teamMembersLabel = document.createElement('div');
+            teamMembersLabel.innerHTML = `<p>Team Members</p>`;
+
+            teamMembersDiv.appendChild(teamMembersLabel);
+
+            const filePreview = document.getElementById('file-preview');
+            filePreview.innerHTML = '';
+
+            document.getElementById('modal-profile-picture').style.display = "none";
+            document.getElementById('modal-user-name').style.display = "none";
+
+            document.getElementById('messages').innerHTML = "";
+        
+            openModalToCreateEvent(null, null, null, null, info.event.startStr);
+
         }
 
     });

@@ -19,8 +19,5 @@ export async function fetchMessagesForEvent(eventId) {
         Turbo.renderStreamMessage(turboStream);
     } catch (error) {
         console.error('Failed to load messages:', error);
-
-        // Handle error by updating messages container with an error message
-        messagesContainer.innerHTML = '<p class="text-black">Failed to load messages.</p>';
     }
 }

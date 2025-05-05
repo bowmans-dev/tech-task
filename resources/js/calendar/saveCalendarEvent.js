@@ -5,12 +5,20 @@ export function saveCalendarEvent() {
     const eventName = document.getElementById('eventName').value.trim();
     const id = document.getElementById('eventId').value;
 
-    const userId = modal.dataset.userId;
+    let userId = modal.dataset.userId;
     const date = modal.dataset.date;
     const time = document.getElementById('modal-event-time').value.trim();
 
     const allDay = time === '';
     const eventId = allDay ? date : `${date}T${time}`;
+
+    const saveButton = document.querySelector('.save-event-button');
+
+    // If the button has a valid data-user-id attribute, override the default
+    if (saveButton.hasAttribute('data-user-id') && saveButton.getAttribute('data-user-id')) {
+        userId = saveButton.getAttribute('data-user-id');
+    }
+
 
     formData.append('event_name', eventName);
     formData.append('user_id', userId);

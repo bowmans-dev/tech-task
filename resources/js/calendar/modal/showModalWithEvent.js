@@ -16,6 +16,8 @@ export function showModalWithEvent({ id, title, userId, date, time, files, teamM
     const teamMembersDiv = document.getElementById('team-members');
     teamMembersDiv.innerHTML = '';
 
+    document.getElementById('messages').innerHTML = "";
+
     const teamMembersLabel = document.createElement('div');
     teamMembersLabel.innerHTML = `<p>Team Members</p>`;
 

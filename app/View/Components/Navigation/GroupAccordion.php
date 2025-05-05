@@ -17,6 +17,6 @@ class GroupAccordion extends Component
 
     public function render()
     {
-        return view('components.navigation.group-accordion');
+        return view('Components.Navigation.group-accordion');
     }
 }

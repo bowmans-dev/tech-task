@@ -22,5 +22,10 @@ class Calendar extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function teamMembers()
+    {
+        return $this->belongsToMany(User::class, 'calendar_event_team_members', 'calendar_event_id', 'user_id');
+    }
+
 
 }

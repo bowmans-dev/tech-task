@@ -17,7 +17,7 @@ class WebRoutesTest extends TestCase
     public function test_login_get_route_renders_login_page()
     {
         $response = $this->get(route('login'));
-        $response->assertStatus(200)->assertViewIs('pages.auth.sign-in');
+        $response->assertStatus(200)->assertViewIs('shared.pages.auth.sign-in');
     }
 
     /**
@@ -88,7 +88,7 @@ class WebRoutesTest extends TestCase
         $this->actingAs($user, 'web');
 
         $response = $this->get(route('profile.show'));
-        $response->assertStatus(200)->assertViewIs('pages.user.profile');
+        $response->assertStatus(200)->assertViewIs('role.users.pages.profile');
     }
 
     /**
@@ -121,7 +121,7 @@ class WebRoutesTest extends TestCase
         $this->actingAs($admin, 'admin');
 
         $response = $this->get(route('users.index'));
-        $response->assertStatus(200)->assertViewIs('pages.user.index');
+        $response->assertStatus(200)->assertViewIs('role.admin.pages.index');
     }
 
     /**
@@ -154,6 +154,6 @@ class WebRoutesTest extends TestCase
         $this->actingAs($admin, 'admin');
 
         $response = $this->get(route('users.index'));
-        $response->assertStatus(200)->assertViewIs('pages.user.index');
+        $response->assertStatus(200)->assertViewIs('role.admin.pages.index');
     }
 }

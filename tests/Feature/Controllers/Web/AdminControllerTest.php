@@ -159,7 +159,7 @@ class AdminControllerTest extends TestCase
         $response = $this->get(route('users.show', $user->id));
 
         $response->assertStatus(200)
-            ->assertViewIs('pages.user.manage')
+            ->assertViewIs('role.admin.pages.manage')
             ->assertViewHas('user', $user);
     }
 
@@ -175,7 +175,7 @@ class AdminControllerTest extends TestCase
         $response = $this->get(route('users.index'));
 
         $response->assertStatus(200)
-            ->assertViewIs('pages.user.index')
+            ->assertViewIs('role.admin.pages.index')
             ->assertViewHas('users', function ($users) {
                 // Validate that the collection is limited to 10 users per page
                 return $users->count() === 10; 

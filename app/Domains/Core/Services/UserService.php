@@ -89,7 +89,10 @@ class UserService
         return auth('web')->user();
     }
 
-
+    public function editProfile(): User
+    {
+        return auth('web')->user();
+    }
 
 
     public function listUsers(): LengthAwarePaginator

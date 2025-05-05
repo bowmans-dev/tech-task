@@ -23,7 +23,7 @@ class AdminController extends Controller
 
     public function showCreateUserForm()
     {
-        return view('pages.user.create');
+        return view('role.admin.pages.create');
     }
 
     /**
@@ -68,7 +68,7 @@ class AdminController extends Controller
      */
     public function show(User $user)
     {
-        return view('pages.user.manage', compact('user'));
+        return view('role.admin.pages.manage', compact('user'));
     }
 
 
@@ -88,7 +88,7 @@ class AdminController extends Controller
             $user->groupIds = $user->groups->pluck('id')->toArray(); // Get IDs of groups the user belongs to
         }
 
-        return view('pages.user.index', compact('users', 'groups')); // Pass both to the view
+        return view('role.admin.pages.index', compact('users', 'groups')); // Pass both to the view
     }
 
 
@@ -109,7 +109,26 @@ class AdminController extends Controller
             $user->groupIds = $user->groups->pluck('id')->toArray(); // Get IDs of groups the user belongs to
         }
 
-        return view('Components.users.user-list', compact('users', 'groups'));
+        return view('Components.List.user-list', compact('users', 'groups'));
+    }
+
+    /**
+     * Filter users modal.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function filterModal(Request $request)
+    {
+        $users = $this->userService->filterUsers($request->query('search'));
+
+        $groups = Group::with('users')->get(); // Fetch all groups with their users
+
+        // Include the groups for each user
+        foreach ($users as $user) {
+            $user->groupIds = $user->groups->pluck('id')->toArray(); // Get IDs of groups the user belongs to
+        }
+
+        return view('Components.List.user-list-modal', compact('users', 'groups'));
     }
 
     

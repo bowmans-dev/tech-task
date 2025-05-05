@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', 'Default Title')</title>
+    <script src="{{ Vite::asset('resources/js/Users/Calendar.js') }}?v={{ time() }}" type="module" data-turbo-track="reload"></script>
+    <style>
+        .fc-event-title {
+            font-size: 10px !important;
+        }
+
+        #external-events {
+            position: fixed;
+            z-index: 2;
+            top: 20px;
+            left: 20px;
+            width: 150px;
+            padding: 0 10px;
+            border: 1px solid #ccc;
+            background: #eee;
+        }
+
+        #external-events .fc-event {
+            margin: 1em 0;
+            cursor: move;
+        }
+
+        #calendar-container {
+            position: relative;
+            z-index: 1;
+            margin-left: 200px;
+            overflow-y: hidden;
+            overflow: hidden;
+        }
+        #calendar-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        #calendar {
+            max-width: 900px;
+            margin: 20px auto;
+            overflow-y: hidden;
+            overflow: hidden;
+        }
+        #calendar::-webkit-scrollbar, .modal::-webkit-scrollbar {
+            display: none;
+        }
+        .modal {
+            margin-top: 100px;
+        }
+
+        .booked-event {
+            background-color: #145164;
+            color: white;
+            height: 30px;
+            font-size: 14px;
+            display: grid;
+            place-items: center;
+            text-align: center;
+        }
+
+        .fc .fc-col-header-cell-cushion {
+            padding-top: 5px; /* an override! */
+            padding-bottom: 5px; /* an override! */
+            border-radius: 8px;
+        }
+
+
+        .fc-scroller::-webkit-scrollbar {
+            display: none;
+        }
+
+        .fc .fc-col-header-cell {
+            background-color: #fff;
+        }
+
+        .fc .fc-day {
+            background-color: #1d1d1f;
+        }
+
+        h2 {
+            color: #000;
+        }
+
+
+        .fc-unthemed td.fc-today {
+            background: #333;
+        }
+
+        .fc-more {
+            color: #525254;
+        }
+        a:not([href]):not([tabindex]) {
+            color: #525254; 
+            text-decoration: none;
+        }
+        a:not([href]):not([tabindex]):hover {
+            color: #fff; 
+            text-decoration: none;
+        }
+
+        .fc-more-popover .fc-event-container {
+            padding: 10px;
+            background-color: #1d1d1f;
+        }
+
+        .fc-popover .fc-header .fc-title {
+            margin: 0 2px;
+            color: #000;
+        }
+
+        .fc-event {
+            border: 0px solid #fff;
+            display: grid;
+            place-items: center;
+        }
+        div.fc-content {
+            text-align: center;
+            align-items: center;
+            align-content: center;
+            text-align: center;
+            height: 30px;
+            font-size: 14px;
+        }
+        @media (min-width: 500px) {
+            
+            .fc-event {
+                border: 0px solid #fff;
+                display: grid;
+                place-items: center;
+                height: 20px;
+            }
+            div.fc-content {
+            text-align: center;
+            align-items: center;
+            align-content: center;
+            text-align: center;
+            height: 20px;
+            font-size: 12px;
+            }
+        }
+
+        @media (max-width: 500px) {
+            div.fc-content {
+                font-size: 12px;
+            }
+            div.fc-left h2 {
+                font-size: 20px;
+            }
+        }
+        @media (max-width: 400px) {
+            div.fc-content {
+                font-size: 10px;
+            }
+        }
+        @media (max-width: 380px) {
+            img.rounded {
+                display: none !important;
+            }
+        }
+
+        div.fc-time {
+            align-self: center;
+        }
+        .fc-content span.fc-title {
+            display: none;
+        }
+        span.fc-close, fc-icon-x {
+            color: #000;
+        }
+
+        .fc-popover .fc-day-grid-event {
+            color: #fff; 
+            margin-bottom: 5px;
+            width: 150px;
+        }
+        .fc-popover .fc-day-grid-event .fc-content .fc-time {
+            font-size: 16px;
+        }
+        .fc-popover {
+            width: min-content;
+        }
+
+        .fc-unthemed .fc-content, .fc-unthemed .fc-divider, .fc-unthemed .fc-list-heading td, .fc-unthemed .fc-list-view, .fc-unthemed .fc-popover, .fc-unthemed .fc-row, .fc-unthemed tbody, .fc-unthemed td, .fc-unthemed th, .fc-unthemed thead {
+            border-color: #000; 
+        }
+
+        .fc-event:not(.booked-event) {
+            background-color: #27323f;
+        }
+
+
+        .question {
+            width: 100%;
+            height: min-content;
+            background-color: #1463b9;
+            color: #fff;
+            padding-left: 14px;
+            padding-top: 4px;
+            padding-bottom: 4px;
+            font-weight: bold;
+        }
+        .answer {
+            margin-bottom: 15px;
+        }
+
+        #patientEmail, #patientEmail a {
+        -webkit-user-select: text; /* Safari */
+        -moz-user-select: text; /* Firefox */
+        -ms-user-select: text; /* Internet Explorer/Edge */
+        user-select: text; /* Non-prefixed version, currently supported by Chrome, Opera and Edge */
+        }
+
+        #treatment, #doctorName, #practiceName {
+            white-space: nowrap;
+            word-break: keep-all;
+        }
+        .fc-event {
+            border: solid 1px transparent;
+            padding: 3px;
+        }
+
+        .fc-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-evenly;
+        }
+
+        /* @media (max-width: 600px) {
+            .file-text {
+                display: none;
+            }
+        } */
+        @media (max-width: 740px) {
+            .modal-content {
+                display: block;
+                width: 100% !important;
+                width: 100% !important;
+            }
+            #drop-zone {
+                margin-left: 0px !important;
+            }
+            .save-event-button {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .profile-details {
+                display: none;
+            }
+        }
+
+        .button-highlight {
+            fill: #2b7fff;
+        }
+        .fc-col-header, .fc,  .fc-daygrid-body, .fc-daygrid-body-unbalanced, .fc-scrollgrid-sync-table {
+            width: 100% !important;
+            height: 100% !important;
+        }
+        .fc .fc-daygrid-day-frame {
+            overflow: hidden;
+        }
+        #drop-zone {
+            max-height: 300px;
+            overflow-x: hidden;
+            overflow-y: scroll;
+            contain: content;
+        }
+        @media (min-width: 740px) {
+
+            .modal-content {
+                max-height: 500px;
+                contain: content;
+            }
+
+            #drop-zone {
+                max-height: 500px;
+                overflow-x: hidden;
+                overflow-y: scroll;
+                contain: content;
+            }
+        }
+    </style>
+    @vite(['resources/js/Users/app.js', 'resources/css/app.css'])
+</head>
+<body class="bg-gray-100 h-full pt-16">
+
+    @yield('content')
+    
+</body>
+</html>

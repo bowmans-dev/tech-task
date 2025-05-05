@@ -24,13 +24,13 @@ class AuthController extends Controller
 
     public function showRegistrationForm()
     {
-        return view('pages.user.create');
+        return view('shared.pages.user.create');
     }
 
 
     public function showLoginForm()
     {
-        return view('pages.auth.sign-in');
+        return view('shared.pages.auth.sign-in');
     }
 
 
@@ -38,7 +38,7 @@ class AuthController extends Controller
     {
 
         if ($request->isMethod('get')) {
-            return view('pages.auth.sign-in');
+            return view('shared.pages.auth.sign-in');
         }
 
         $credentials = $request->validate([
@@ -129,6 +129,6 @@ class AuthController extends Controller
     
     public function showResetForm($token)
     {
-        return view('pages.auth.passwords.reset', ['token' => $token]);
+        return view('shared.pages.auth.passwords.reset', ['token' => $token]);
     }
 }

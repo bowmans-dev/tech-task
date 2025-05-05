@@ -29,6 +29,6 @@ class Breadcrumb extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.navigation.breadcrumb');
+        return view('Components.Navigation.breadcrumb');
     }
 }

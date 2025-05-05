@@ -42,7 +42,7 @@ class UserControllerTest extends TestCase
         $response = $this->get(route('profile.show'));
 
         $response->assertStatus(200);
-        $response->assertViewIs('pages.user.profile'); // Ensure correct view is used
+        $response->assertViewIs('role.users.pages.profile'); // Ensure correct view is used
         $response->assertViewHas('profile'); // Ensure profile data is passed to the view
     }
 

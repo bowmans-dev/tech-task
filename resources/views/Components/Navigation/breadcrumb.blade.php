@@ -1,4 +1,4 @@
-<div class="sticky top-0 inset-x-0 z-20 bg-white border-y border-gray-200 px-4  dark:bg-neutral-800 dark:border-neutral-700">
+<div class="fixed top-0 inset-x-0 z-999 bg-white border-y border-gray-200 px-4  dark:bg-neutral-800 dark:border-neutral-700">
     <div class="flex items-center py-2">
         <!-- Navigation Toggle -->
         <button 
@@ -46,7 +46,7 @@
             <a href="{{ Auth::guard('admin')->check() ? '/users' : (Auth::guard('web')->check() ? '/profile' : '#') }}" 
                 class="mr-2 size-8 flex justify-center items-center gap-x-2 border 
                 {{ request()->is('users') || request()->is('users/*') ? 'border-black' : 'border-gray-200' }} 
-                text-black dark:text-white hover:text-gray-300 rounded-lg focus:outline-hidden focus:text-gray-300 disabled:opacity-50 disabled:pointer-events-none">
+                text-black dark:text-white cursor-pointer rounded-lg focus:outline-hidden focus:text-gray-300 disabled:opacity-50 disabled:pointer-events-none">
                 <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                     <circle cx="10" cy="7" r="4" />
@@ -56,7 +56,7 @@
             @auth('admin') <!-- Check if the user is authenticated as an admin -->
                 <!-- Create Button -->
                 <a href="/create" class="mr-2 size-8 flex justify-center items-center gap-x-2 border {{ request()->is('create') ? 'border-black' : 'border-gray-200' }} 
-                text-black dark:text-white hover:text-gray-300 rounded-lg focus:outline-hidden focus:text-gray-300 disabled:opacity-50 disabled:pointer-events-none">
+                text-black dark:text-white cursor-pointer rounded-lg focus:outline-hidden focus:text-gray-300 disabled:opacity-50 disabled:pointer-events-none">
                     <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="12" y1="5" x2="12" y2="19" />
                         <line x1="5" y1="12" x2="19" y2="12" />
@@ -66,9 +66,9 @@
         
             <!-- Log Out Button -->
             <form method="POST" action="{{ route('logout') }}" class="mr-2 size-8 flex justify-center items-center gap-x-2 border {{ request()->is('logout') ? 'border-black' : 'border-gray-200' }} 
-            text-black dark:text-white hover:text-gray-300 rounded-lg focus:outline-hidden focus:text-gray-300 disabled:opacity-50 disabled:pointer-events-none">
+            text-black dark:text-white cursor-pointer rounded-lg focus:outline-hidden focus:text-gray-300 disabled:opacity-50 disabled:pointer-events-none">
                 @csrf
-                <button type="submit" class="flex items-center gap-x-2">
+                <button type="submit" class="cursor-pointer flex items-center gap-x-2">
                     <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M9 21V19M16 3V5M12 12H21" />
                         <path d="M5 16L3 12L5 8M3 12H12" />

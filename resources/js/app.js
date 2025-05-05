@@ -14,6 +14,7 @@ window.removeUserFromGroup = removeUserFromGroup;
 import { setupAccordionToggles } from './Accordion';
 import { toggleSidebar } from './Sidebar';
 import { setupSearchInput } from './Search';
+import { setupSearchModalInput } from './SearchModal';
 import { setupContextMenu, toggleContextMenu, toggleSubMenu } from './ContextMenu';
 
 document.addEventListener('turbo:load', () => {
@@ -22,16 +23,11 @@ document.addEventListener('turbo:load', () => {
 
   setupSearchInput();
 
+  setupSearchModalInput();
+
   setupContextMenu();
 
   window.toggleSidebar = toggleSidebar;
   window.toggleContextMenu = toggleContextMenu;
   window.toggleSubMenu = toggleSubMenu;
 });
-
-
-import './Calendar';
-
-import { handleDrop } from './Calendar';
-
-window.handleDrop = handleDrop;

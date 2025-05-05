@@ -5,6 +5,7 @@ use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\UserController;
 use App\Http\Controllers\Web\UserGroupController;
 use App\Http\Controllers\Web\CalendarController;
+use App\Http\Controllers\Web\MessageController;
 use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Route;
 
@@ -39,11 +40,19 @@ Route::group([], function () {
     Route::get('/calendar', [CalendarController::class, 'showCalendar'])->name('calendar.show');
     Route::post('/calendar/events/save', [CalendarController::class, 'saveCalendarEvent']);
     Route::get('/calendar/events/all', [CalendarController::class, 'getAllEvents']);
+    Route::get('/calendar/events', [CalendarController::class, 'getUserEvents']);
+    Route::delete('/calendar/event/{eventId}/team-members/{userId}', [CalendarController::class, 'removeTeamMember'])->name('calendar.team-members.remove');
+    // Calendar Event Messages
+    Route::post('/messages', [MessageController::class, 'store'])->name('messages.store'); 
+    Route::get('/events/{eventId}/messages', [MessageController::class, 'fetchMessages'])->name('messages.fetch');
 });
+
+
 
 // Protected User Routes
 Route::middleware('auth:web')->group(function () {
     Route::get('/profile', [UserController::class, 'showProfile'])->name('profile.show');
+    Route::get('/edit_profile', [UserController::class, 'editProfile'])->name('edit-profile.show');
     Route::patch('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
     Route::delete('/profile', [UserController::class, 'deleteProfile'])->name('profile.delete');
 });
@@ -55,6 +64,7 @@ Route::middleware(AdminMiddleware::class)->group(function () {
     Route::post('/users', [AdminController::class, 'store'])->name('users.store');
     Route::get('/users', [AdminController::class, 'index'])->name('users.index');
     Route::get('/users/filter', [AdminController::class, 'filter'])->name('users.filter');
+    Route::get('/users/filter/modal', [AdminController::class, 'filterModal'])->name('users.filter');
     Route::get('/users/{user}', [AdminController::class, 'show'])->name('users.show');
     Route::patch('/users/{user}', [AdminController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [AdminController::class, 'destroy'])->name('users.destroy');

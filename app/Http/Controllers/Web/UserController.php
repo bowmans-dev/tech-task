@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Domains\Core\Services\UserService;
 use Illuminate\Http\Request;
+use App\Models\User;
 use App\Http\Requests\UserUpdateRequest;
 use Illuminate\Support\Facades\Log;
 
@@ -26,9 +27,23 @@ class UserController extends Controller
      */
     public function showProfile()
     {
+        $users = User::all();
+
         $profile = $this->userService->showProfile();
 
-        return view('pages.user.profile', compact('profile'));
+        return view('role.users.pages.profile', compact('profile', 'users'));
+    }
+
+    /**
+     * Show the authenticated user's profile.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function editProfile()
+    {
+        $profile = $this->userService->editProfile();
+
+        return view('role.users.pages.edit-profile', compact('profile'));
     }
 
 

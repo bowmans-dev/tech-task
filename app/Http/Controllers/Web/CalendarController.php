@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Domains\Shared\Services\CalendarService;
+use App\Models\CalendarEventTeamMember;
 
 class CalendarController extends Controller 
 {
@@ -17,20 +18,40 @@ class CalendarController extends Controller
 
     public function saveCalendarEvent(Request $request)
     {
-        $data = $request->only(['id', 'event_name', 'user_id', 'date', 'time', 'allDay', 'files']);
+        $data = $request->only(['id', 'event_name', 'user_id', 'date', 'time', 'allDay', 'files', 'team_members']);
 
         return $this->calendarService->saveCalendarEvent($data);
     }
+
+    public function removeTeamMember($eventId, $userId)
+    {
+        $deleted = CalendarEventTeamMember::where('calendar_event_id', $eventId)
+            ->where('user_id', $userId)
+            ->delete();
+
+        if ($deleted) {
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json(['success' => false], 400);
+    }
+
 
     public function showCalendar()
     {
         return $this->calendarService->showCalendar();
     }
 
-
     public function getAllEvents(Request $request)
     {
         return $this->calendarService->getAllEvents($request);
+    }
+    
+    public function getUserEvents()
+    {
+        $userId = auth('web')->id();
+
+        return $this->calendarService->getUserEvents($userId);
     }
 
 }

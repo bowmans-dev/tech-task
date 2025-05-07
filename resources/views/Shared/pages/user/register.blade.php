@@ -13,7 +13,7 @@
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div class="mx-auto max-w-2xl">
     
-            <form method="POST" action="{{ route('users.store') }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('users.register') }}" enctype="multipart/form-data">
               @csrf
               <div class="space-y-12 pt-10">
     

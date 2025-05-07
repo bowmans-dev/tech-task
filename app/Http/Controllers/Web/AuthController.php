@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Domains\Generic\Authentication\AuthenticationService;
 use App\Domains\Generic\Authentication\PasswordResetService;
+use App\Domains\Core\Services\UserService;
 use Illuminate\Http\Request;
+use App\Http\Requests\UserStoreRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Password;
+
 
 class AuthController extends Controller
 {
@@ -15,16 +18,30 @@ class AuthController extends Controller
 
     protected PasswordResetService $passwordService;
 
-    public function __construct(AuthenticationService $authService, PasswordResetService $passwordService)
+    protected UserService $userService;
+
+    public function __construct(AuthenticationService $authService, PasswordResetService $passwordService, UserService $userService)
     {
         $this->authService = $authService;
         $this->passwordService = $passwordService;
+        $this->userService = $userService;
+    }
+
+    public function store(UserStoreRequest $request)
+    {
+
+        $data = $request->validated();
+
+        $this->userService->createUser($data);
+
+
+        return redirect()->route('users.index')->with('success', 'User created successfully!');
     }
 
 
     public function showRegistrationForm()
     {
-        return view('shared.pages.user.create');
+        return view('shared.pages.user.register');
     }
 
 

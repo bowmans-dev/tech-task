@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('turbo:load', function () {
     document.querySelectorAll('.upload-component').forEach(component => {
         const fileInput = component.querySelector('input[type="file"]');
         const fileNameElement = component.querySelector('.file-name');

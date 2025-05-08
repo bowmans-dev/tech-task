@@ -3,6 +3,8 @@ import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { Draggable } from '@fullcalendar/interaction';
+import { start } from "@hotwired/turbo";
+start();
 
 // Calendar State Management
 import { state } from '../calendar/state';
@@ -42,7 +44,6 @@ window.showModalWithEvent = showModalWithEvent;
 // Global Variables: Calendar DropZone
 window.handleDrop = handleDrop;
 window.clickAddUserToDropZone = clickAddUserToDropZone;
-
 
 function renderCalendar() {
 
@@ -142,6 +143,29 @@ function renderCalendar() {
                     behavior: 'smooth',
                 });
             }
+
+            // console.log(`🟢 Subscribing to: private-calendar-dropzone-${id}`);
+            // window.Echo.private(`private-calendar-dropzone-${id}`)
+            // .listen("MessageBroadcasted", (event) => {
+            //     console.log("🔹 WebSocket Received Message:", event);
+            // });
+
+            const ws = new WebSocket("ws://localhost:8080");
+
+            ws.onopen = () => {
+                console.log(`✅ Connected to WebSocket server for event: ${id}`);
+                ws.send(JSON.stringify({ action: "subscribe", event_id: id })); // Optional: Inform the server which event you are viewing
+            };
+
+            ws.onmessage = (message) => {
+                const data = message.data; // ✅ Correct
+                console.log("📩 Received:", data);
+            };
+
+            ws.onclose = () => console.log("🔹 WebSocket disconnected");
+            ws.onerror = (err) => console.error("❌ WebSocket error:", err);
+
+
         },
         dateClick: function (info) {
 
@@ -207,3 +231,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+
+

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Domains\Core\DTOs;
+namespace Tests\Unit;
 
 use App\Models\User as UserModel;
 use App\Domains\Core\DTOs\UserData;

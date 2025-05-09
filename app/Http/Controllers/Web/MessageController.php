@@ -6,6 +6,9 @@ use App\Models\Message;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Hotwired\TurboLaravel\Turbo;
+use App\Domains\Shared\Events\DomainEventPublisher;
+use App\Domains\Shared\Events\DomainEvents\Messages\MessageSent;
+
 
 class MessageController extends Controller 
 {
@@ -17,6 +20,10 @@ class MessageController extends Controller
             'content' => $request->input('content'),
             'event_id' => $request->input('event_id'),
         ]);
+
+        // Dispatch domain event via the publisher
+        DomainEventPublisher::publish(new MessageSent($message));
+
 
         // Broadcast the Turbo Stream update
         return response()->turboStream()

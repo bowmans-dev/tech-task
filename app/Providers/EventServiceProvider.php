@@ -23,6 +23,9 @@ use App\Domains\Shared\Events\Listeners\Groups\HandleUserRemovedFromGroup;
 use App\Domains\Shared\Events\DomainEvents\Calendar\CalendarEntryCreatedEvent;
 use App\Domains\Shared\Events\Listeners\Calendar\PersistCalendarEntryOnCreated;
 
+use App\Domains\Shared\Events\DomainEvents\Messages\MessageSent;
+use App\Domains\Shared\Events\Listeners\Messages\NotifyTeamMembersOnMessageSent;
+
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -51,6 +54,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         CalendarEntryCreatedEvent::class => [
             PersistCalendarEntryOnCreated::class,
+        ],
+        MessageSent::class => [
+            NotifyTeamMembersOnMessageSent::class,
         ],
 
     ];

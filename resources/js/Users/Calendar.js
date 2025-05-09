@@ -144,26 +144,73 @@ function renderCalendar() {
                 });
             }
 
-            // console.log(`🟢 Subscribing to: private-calendar-dropzone-${id}`);
-            // window.Echo.private(`private-calendar-dropzone-${id}`)
-            // .listen("MessageBroadcasted", (event) => {
-            //     console.log("🔹 WebSocket Received Message:", event);
-            // });
-
-            const ws = new WebSocket("ws://localhost:8080");
+            let ws = new WebSocket("ws://localhost:8080");
 
             ws.onopen = () => {
-                console.log(`✅ Connected to WebSocket server for event: ${id}`);
-                ws.send(JSON.stringify({ action: "subscribe", event_id: id })); // Optional: Inform the server which event you are viewing
+                console.log(`Connected to websocket server for event: ${id}`);
+                ws.send(JSON.stringify({ action: "subscribe", event_id: id }));
             };
 
             ws.onmessage = (message) => {
-                const data = message.data; // ✅ Correct
-                console.log("📩 Received:", data);
-            };
+                try {
+                    const data = JSON.parse(message.data);
+                    console.log("WebSocket message received:", data);
 
-            ws.onclose = () => console.log("🔹 WebSocket disconnected");
-            ws.onerror = (err) => console.error("❌ WebSocket error:", err);
+                    const { user, message: text, event_id } = data;
+
+                    // ✅ Get the drop-zone event ID
+                    const dropZone = document.getElementById("drop-zone");
+                    const dropZoneEventId = dropZone.getAttribute("data-event-id");
+
+                    // ✅ Only append messages if the event IDs match
+                    if (user && dropZoneEventId === event_id) {
+                        const messagesContainer = document.getElementById("messages");
+
+                        const messageElement = document.createElement("div");
+                        messageElement.classList.add("message");
+                        messageElement.id = `message-${event_id}`;
+
+                        messageElement.innerHTML = `
+                            <div class="w-full text-left flex flex-row align-center">
+                                <img 
+                                class="rounded-full bg-gray-50 h-8 w-8 left-1 mr-4 flex-shrink-0 object-cover" 
+                                src="${user.profile_picture}" 
+                                alt="${user.first_name} ${user.last_name}'s profile picture" />
+                                <p>${user.first_name} ${user.last_name}:</p>
+                            </div>
+                            <p class="text-left text-black mb-4">${text}</p>
+                        `;
+
+                        messagesContainer.appendChild(messageElement);
+                    }
+                } catch (error) {
+                    console.error("WebSocket JSON parsing error:", error);
+                }
+            };
+            
+
+            ws.onclose = () => console.log("Websocket disconnected");
+            ws.onerror = (event) => {
+                console.error("Websocket error occurred!");
+                
+                if (event.message) {
+                    console.error(`Error message: ${event.message}`);
+                }
+
+                if (event.code) {
+                    console.error(`Error code: ${event.code}`);
+                }
+
+                if (event.reason) {
+                    console.error(`Disconnect reason: ${event.reason}`);
+                }
+
+                if (event.target.readyState === WebSocket.CLOSED) {
+                    console.error(`WebSocket closed unexpectedly (Code: ${event.target.closeCode}, Reason: ${event.target.closeReason})`);
+                }
+
+                console.error(`Full error object:`, event);
+            };
 
 
         },
@@ -231,6 +278,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
-
-
-

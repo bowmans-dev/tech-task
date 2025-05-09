@@ -96,7 +96,7 @@
                         
                         <!-- Send button -->
                         <div
-                            id="send-message-button" onclick="preventDefault()"
+                            id="send-message-button"
                             class="cursor-pointer ml-3 bg-blue-500 hover:bg-blue-600 text-white font-medium px-4 py-2 rounded-lg shadow-md flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />

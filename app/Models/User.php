@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use App\Models\Calendar;
+use App\Models\CalendarEventTeamMember;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -51,7 +53,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function calendarEvents()
     {
-        return $this->belongsToMany(CalendarEvent::class, 'calendar_event_team_members', 'user_id', 'calendar_event_id');
+        return $this->belongsToMany(Calendar::class, 'calendar_event_team_members', 'user_id', 'calendar_event_id');
     }
 
 }

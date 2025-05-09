@@ -2,7 +2,8 @@
 ## DDD / EDA
 ![System Diagram](./screenshots/sign_in_screenshot.png)
 ![Create User Screenshot](./screenshots/create_user_screenshot.png)
-![Users List Screenshot](./screenshots/users_list_screenshot.png)
+![Users List Screenshot](./screenshots/users_list_groups_screenshot.png)
+![Calendar Events Messaging Screenshot](./screenshots/calendar_events_messaging_screenshot.png)
 
 ---
 
@@ -59,6 +60,13 @@ php artisan serve
 (required to simulate password reset link email found in storage/laravel.log):
 ```bash
 php artisan queue:work
+```
+
+### **Start The Websocket server and client**
+(For realtime calendar group messaging)
+```bash
+node websocket-server.js
+node websocket-client.js
 ```
 
 ---

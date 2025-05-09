@@ -20,12 +20,9 @@ export async function sendMessageForEvent(content, eventId, csrfToken) {
         });
 
         if (response.ok) {
-            const turboStream = await response.text();
-
-            Turbo.renderStreamMessage(turboStream);
-
-            return { success: true };
             
+            return { success: true };
+
         } else {
             const error = await response.json();
             console.error('Error:', error);

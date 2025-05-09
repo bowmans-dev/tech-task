@@ -27,6 +27,7 @@
         "@fullcalendar/interaction": "^6.1.17",
         "@fullcalendar/timegrid": "^6.1.17",
         "@hotwired/turbo": "^8.0.13",
-        "fullcalendar": "^6.1.17"
+        "fullcalendar": "^6.1.17",
+        "ws": "^8.18.2"
     }
 }

@@ -1,41 +1,83 @@
 import http from "http";
-import { WebSocketServer, WebSocket } from "ws";
+import { WebSocketServer } from "ws";
 
 const server = http.createServer();
 const wss = new WebSocketServer({ server });
 
-server.listen(8080, () => {
-  console.log("websocket server running on ws://localhost:8080");
-});
 
 server.on("error", (err) => {
-    console.error("WebSocket server error:", err.message);
+
+    if (err.code === "EADDRINUSE") {
+        console.log("WebSocket server is already running on port 8080");
+    } else {
+        console.error("WebSocket server error:", err.message);
+    }
 });
 
-wss.on("connection", (ws, req) => {
-    console.log(`Websocket client connected from ${req.socket.remoteAddress}`);
-    console.log("Client connected with headers:", req.headers);
-    
-    ws.send(JSON.stringify({ message: "Hello from webSocket server!" }));
-    
+
+server.listen(8080, () => {
+
+    console.log("WebSocket server running on ws://localhost:8080");
+
+}).on("error", (err) => {
+    if (err.code === "EADDRINUSE") {
+        console.log("Websocket server already active, skipping startup.");
+    }
+});
+
+
+wss.on("connection", (ws) => {
+
+    ws.existingTeamMembers = [];
+
     ws.on("message", (message) => {
-        console.log("Raw websocket message received:", message.toString());
         try {
             const jsonData = JSON.parse(message.toString());
-            console.log("Received parsed message:", jsonData);
 
-            wss.clients.forEach((client) => {
-                if (client.readyState === WebSocket.OPEN) {
-                    console.log("Broadcasting websocket message:", jsonData);
-                    client.send(JSON.stringify(jsonData));
+            if (jsonData.action === "test_message") {
+                ws.send(JSON.stringify({ reply: `Received: ${jsonData.content}` }));
+            }
+
+            if (jsonData.action === "subscribe") {
+                ws.userId = jsonData.userId || null;
+                ws.eventId = jsonData.event_id || "MISSING";
+                ws.existingTeamMembers = jsonData.existingTeamMembers || [];
+            }
+
+            if (jsonData.action === "message_broadcast") {
+
+                const validClients = [...wss.clients].filter(client => client.userId && Array.isArray(client.existingTeamMembers));
+
+                if (validClients.length === 0) {
+                    console.error("No valid websocket clients found, skipping broadcast.");
+                    return;
                 }
-            });
 
+                validClients.forEach((client) => {
+
+                    if (client.eventId === jsonData.event_id && client.existingTeamMembers.some(({ userId }) => userId === client.userId)) {
+                        client.send(JSON.stringify(jsonData));
+                    } 
+                });
+            }
         } catch (error) {
             console.error("JSON parsing error:", error.message);
         }
     });
 
-    ws.on("close", () => console.log("Client disconnected"));
     ws.on("error", (err) => console.error("WebSocket server error:", err.message));
 });
+
+// shut down websocket server on exit
+process.on("SIGINT", () => {
+    
+    wss.clients.forEach((client) => client.terminate());
+    
+    wss.close(() => {
+        server.close(() => {
+            process.exit(0);
+        });
+    });
+});
+
+export { server, wss };

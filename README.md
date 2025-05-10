@@ -62,11 +62,10 @@ php artisan serve
 php artisan queue:work
 ```
 
-### **Start The Websocket server and client**
+### **Start The Websocket server**
 (For realtime calendar group messaging)
 ```bash
 node websocket-server.js
-node websocket-client.js
 ```
 
 ---

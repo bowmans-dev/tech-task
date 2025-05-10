@@ -146,9 +146,18 @@ function renderCalendar() {
 
             let ws = new WebSocket("ws://localhost:8080");
 
+            if (!teamMembers.some(member => member.userId === userId)) {
+                teamMembers.push({ userId, profilePicture: user.profile_picture, firstName: user.first_name, lastName: user.last_name });
+            }
+
             ws.onopen = () => {
                 console.log(`Connected to websocket server for event: ${id}`);
-                ws.send(JSON.stringify({ action: "subscribe", event_id: id }));
+                ws.send(JSON.stringify({ 
+                    action: "subscribe", 
+                    event_id: id, 
+                    userId,
+                    existingTeamMembers: teamMembers
+                }));
             };
 
             ws.onmessage = (message) => {
@@ -158,11 +167,9 @@ function renderCalendar() {
 
                     const { user, message: text, event_id } = data;
 
-                    // ✅ Get the drop-zone event ID
                     const dropZone = document.getElementById("drop-zone");
                     const dropZoneEventId = dropZone.getAttribute("data-event-id");
 
-                    // ✅ Only append messages if the event IDs match
                     if (user && dropZoneEventId === event_id) {
                         const messagesContainer = document.getElementById("messages");
 

@@ -40,6 +40,7 @@ Route::group([], function () {
 Route::group([], function () {
     Route::get('/calendar', [CalendarController::class, 'showCalendar'])->name('calendar.show');
     Route::post('/calendar/events/save', [CalendarController::class, 'saveCalendarEvent']);
+    Route::post('/calendar/events/{eventId}/delete', [CalendarController::class, 'deleteCalendarEvent']);
     Route::get('/calendar/events/all', [CalendarController::class, 'getAllEvents']);
     Route::get('/calendar/events', [CalendarController::class, 'getUserEvents']);
     Route::delete('/calendar/event/{eventId}/team-members/{userId}', [CalendarController::class, 'removeTeamMember'])->name('calendar.team-members.remove');
@@ -58,6 +59,8 @@ Route::middleware('auth:web')->group(function () {
     Route::delete('/profile', [UserController::class, 'deleteProfile'])->name('profile.delete');
 });
 
+Route::get('/users/filter/modal', [AdminController::class, 'filterModal'])->name('users.filter');
+
 // Protected Admin Routes
 Route::middleware(AdminMiddleware::class)->group(function () {
 
@@ -65,7 +68,6 @@ Route::middleware(AdminMiddleware::class)->group(function () {
     Route::post('/users', [AdminController::class, 'store'])->name('users.store');
     Route::get('/users', [AdminController::class, 'index'])->name('users.index');
     Route::get('/users/filter', [AdminController::class, 'filter'])->name('users.filter');
-    Route::get('/users/filter/modal', [AdminController::class, 'filterModal'])->name('users.filter');
     Route::get('/users/{user}', [AdminController::class, 'show'])->name('users.show');
     Route::patch('/users/{user}', [AdminController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [AdminController::class, 'destroy'])->name('users.destroy');

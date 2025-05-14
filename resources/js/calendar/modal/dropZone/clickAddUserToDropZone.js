@@ -1,17 +1,23 @@
+import { state } from "../../state";
+import { isUserAlreadyInTeam } from "../../state";
+import { isUserInDatabase } from "../../state";
+import { addTeamMember } from "../../state";
+import { removeTeamMember } from "../../state";
+import { unsubscribeUserFromEvent } from "../../state";
+import { removeTeamMemberFromCalendarEvent } from "../../removeTeamMemberFromCalendarEvent";
+
 export function clickAddUserToDropZone(user) {
 
     const teamMembersDiv = document.getElementById('team-members');
-
-    // Check if the user is already in the existing members
-    const alreadyExistsInDatabase = calendarState.existingTeamMembers.some(member => member.userId === user.userId);
-    if (alreadyExistsInDatabase) {
+    
+    // Check if the user is already in the DBs stored existing members
+    if (isUserInDatabase(user.userId)) {
         alert(`${user.firstName} ${user.lastName} is already in the list.`);
         return;
     }
 
     // Check if the user is already in the teamMembers array
-    const alreadyAdded = calendarState.teamMembers.some(member => member.userId === user.userId);
-    if (alreadyAdded) {
+    if (isUserAlreadyInTeam(user.userId)) {
         alert(`${user.firstName} ${user.lastName} is already in the list.`);
         return;
     }
@@ -33,26 +39,35 @@ export function clickAddUserToDropZone(user) {
                 </svg>
             </button>
         `;
-
+        
     // Add the user to the teamMembers div
     teamMembersDiv.appendChild(userDiv);
 
     // Add the user to the teamMembers array
-    calendarState.teamMembers.push(user);
+    addTeamMember(user);
+
+    // Save the calendar event after adding the user
+    saveCalendarEvent();
+
+
+    const eventId = state.currentEvent.id;
+    
+    let userId = userDiv.getAttribute('data-user-id');
 
     // Add a click event listener to the user div buttom to remove team member from drop zone
     const removeButton = userDiv.querySelector('button');
     removeButton.addEventListener('click', () => {
-        // Access the closest userDiv and the userId from its data attribute
-        const userId = userDiv.getAttribute('data-user-id');
 
         // Remove the userDiv from the DOM
-        userDiv.remove();
+        userDiv.remove(userId);
 
-        // Update the teamMembers array in calendarState
-        calendarState.teamMembers = calendarState.teamMembers.filter(
-            (member) => member.userId != userId
-        );
+        // Update the teamMembers array in state
+        removeTeamMember(userId);
 
-    });
+        // Inform the server via WebSocket that this team member should be unsubscribed.
+        unsubscribeUserFromEvent(userId);
+        
+        // Send request to remove team member from the event in the database
+        removeTeamMemberFromCalendarEvent(eventId, userId)
+    }); 
 }

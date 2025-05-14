@@ -1,13 +1,15 @@
         {{-- CALENDAR --}}
-
-        {{-- class="lg:ml-[250px]" --}}
-        <div style="calendar-wrapper max-width: 900px; margin-bottom: 30px;">
+        <div id="calendar-wrapper" 
+            style="calendar-wrapper max-width: 900px; margin-bottom: 30px;" 
+            data-user-id="{{ auth()->user()->id }}"
+            data-profile-picture="{{ auth()->user()->profile_picture ?? asset('/storage/default_profile_image.png') }}"
+            data-first-name="{{ auth()->user()->first_name }}"
+            data-last-name="{{ auth()->user()->last_name }}">
+            
             <div id='calendar' style="min-height: auto; padding: 17px; padding-bottom: 0px;"></div>
         </div>
 
         {{-- CALENDAR EVENT MODAL--}}
-   
-        {{-- left-0 lg:left-[250px] lg:w-[calc(100%-250px)]--}}
         <div id="event-modal" class="relative w-full bg-white z-[99] hidden shadow-lg overflow-visible scale-90">
     
             <button
@@ -66,6 +68,7 @@
                             ondrop="handleDrop(event)">
                             <p class="pl-1">Drag and drop files</p>
                             <div id="file-preview" class="mt-4 space-y-4"></div>
+                            
                             <div id="team-members" class="mt-8">Team Members</div>
     
                             <div class="mt-8 mb-8">Messages</div>
@@ -78,9 +81,9 @@
     
                 </div>
                 <div class="flex flex-row items-center">
-                    <button data-user-id="{{ auth('web')->id() }}" data-profile-picture="{{ auth('web')->user()->profile_picture ?? asset('/storage/default_profile_image.png') }}" data-first-name="{{ auth('web')->user()->first_name }}" data-last-name="{{ auth('web')->user()->last_name }}" onclick="saveCalendarEvent()" 
-                            class="save-event-button w-full max-w-[300px] py-2 px-4 text-white bg-blue-500 hover:bg-blue-600 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2">
-                        Save Event
+                    <button data-user-id="{{ auth('web')->id() }}" onclick="deleteCalendarEvent()" 
+                            class="delete-event-button w-full max-w-[300px] py-2 px-4 text-white bg-blue-500 hover:bg-blue-600 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2">
+                        Delete Event
                     </button>
                     <form method="POST" id="message-form" class="flex items-center flex-grow 0 rounded-lg p-4">
                         @csrf

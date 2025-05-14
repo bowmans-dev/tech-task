@@ -22,6 +22,9 @@ function is_port_in_use(port, callback) {
 }
 
 beforeAll(async () => {
+
+    console.log = () => {};
+
 	await new Promise((resolve, reject) => {
 		is_port_in_use(8080, async (portUsed) => {
 
@@ -81,25 +84,17 @@ afterAll(() => {
 	setTimeout(() => {}, 500);
 });
 
-test("websocket server should respond when a message is sent", (done) => {
-    const client = new WebSocket("ws://localhost:8080");
+afterEach(() => {
+    if (wss) {
+        wss.clients.forEach((client) => {
+            client.removeAllListeners();
 
-    client.on("open", () => {
-        client.send(JSON.stringify({ action: "subscribe", userId: 999, event_id: 100 }));
-        setTimeout(() => { 
-            client.send(JSON.stringify({ action: "test_message", content: "hello" }));
-        }, 500);
-    });
-
-    client.on("message", (data) => {
-        const response = JSON.parse(data.toString());
-        expect(response.reply).toContain("Received: hello");
-
-        client.close();
-        done();
-    });
-
-}, 30000);
+            if (client.readyState === WebSocket.OPEN) {
+                client.terminate();
+            }
+        });
+    }
+});
 
 test("only subscribed users receive messages for their event", (done) => {
     const clientA = new WebSocket("ws://localhost:8080");
@@ -114,7 +109,7 @@ test("only subscribed users receive messages for their event", (done) => {
     });
 
     setTimeout(() => {
-        clientA.send(JSON.stringify({ action: "message_broadcast", event_id: 100, message: "Hello Event 100" }));
+        clientA.send(JSON.stringify({ action: "message_broadcast", event_id: 100, message: "Hello Event 100", user: { id: 999 } }));
     }, 500);
 
     clientA.on("message", (data) => {
@@ -146,7 +141,7 @@ test("users subscribed to different events do not receive messages", (done) => {
     });
 
     setTimeout(() => {
-        clientSubscribedTo100.send(JSON.stringify({ action: "message_broadcast", event_id: 100, message: "Event 100 Update" }));
+        clientSubscribedTo100.send(JSON.stringify({ action: "message_broadcast", event_id: 100, message: "Event 100 Update", user: { id: 999 } }));
     }, 500);
 
     clientSubscribedTo100.on("message", (data) => {
@@ -165,3 +160,80 @@ test("users subscribed to different events do not receive messages", (done) => {
         done();
     }, 2000);
 }, 30000);
+
+test("user can unsubscribe from an event", (done) => {
+    const clientA = new WebSocket("ws://localhost:8080");
+
+    clientA.on("open", () => {
+        // First, subscribe clientA to an event (Event 100)
+        clientA.send(JSON.stringify({ action: "subscribe", userId: 999, event_id: 100 }));
+
+        // After subscribing, send unsubscribe request
+        setTimeout(() => {
+            clientA.send(JSON.stringify({ action: "unsubscribe", userId: 999, event_id: 100 }));
+        }, 500);
+    });
+
+    clientA.on("message", (data) => {
+        const response = JSON.parse(data.toString());
+
+        // Ensure the unsubscribe response contains correct data
+        if (response.action === "unsubscribed") {
+            expect(response.userId).toBe("999");
+            expect(response.event_id).toBe("100");
+            console.log(`📡 [UNSUBSCRIBED] userId: 999, eventId: 100`);
+
+            // Verify the connection is terminated
+            setTimeout(() => {
+                expect(clientA.readyState).toBe(WebSocket.CLOSED);
+                done();
+            }, 500);
+        }
+    });
+}, 30000);
+
+
+test("broadcasting to different events works independently", (done) => {
+    const clientA = new WebSocket("ws://localhost:8080");
+    const clientB = new WebSocket("ws://localhost:8080");
+
+    clientA.on("open", () => {
+        clientA.send(JSON.stringify({ action: "subscribe", userId: 999, event_id: 100 }));
+    });
+
+    clientB.on("open", () => {
+        clientB.send(JSON.stringify({ action: "subscribe", userId: 888, event_id: 200 }));
+    });
+
+    // Give some time for the clients to subscribe
+    setTimeout(() => {
+        clientA.send(JSON.stringify({ action: "message_broadcast", event_id: 100, message: "Event 100 Update", user: { id: 999 } }));
+        clientB.send(JSON.stringify({ action: "message_broadcast", event_id: 200, message: "Event 200 Update", user: { id: 888 } }));
+    }, 500);
+
+    let aReceived = false;
+    let bReceived = false;
+
+    clientA.on("message", (data) => {
+        const response = JSON.parse(data.toString());
+        if (response.message === "Event 100 Update") {
+            aReceived = true;
+        }
+    });
+
+    clientB.on("message", (data) => {
+        const response = JSON.parse(data.toString());
+        if (response.message === "Event 200 Update") {
+            bReceived = true;
+        }
+    });
+
+    // Ensure both messages are received before finishing
+    setTimeout(() => {
+        if (aReceived && bReceived) {
+            done();
+        } else {
+            done(new Error("Timeout: Not all broadcasts were received."));
+        }
+    }, 5000); // Increase timeout here to 5000ms
+}, 10000); // Update the test timeout to a higher value

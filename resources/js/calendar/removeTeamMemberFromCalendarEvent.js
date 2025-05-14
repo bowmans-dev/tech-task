@@ -1,3 +1,6 @@
+import { removeTeamMember } from "./state";
+import { unsubscribeUserFromEvent } from "./state";
+
 export function removeTeamMemberFromCalendarEvent(eventId, userId) {
 
     fetch(`/calendar/event/${eventId}/team-members/${userId}`, {
@@ -10,16 +13,15 @@ export function removeTeamMemberFromCalendarEvent(eventId, userId) {
         .then(response => {
             if (response.ok) {
                 // Remove the userDiv visually
-                const userDiv = document.querySelector(`.team-members[data-user-id="${userId}"]`);
+                const userDiv = document.querySelector(`.team-members[data-user-id="${userId}"]`); 
                 
                 if (userDiv) {
                     userDiv.classList.toggle('hidden');
                     userDiv.remove();
                 }
 
-                // Remove the user from the teamMembers array
-                calendarState.teamMembers = calendarState.teamMembers.filter(member => member.userId !== userId);
-                calendarState.existingTeamMembers = calendarState.existingTeamMembers.filter(member => member.userId !== userId);
+                removeTeamMember(userId); // Use state.js method instead
+                unsubscribeUserFromEvent(userId); // Use state.js method instead
 
                 console.log(`Team member with ID ${userId} removed from event ${eventId}`);
             } else {

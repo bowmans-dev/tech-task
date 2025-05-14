@@ -23,6 +23,11 @@ class CalendarController extends Controller
         return $this->calendarService->saveCalendarEvent($data);
     }
 
+    public function deleteCalendarEvent(Request $request, $eventId)
+    {
+        return $this->calendarService->deleteCalendarEvent($request, $eventId);
+    }
+
     public function removeTeamMember($eventId, $userId)
     {
         $deleted = CalendarEventTeamMember::where('calendar_event_id', $eventId)

@@ -12,6 +12,7 @@
 
 
     <div class="lg:ml-[250px]" style="calendar-wrapper max-width: 900px; margin-bottom: 230px;">
+        
         <div id='calendar' style="padding: 17px; padding-bottom: 0px;"></div>
         <div class="text-center text-gray-400">Drag and Drop a Group Member to Create a New Event</div>
 
@@ -97,7 +98,7 @@
     
                 </div>
                 <div class="flex flex-row items-center">
-                    <button onclick="saveCalendarEvent()" 
+                    <button onclick="saveCalendarEvent(); window.location.reload();" 
                             class="save-event-button w-full max-w-[300px] py-2 px-4 text-white bg-blue-500 hover:bg-blue-600 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2">
                         Save Event
                     </button>
@@ -109,13 +110,13 @@
                         <textarea 
                             name="content" 
                             id="message-content"
-                            placeholder="Type your message..." 
-                            class="flex-grow bg-white border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-                            rows="1"></textarea>
+                            placeholder="Admins can't send messages..." 
+                            class="flex-grow bg-gray-300 border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                            rows="1" disabled></textarea>
                         
                         <!-- Send button -->
                         <div
-                            id="send-message-button" onclick="e.preventDefault()"
+                            id="send-message-button" 
                             class="cursor-pointer ml-3 bg-blue-500 hover:bg-blue-600 text-white font-medium px-4 py-2 rounded-lg shadow-md flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />

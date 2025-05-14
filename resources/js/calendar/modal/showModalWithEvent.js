@@ -1,14 +1,18 @@
-export function showModalWithEvent({ id, title, userId, date, time, files, teamMembers }) {
-    const modal = document.getElementById('event-modal');
+import { state } from "../state";
 
-    calendarState.existingTeamMembers = teamMembers;
+export function showModalWithEvent({ eventId, title, userId, date, time, files, teamMembers }) {
+    console.log("eventId ", eventId);
 
-    console.log(calendarState.existingTeamMembers);
+    const modal = document.getElementById('event-modal'); 
+
+    state.existingTeamMembers = teamMembers;
+
+    console.log(state.existingTeamMembers);
 
     document.getElementById('eventName').value = title;
     document.getElementById('modal-event-time').value = time || '';
     document.getElementById('modal-event-date').textContent = date;
-    document.getElementById('eventId').value = id;
+    document.getElementById('eventId').value = eventId;
 
     modal.dataset.userId = userId;
     modal.dataset.date = date;
@@ -67,7 +71,7 @@ export function showModalWithEvent({ id, title, userId, date, time, files, teamM
                     <span class="text-sm font-medium text-gray-700">${firstName} ${lastName}</span>
                 </a>
                 <button
-                    onclick="removeTeamMemberFromCalendarEvent(${id}, ${userId})" class="absolute cursor-pointer top-2 right-4 text-gray-500 hover:text-gray-700 z-50" aria-label="Close Modal">
+                    onclick="removeTeamMemberFromCalendarEvent(${eventId}, ${userId})" class="absolute cursor-pointer top-2 right-4 text-gray-500 hover:text-gray-700 z-50" aria-label="Close Modal">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 z-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -78,13 +82,19 @@ export function showModalWithEvent({ id, title, userId, date, time, files, teamM
         });
     } 
 
+    
     modal.classList.remove('hidden');
 
-    const event = calendar.getEventById(id);
-
+    const event = calendar.getEventById(eventId);
+    
     const eventNameInput = document.getElementById('eventName');
-    eventNameInput.value = event.title || 'New Event';
-    eventNameInput.oninput = function () {
-        event.setProp('title', this.value);
-    };
+    
+    if (event) {
+        eventNameInput.value = event.title;
+        eventNameInput.oninput = function () {
+            event.setProp('title', this.value);
+        };
+    } else {
+        eventNameInput.value = 'New Event';
+    }
 }

@@ -31,7 +31,7 @@ class NotifyTeamMembersOnMessageSent
 
         // Websocket handshake
         $key = base64_encode(random_bytes(16));
-        $handshake  = "GET / HTTP/1.1\r\n";
+        $handshake  = "GET /internal HTTP/1.1\r\n";
         $handshake .= "Host: localhost:8080\r\n";
         $handshake .= "Upgrade: websocket\r\n";
         $handshake .= "Connection: Upgrade\r\n";

@@ -1,17 +1,18 @@
 export function openModalToCreateEvent(userId = null, profilePicture = null, firstName = null, lastName = null, date = null) {
     document.getElementById('messages').innerHTML = "";
-    console.log(firstName, lastName);
-    if (userId) {
-        if (profilePicture == './storage/') { profilePicture = '/storage/default_profile_image.png' }
-        document.getElementById('modal-profile-picture').src = profilePicture;
-        document.getElementById('modal-user-name').textContent = `${firstName} ${lastName}`;
-        document.getElementById('modal-event-date').textContent = date;
-        document.getElementById('event-modal').dataset.date = date;
+
+    document.getElementById('event-modal').dataset.date = date;
+    document.getElementById('event-modal').dataset.userId = userId;
+
+    const profilePictureElement = document.getElementById('modal-profile-picture');
+
+    if (profilePicture == "./storage/") {
+        profilePicture = '/storage/default_profile_image.png';
     }
 
-    document.getElementById('event-modal').classList.remove('hidden');
-    document.getElementById('event-modal').classList.add('flex');
-    document.getElementById('event-modal').dataset.userId = userId;
+    profilePictureElement.src = profilePicture;
+    
+    document.getElementById('modal-user-name').textContent = firstName + " " + lastName;
 
     const event = calendar.getEventById(userId);
 

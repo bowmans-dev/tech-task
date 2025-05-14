@@ -1,54 +1,43 @@
+import { state } from "../../state";
+import { isUserAlreadyInTeam } from "../../state";
+import { isUserInDatabase } from "../../state";
+import { addTeamMember } from "../../state";
+import { removeTeamMember } from "../../state";
+import { unsubscribeUserFromEvent } from "../../state";
+import { removeTeamMemberFromCalendarEvent } from "../../removeTeamMemberFromCalendarEvent";
+
 export function handleDrop(event) {
     event.preventDefault(); // Prevent default browser behavior
     event.stopPropagation(); // Stop the event from bubbling up
 
-    const dropZone = event.currentTarget; // Get the drop zone element
-    const eventId = dropZone.dataset.eventId; // Access the eventId
-
     const rawData = event.dataTransfer.getData('text/plain'); // Dragged user data
     const files = Array.from(event.dataTransfer.files); // Dragged files
 
-    console.log("existingTeamMembers: ", calendarState.existingTeamMembers);
+    console.log("existingTeamMembers: ", state.existingTeamMembers);
 
     // Handle dropped users
     if (rawData) {
         try {
             const data = JSON.parse(rawData);
             const { userId, profilePicture, firstName, lastName } = data;
-
-            // Normalize userId comparison to ensure type consistency
-            const normalizedUserId = String(userId); // Convert dropped userId to a string
-
-            // Check if the user already exists in the database
-            const alreadyExistsInDatabase = calendarState.existingTeamMembers.some(
-                member => String(member.userId) === normalizedUserId // Convert database userId to string
-            );
-            if (alreadyExistsInDatabase) {
-                alert(`${firstName} ${lastName} is already in the list.`);
-                return; // Exit if the user already exists in the database
-            }
-
-            // Check if the user is already in the teamMembers array
-            const alreadyExistsInTeam = calendarState.teamMembers.some(
-                member => String(member.userId) === normalizedUserId
-            );
-            if (alreadyExistsInTeam) {
-                alert(`${firstName} ${lastName} is already in the list.`);
-                return; // Exit if the user is already added
-            }
-
-            console.log("User dropped:", data);
             
             const teamMembersDiv = document.getElementById('team-members');
 
-            // Check if the user is already added to the teamMembers array
-            if (!calendarState.teamMembers.some(member => member.userId === userId)) {
-                // Append the user to the teamMembers array
-                calendarState.teamMembers.push({ userId, profilePicture, firstName, lastName });
+            // Check if the user is already in the DBs stored existing members
+            if (isUserInDatabase(userId)) {
+                alert(`${firstName} ${lastName} is already in the list.`);
+                return;
+            }
 
-                // Update the UI
-                // const dropZone = document.getElementById('drop-zone');
-                const userDiv = document.createElement('div');
+            // Check if the user is already in the teamMembers array
+            if (isUserAlreadyInTeam(userId)) {
+                alert(`${firstName} ${lastName} is already in the list.`);
+                return;
+            }
+
+            // Check if the user is already added to the teamMembers array
+
+            const userDiv = document.createElement('div');
                 userDiv.className = 'team-members relative flex items-center mb-2 mt-2 border border-gray-900/25 rounded-full p-1';
                 userDiv.setAttribute('data-user-id', userId);
                 userDiv.innerHTML = `
@@ -64,33 +53,43 @@ export function handleDrop(event) {
                         </svg>
                     </button>
                 `;
+            
+            // Add the user to the teamMembers div
+            teamMembersDiv.appendChild(userDiv);
 
-                teamMembersDiv.appendChild(userDiv);
-
-
-
-                // Add a click event listener to the user div buttom to remove team member from dropzone
-                const removeButton = userDiv.querySelector('button');
-                removeButton.addEventListener('click', () => {
-                    // Access the closest userDiv and the userId from its data attribute
-                    const userId = userDiv.getAttribute('data-user-id');
-
-                    // Remove the userDiv from the DOM
-                    userDiv.remove();
-
-                    // Update the teamMembers array in calendarState
-                    calendarState.teamMembers = calendarState.teamMembers.filter(
-                        (member) => member.userId != userId
-                    );
-
-                });
+            // Add the user to the teamMembers array
+            addTeamMember(data);
+            
+            // Save the calendar event after adding the user
+            saveCalendarEvent();
 
 
+            const eventId = state.currentEvent.id; 
 
-                console.log("User added to teamMembers:", calendarState.teamMembers);
-            } else {
-                alert(`${firstName} ${lastName} is already in the list.`);
-            }
+            // Add a click event listener to the user div buttom to remove team member from dropzone
+            const removeButton = userDiv.querySelector('button');
+            removeButton.addEventListener('click', () => {
+                // Access the closest userDiv and the userId from its data attribute
+                const userId = userDiv.getAttribute('data-user-id');
+
+                // Remove the userDiv from the DOM
+                userDiv.remove();
+
+                // Update the teamMembers array in state
+                removeTeamMember(userId);
+                
+                // Inform the server via WebSocket that this team member should be unsubscribed.
+                unsubscribeUserFromEvent(userId);
+
+                // Send request to remove team member from the event in the database
+                removeTeamMemberFromCalendarEvent(eventId, userId)
+
+            });
+
+
+
+            console.log("User added to teamMembers:", state.teamMembers);
+            
         } catch (error) {
             console.error("Error parsing user data:", error);
         }
@@ -102,9 +101,9 @@ export function handleDrop(event) {
 
         files.forEach(file => {
             // Check if the file is already added to the droppedFiles array
-            if (!calendarState.droppedFiles.some(f => f.name === file.name && f.size === file.size)) {
+            if (!state.droppedFiles.some(f => f.name === file.name && f.size === file.size)) {
                 // Append the file to the droppedFiles array
-                calendarState.droppedFiles.push(file);
+                state.droppedFiles.push(file);
 
                 // Update the UI
                 const fileType = file.type;
@@ -140,6 +139,8 @@ export function handleDrop(event) {
                 console.log("File already exists in droppedFiles:", file.name);
             }
         });
+        saveCalendarEvent();
+        state.droppedFiles = [];
     }
 
 }

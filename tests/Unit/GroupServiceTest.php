@@ -21,21 +21,6 @@ class GroupServiceTest extends TestCase
         $this->groupService = app(GroupService::class);
     }
 
-    public function testAddUserToGroup()
-    {
-        $user = User::factory()->create();
-        $group = Group::factory()->create();
-
-        $response = $this->groupService->addUserToGroup($user->id, $group->id);
-
-        $this->assertDatabaseHas('user_groups', [
-            'user_id' => $user->id,
-            'group_id' => $group->id,
-        ]); 
-
-        $this->assertStringContainsString('turbo-stream', $response->getContent());
-    }
-
     public function testCreateGroup()
     {
         $groupName = 'New Group';
@@ -46,6 +31,23 @@ class GroupServiceTest extends TestCase
         $this->assertDatabaseHas('groups', ['name' => $groupName]); 
         $this->assertStringContainsString('turbo-stream', $response->getContent());
         $this->assertJson($response->getContent());
+    }
+
+    public function testAddUserToGroup()
+    {
+        $user = User::factory()->create();
+        $group = Group::factory()->create();
+
+        $response = $this->groupService->addUserToGroup($user->id, $group->id);
+
+        $this->assertDatabaseHas('user_groups', [
+            'user_id' => $user->id,
+            'group_id' => $group->id,
+        ]);
+
+        $content = $response->toHtml();
+        $this->assertStringContainsString('turbo-stream', $content);
+        $this->assertStringContainsString('groups-accordion', $content);
     }
 
     public function testDeleteGroup()

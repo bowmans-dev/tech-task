@@ -1,13 +1,10 @@
 import { state } from "../state";
 
 export function showModalWithEvent({ eventId, title, userId, date, time, files, teamMembers }) {
-    console.log("eventId ", eventId);
 
     const modal = document.getElementById('event-modal'); 
 
     state.existingTeamMembers = teamMembers;
-
-    console.log(state.existingTeamMembers);
 
     document.getElementById('eventName').value = title;
     document.getElementById('modal-event-time').value = time || '';

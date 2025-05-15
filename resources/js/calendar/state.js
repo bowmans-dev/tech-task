@@ -60,26 +60,32 @@ export function connectToEventWebSocket() {
   const socket = new WebSocket("ws://localhost:8080");
 
   if (state.currentWs) {
-    console.log("Closing previous WebSocket connection.");
+    console.log("🔌Closing previous WebSocket connection.");
     state.currentWs.close();
   }
 
   state.currentWs = socket;
 
   socket.onopen = () => {
-    console.log(`Connected to WebSocket for event ${eventId}`);
+    console.log(`✅Connected to WebSocket for event ${eventId}`);
     socket.send(JSON.stringify({
       action: "subscribe",
       event_id: eventId,
       userId: normalizedUserId,
       existingTeamMembers: state.currentEvent.teamMembers,
+      currentEvent: {
+        title: state.currentEvent.title,
+        date: state.currentEvent.date,
+        time: state.currentEvent.time,
+        allDay: state.currentEvent.allDay,
+      }
     }));
   };
 
   socket.onmessage = (message) => {
     try {
       const data = JSON.parse(message.data);
-      console.log("WebSocket message received:", data);
+      console.log("📨 WebSocket message received:", data);
 
       if (data.action === "unsubscribed") {
         console.log(`User ${data.userId} has unsubscribed from ${data.event_id}`);

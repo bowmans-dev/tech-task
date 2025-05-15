@@ -14,10 +14,8 @@ class HandleUserRemovedFromGroup
         $user = $event->user;
         $group = $event->group;
 
-        // Detach user from group in the database
         $user->groups()->detach($group);
 
-        // Optionally log the action
         Log::info('User removed from group and persisted successfully.', [
             'user_id' => $user->id,
             'group_id' => $group->id,

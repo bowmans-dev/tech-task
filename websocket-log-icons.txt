@@ -1,0 +1,19 @@
+📢 [INTERNAL BROADCAST]
+👥 Recipients
+📨 Sending / receiving
+
+🔧 Total connected clients
+
+📡 [SUBSCRIBE]
+📥 Added user
+📋 [AFTER SUBSCRIBE]
+
+📡 [UNSUBSCRIBE]
+🫷 Removed user
+📋 [AFTER UNSUBSCRIBE]
+
+
+🔧 All Event Subscriptions
+
+🔌 Client disconnected
+📉 Updated subscriptions

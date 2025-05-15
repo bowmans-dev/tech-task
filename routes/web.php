@@ -71,4 +71,6 @@ Route::middleware(AdminMiddleware::class)->group(function () {
     Route::get('/users/{user}', [AdminController::class, 'show'])->name('users.show');
     Route::patch('/users/{user}', [AdminController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [AdminController::class, 'destroy'])->name('users.destroy');
+    
+    Route::get('/active', function () { return view('Role.Admin.pages.monitor.websockets');});
 });

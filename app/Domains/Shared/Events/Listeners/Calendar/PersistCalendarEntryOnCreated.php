@@ -21,12 +21,10 @@ class PersistCalendarEntryOnCreated
 
         Log::info('Calendar Event Created:', $event->toArray());
 
-        // Decode team_members if it's a JSON string
         if (isset($data['team_members']) && is_string($data['team_members'])) {
             $data['team_members'] = json_decode($data['team_members'], true);
         }
 
-        // Handle the team members
         if (isset($data['team_members']) && is_array($data['team_members'])) {
             foreach ($data['team_members'] as $teamMember) {
                 $userId = $teamMember['userId'] ?? null;
@@ -34,7 +32,6 @@ class PersistCalendarEntryOnCreated
                 if ($userId) {
                     Log::info('Adding user to calendar event:', ['event_id' => $event->id, 'user_id' => $userId]);
 
-                    // Use Eloquent to insert into the pivot table
                     CalendarEventTeamMember::create([
                         'calendar_event_id' => $event->id,
                         'user_id' => $userId,

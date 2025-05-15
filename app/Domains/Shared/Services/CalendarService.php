@@ -2,7 +2,7 @@
 
 namespace App\Domains\Shared\Services;
 
-// use App\Domains\Shared\Events\DomainEvents\Calendar\CalendarEntryDeletedEvent;
+use App\Domains\Shared\Events\DomainEvents\Calendar\CalendarEntryDeletedEvent;
 use App\Domains\Shared\Events\DomainEvents\Calendar\CalendarEntryCreatedEvent;
 use App\Domains\Shared\Events\DomainEventPublisher;
 
@@ -41,58 +41,31 @@ class CalendarService
             ]
         );
 
-
         DomainEventPublisher::publish(new CalendarEntryCreatedEvent($event,$data));
 
         return response()->json(['message' => 'Event saved successfully!', 'event' => $event], 200);
     }
+    
 
     public function deleteCalendarEvent(Request $request, $eventId)
     {
-        // Get the requester’s user id
         $currentUserId = $request->input('currentUserId');
 
-        // Retrieve the event from the calendar table.
         $event = Calendar::find($eventId);
 
         if (!$event) {
             return response()->json(['success' => false, 'message' => 'Event not found.']);
         }
 
-        // Check that the current user is the creator of the event.
         if ($event->user_id != $currentUserId) {
             return response()->json(['success' => false, 'message' => 'Only the creator can delete the event.']);
         }
 
-        // Begin a transaction
-        DB::beginTransaction();
-        try {
+        DomainEventPublisher::publish(new CalendarEntryDeletedEvent($event, $eventId));
 
-            // Remove team member records
-            CalendarEventTeamMember::where('calendar_event_id', $eventId)->delete();
-
-            // Delete all messages for this event.
-            Message::where('event_id', $eventId)->delete();
-
-            // Check and delete the directory on the 'public' disk:
-            $directory = 'events/' . $eventId;
-            if (Storage::disk('public')->exists($directory)) {
-                Storage::disk('public')->deleteDirectory($directory);
-            }
-
-            // Delete file records from the database.
-            CalendarFile::where('calendar_id', $eventId)->delete();
-
-            // Permanently delete the event.
-            Calendar::destroy($eventId);
-
-            DB::commit();
-            return response()->json(['success' => true]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json(['success' => false, 'message' => 'Error deleting event.'], 500);
-        }
+        return response()->json(['success' => true, 'message' => 'Event deletion triggered.']);
     }
+
 
     public function showCalendar()
     {

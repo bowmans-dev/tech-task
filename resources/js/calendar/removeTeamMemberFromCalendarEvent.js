@@ -1,4 +1,3 @@
-import { removeTeamMember } from "./state";
 import { unsubscribeUserFromEvent } from "./state";
 
 export function removeTeamMemberFromCalendarEvent(eventId, userId) {
@@ -20,8 +19,7 @@ export function removeTeamMemberFromCalendarEvent(eventId, userId) {
                     userDiv.remove();
                 }
 
-                removeTeamMember(userId); // Use state.js method instead
-                unsubscribeUserFromEvent(userId); // Use state.js method instead
+                unsubscribeUserFromEvent(userId);
 
                 console.log(`Team member with ID ${userId} removed from event ${eventId}`);
             } else {

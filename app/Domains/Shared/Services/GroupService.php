@@ -4,6 +4,8 @@ namespace App\Domains\Shared\Services;
 
 use App\Models\User;
 use App\Models\Group;
+use Illuminate\Http\JsonResponse;
+use HotwiredLaravel\TurboLaravel\Http\PendingTurboStreamResponse;
 use App\Domains\Shared\Events\DomainEvents\Groups\GroupCreatedEvent;
 use App\Domains\Shared\Events\DomainEvents\Groups\GroupDeletedEvent;
 use App\Domains\Shared\Events\DomainEvents\Groups\UserAddedToGroupEvent;
@@ -12,34 +14,15 @@ use App\Domains\Shared\Events\DomainEventPublisher;
 
 class GroupService
 {
-    /**
-     * Publish an event for adding a user to a group.
-     *
-     * @param int $userId
-     * @param int $groupId
-     */
-    public function addUserToGroup($userId, $groupId)
-    {
-        $user = User::findOrFail($userId);
-        $group = Group::findOrFail($groupId);
-
-        DomainEventPublisher::publish(new UserAddedToGroupEvent($user, $group));
-
-        $groups = Group::with('users')->get();
-
-        return response(
-            turbo_stream()
-                ->target('groups-accordion')
-                ->action('replace')
-                ->view('components.navigation.group-accordion', compact('groups', 'user', 'group'))
-        )->header('Content-Type', 'text/vnd.turbo-stream.html');
-
-    }
 
     /**
      * Publish an event for creating a group.
      *
      * @param string $name
+     * @return JsonResponse
+     * 
+     * Returns JSON response to provide the frontend with
+     * the new group ID alongside the turbo stream
      */
     public function createGroup($name)
     {
@@ -61,10 +44,33 @@ class GroupService
     }
 
     /**
+     * Publish an event for adding a user to a group.
+     *
+     * @param int $userId
+     * @param int $groupId
+     * @return PendingTurboStreamResponse
+     */
+    public function addUserToGroup($userId, $groupId)
+    {
+        $user = User::findOrFail($userId);
+        $group = Group::findOrFail($groupId);
+
+        DomainEventPublisher::publish(new UserAddedToGroupEvent($user, $group));
+
+        $groups = Group::with('users')->get();
+
+        return turbo_stream()
+            ->target('groups-accordion')
+            ->action('replace')
+            ->view('components.navigation.group-accordion', compact('groups', 'user', 'group'));
+
+    }
+
+    /**
      * Delete a group and publish an event for its deletion.
      *
      * @param int $groupId
-     * @return \Illuminate\Http\Response
+     * @return PendingTurboStreamResponse
      */
     public function deleteGroup($groupId)
     {
@@ -85,6 +91,7 @@ class GroupService
      *
      * @param int $userId
      * @param int $groupId
+     * @return PendingTurboStreamResponse
      */
     public function removeUserFromGroup($userId, $groupId)
     {
@@ -99,10 +106,5 @@ class GroupService
             ->target('groups-accordion')
             ->action('replace')
             ->view('components.navigation.group-accordion', compact('groups'));
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Domain event published: UserRemovedFromGroup.',
-        ]);
     }
 }

@@ -39,9 +39,8 @@ class NotifyTeamMembersOnMessageSent
         $handshake .= "Sec-WebSocket-Version: 13\r\n\r\n";
         fwrite($socket, $handshake);
 
-        // Read handshake response for debugging
+        // Read handshake response for optional debugging
         $response = fread($socket, 1500);
-        Log::info("🤝 Handshake response:", ['response' => $response]);
 
         $data = json_encode([
             'action'   => 'message_broadcast',
@@ -69,9 +68,8 @@ class NotifyTeamMembersOnMessageSent
     }
 }
 
-/**
- * Format Websocket frames correctly
- */
+
+// Format Websocket frames
 function createWebSocketFrame($data)
 {
     $dataLength = strlen($data);

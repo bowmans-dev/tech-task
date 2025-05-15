@@ -13,10 +13,8 @@ class PersistUserOnUserAddedToGroup
         $user = $event->user;
         $group = $event->group;
 
-        // Attach user to group in the database
         $user->groups()->attach($group);
 
-        // Optionally log the action
         Log::info('User added to group and persisted successfully.', [
             'user_id' => $user->id,
             'group_id' => $group->id,

@@ -22,6 +22,8 @@ use App\Domains\Shared\Events\Listeners\Groups\HandleUserRemovedFromGroup;
 
 use App\Domains\Shared\Events\DomainEvents\Calendar\CalendarEntryCreatedEvent;
 use App\Domains\Shared\Events\Listeners\Calendar\PersistCalendarEntryOnCreated;
+use App\Domains\Shared\Events\DomainEvents\Calendar\CalendarEntryDeletedEvent;
+use App\Domains\Shared\Events\Listeners\Calendar\HandleCalendarEventDeleted;
 
 use App\Domains\Shared\Events\DomainEvents\Messages\MessageSent;
 use App\Domains\Shared\Events\Listeners\Messages\NotifyTeamMembersOnMessageSent;
@@ -54,6 +56,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         CalendarEntryCreatedEvent::class => [
             PersistCalendarEntryOnCreated::class,
+        ],
+        CalendarEntryDeletedEvent::class => [
+            HandleCalendarEventDeleted::class,
         ],
         MessageSent::class => [
             NotifyTeamMembersOnMessageSent::class,

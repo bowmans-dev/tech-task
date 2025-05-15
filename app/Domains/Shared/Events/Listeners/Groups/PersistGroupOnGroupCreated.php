@@ -11,13 +11,10 @@ class PersistGroupOnGroupCreated
 {
     public function handle(GroupCreatedEvent $event)
     {
-        // Extract the group from the event
         $group = $event->group;
 
-        // Persist the group to the database
         $group->save();
 
-        // Log successful persistence
         Log::info('Group created and persisted successfully.', [
             'group_id' => $group->id,
             'group_name' => $group->name,

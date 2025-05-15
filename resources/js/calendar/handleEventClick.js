@@ -77,11 +77,11 @@ function scrollModalIntoView() {
 export async function handleEventClick(info) {
   const event = info.event;
 
-  console.groupCollapsed(`[EVENT CLICK] Handling click for event ID: ${event.id}`);
+  console.groupCollapsed(`🔍[EVENT CLICK] Handling click for event ID: ${event.id}`);
 
   // 1. Parse current user and event data
   const currentUserId = document.getElementById('calendar-wrapper')?.getAttribute('data-user-id');
-  console.log("Current User ID (from DOM):", currentUserId);
+  console.log("👤Current User ID (from DOM):", currentUserId);
 
   const rawEventData = {
     id: event.id,
@@ -89,14 +89,14 @@ export async function handleEventClick(info) {
     startStr: event.startStr,
     extendedProps: event.extendedProps,
   };
-  console.log("Raw Event Data:", rawEventData);
+  console.log("📦Raw Event Data:", rawEventData);
 
   // 2. Update the global state
   if (event.id) {
     state.currentEvent = updateCurrentEvent(event);
   }
 
-  console.log("Updated Global State (state.currentEvent):", state.currentEvent);
+  console.log("🌍🗓️ Updated Global State (state.currentEvent):", state.currentEvent);
 
   const eventId = state.currentEvent.id;
 
@@ -119,25 +119,14 @@ export async function handleEventClick(info) {
   const files = event.extendedProps.files || [];
   const teamMembers = event.extendedProps.team_members || [];
 
-  console.log("Parsed Event Details:", {
-    userIdFromProps: userId,
-    title,
-    date,
-    time,
-    files,
-    teamMembers,
-    userFromProps: user
-  });
-
   // 5. Fetch messages for this event
   await fetchMessagesForEvent(eventId);
 
   // 6. Update modal user info (fallback if needed)
   if (user && user.first_name && user.last_name) {
     updateModalUserInfo(user);
-    console.log("Modal user updated using event user data.");
+    console.log("🧑‍🏫 Modal user updated using event user data.");
   } else {
-
     console.warn("Event user data missing or incomplete. Falling back to DOM user data.");
     userId = updateModalUserInfoFallback();
   }
@@ -162,7 +151,7 @@ export async function handleEventClick(info) {
     teamMembers
   });
 
-  console.log("Modal populated with event details.");
+  console.log("🗓️📝Modal populated with event details.");
 
   // 8. Scroll modal into view
   scrollModalIntoView();
@@ -170,11 +159,6 @@ export async function handleEventClick(info) {
   // 9. WebSocket connection
   console.log("Attempting WebSocket subscription:");
   console.log("Subscribing with userId:", currentUserId, "eventId:", eventId);
-  console.log("State BEFORE WebSocket:", {
-    currentEvent: state.currentEvent,
-    existingTeamMembers: state.existingTeamMembers,
-    teamMembers: state.teamMembers
-  });
 
   connectToEventWebSocket();
 

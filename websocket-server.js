@@ -5,6 +5,8 @@ const server = http.createServer();
 const wss = new WebSocketServer({ server });
 
 const eventSubscriptions = {}; // Tracks subscribed users per event ID
+// global map that tracks which users are subscribed to each event, 
+// making it easy to broadcast messages to all relevant users.
 
 server.on("error", (err) => {
     if (err.code === "EADDRINUSE") {
@@ -24,6 +26,52 @@ server.listen(8080, () => {
 
 wss.on("connection", (ws, req) => {
 
+    if (req.url === "/monitor") {
+        ws.isMonitor = true;
+
+        const sendUpdate = () => {
+            // Aggregate details from all non-monitor clients
+            const allUserDetails = {};
+            const allEventDetails = {};
+
+            for (const client of wss.clients) {
+                if (client.isMonitor) continue;
+
+                if (client.userDetails) {
+                    Object.assign(allUserDetails, client.userDetails);
+                }
+
+                if (client.eventDetails) {
+                    Object.assign(allEventDetails, client.eventDetails);
+                }
+            }
+
+            ws.send(JSON.stringify({
+                type: "monitor_update",
+                eventSubscriptions,
+                eventDetails: allEventDetails,
+                userDetails: allUserDetails,
+                clients: [...wss.clients]
+                .filter(c => !c.isMonitor)
+                .map((c) => ({
+                    subscriptions: c.subscriptions,
+                    isInternal: c.isInternal,
+                }))
+            }));
+        };
+
+
+        // Immediately send snapshot
+        sendUpdate();
+
+        // Set up interval for continuous updates
+        const interval = setInterval(sendUpdate, 1000); // every second
+
+        ws.on("close", () => clearInterval(interval));
+        return;
+    }
+
+
     if (req.url === "/internal") {
         ws.isInternal = true;
 
@@ -36,15 +84,15 @@ wss.on("connection", (ws, req) => {
                 const recipients = eventSubscriptions[eventId] || [];
                 if (!recipients.includes(senderId)) recipients.push(senderId);
 
-                console.log(`\n\n [INTERNAL BROADCAST] from user ${senderId} to event ${eventId}`);
-                console.log(`Recipients:`, recipients);
+                console.log(`\n\n 📢 [INTERNAL BROADCAST] from user ${senderId} to event ${eventId}`);
+                console.log(`👥 Recipients:`, recipients);
 
                 wss.clients.forEach((client) => {
                     if (
                         !client.isInternal &&
                         client.subscriptions?.some(sub => sub.eventId === eventId && recipients.includes(sub.userId))
                     ) {
-                        console.log(`Sending to client userId: ${client.subscriptions.map(s => s.userId).join(", ")}`);
+                        console.log(`📨 Sending to client userId: ${client.subscriptions.map(s => s.userId).join(", ")}`);
                         client.send(JSON.stringify(data));
                     }
                 });
@@ -61,7 +109,8 @@ wss.on("connection", (ws, req) => {
         try {
             const jsonData = JSON.parse(message.toString());
 
-            console.log(`\n\nTotal connected clients: ${wss.clients.size}`);
+            const totalConnectedClients = [...wss.clients].filter(c => !c.isMonitor && !c.isInternal);
+            console.log(`\n\n🔧 Total connected clients: ${totalConnectedClients.length}`);
 
             if (jsonData.action === "subscribe") {
                 const subscribingUserId = String(jsonData.userId);
@@ -72,6 +121,8 @@ wss.on("connection", (ws, req) => {
                     return;
                 }
 
+                console.log(`📡 [SUBSCRIBE] Request from userId: ${subscribingUserId} for eventId: ${eventId}`);
+
                 ws.subscriptions.push({ userId: subscribingUserId, eventId });
 
                 if (!eventSubscriptions[eventId]) {
@@ -80,20 +131,51 @@ wss.on("connection", (ws, req) => {
 
                 if (!eventSubscriptions[eventId].includes(subscribingUserId)) {
                     eventSubscriptions[eventId].push(subscribingUserId);
-                    console.log(`Added user ${subscribingUserId} to eventSubscriptions[${eventId}]`);
+                    console.log(`📥 Added user ${subscribingUserId} to eventSubscriptions[${eventId}]`);
                 }
 
-                console.log("[AFTER SUBSCRIBE] eventSubscriptions state:", eventSubscriptions[eventId]);
+                console.log(`📋 [AFTER SUBSCRIBE] [${eventId}] eventSubscriptions state:`, eventSubscriptions[eventId]);
+
+                // For Admins /active (Live Event Websocket Connection Monitoring)
+                const allUsers = jsonData.existingTeamMembers || [];
+
+                const user = allUsers.find(u => String(u.userId) === String(subscribingUserId));
+
+                if (!ws.userDetails) ws.userDetails = {};
+                if (!ws.eventDetails) ws.eventDetails = {};
+
+                if (user) {
+                    ws.userDetails[subscribingUserId] = {
+                        id: user.userId,
+                        first_name: user.firstName,
+                        last_name: user.lastName,
+                        profile_picture: user.profilePicture || "/storage/default_profile_image.png"
+                    };
+                }
+                if (jsonData.currentEvent) {
+                    const { title, date } = jsonData.currentEvent;
+
+                    ws.eventDetails[eventId] = {
+                        title: title || `Event ${eventId}`,
+                        date: date || null,
+                    };
+                }
+
             }
+
 
             if (jsonData.action === "unsubscribe") {
 
                 const unsubscribedUserId = String(jsonData.userId);
                 const eventId = String(jsonData.event_id);
 
+                console.log(`📡 [UNSUBSCRIBE] userId: ${unsubscribedUserId} from eventId: ${eventId}`);
+
                 if (eventSubscriptions[eventId]) {
                     eventSubscriptions[eventId] = eventSubscriptions[eventId].filter(id => id !== unsubscribedUserId);
                 }
+
+                console.log(`🫷 Removed user ${unsubscribedUserId} from eventSubscriptions[${eventId}]`);
 
                 [...wss.clients].forEach((client) => {
                     if (
@@ -117,8 +199,8 @@ wss.on("connection", (ws, req) => {
                         }
                     }
                 });
-
-            }
+                console.log(`📋 [AFTER UNSUBSCRIBE] [${eventId}] eventSubscriptions state:`, eventSubscriptions[eventId]);
+            } 
 
             if (jsonData.action === "message_broadcast") {
                 const senderId = String(jsonData.user.id);
@@ -128,11 +210,10 @@ wss.on("connection", (ws, req) => {
                 if (!recipients.includes(senderId)) recipients.push(senderId);
 
                 console.log(`\n\n [MESSAGE_BROADCAST] from user ${senderId} to event ${eventId}`);
-                console.log(`Recipients:`, recipients);
+                console.log(`👥 Recipients:`, recipients);
 
-                console.log("[CLIENT STATES BEFORE BROADCAST]");
                 wss.clients.forEach((client) => {
-                    console.log(`   Client: subs =`, client.subscriptions);
+                    console.log(`📫 Client: subscriptions =`, client.subscriptions);
                 });
 
                 wss.clients.forEach((client) => {
@@ -140,7 +221,7 @@ wss.on("connection", (ws, req) => {
                         client.subscriptions?.some(sub => sub.eventId === eventId && recipients.includes(sub.userId))
                     ) {
                         if (client.readyState === WebSocket.OPEN) {
-                            console.log(`Broadcasting message to client with eventId: ${eventId}`);
+                            console.log(`📨 Broadcasting message to client with eventId: ${eventId}`);
                             client.send(JSON.stringify({
                                 action: "message_broadcast",
                                 message: jsonData.message,
@@ -151,13 +232,12 @@ wss.on("connection", (ws, req) => {
                     }
                 });
 
-                wss.clients.forEach((client) => {
-                    console.log(`   Client: subs =`, client.subscriptions);
-                });
             }
 
         } catch (error) {
             console.error("JSON parsing error:", error.message);
+        } finally {
+            console.log(`🔧 All Event Subscriptions:`, eventSubscriptions);
         }
     });
 
@@ -167,9 +247,16 @@ wss.on("connection", (ws, req) => {
         if (ws.subscriptions) {
             ws.subscriptions.forEach(({ userId, eventId }) => {
                 if (eventSubscriptions[eventId]) {
+                    // Remove the userId from the eventSubscriptions
                     eventSubscriptions[eventId] = eventSubscriptions[eventId].filter(id => id !== userId);
-                    console.log(`Client disconnected: userId = ${userId} disconnected from eventId = ${eventId}`);
-                    console.log(`Updated subscriptions for ${eventId}:`, eventSubscriptions[eventId]);
+                    console.log(`\n\n 🔌 Client disconnected: Event ${eventId}: User ${userId} disconnected`);
+                    console.log(`📉 Updated subscriptions for ${eventId}:`, eventSubscriptions[eventId]);
+
+                    // If no users are left for this eventId, clean up
+                    if (eventSubscriptions[eventId].length === 0) {
+                        delete eventSubscriptions[eventId];
+                        console.log(`🧹 Cleaned up empty eventSubscriptions[${eventId}]`);
+                    }
                 }
             });
         }

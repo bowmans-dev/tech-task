@@ -3,7 +3,6 @@ import { isUserAlreadyInTeam } from "../../state";
 import { isUserInDatabase } from "../../state";
 import { addTeamMember } from "../../state";
 import { removeTeamMember } from "../../state";
-import { unsubscribeUserFromEvent } from "../../state";
 import { removeTeamMemberFromCalendarEvent } from "../../removeTeamMemberFromCalendarEvent";
 
 export function handleDrop(event) {
@@ -77,9 +76,6 @@ export function handleDrop(event) {
 
                 // Update the teamMembers array in state
                 removeTeamMember(userId);
-                
-                // Inform the server via WebSocket that this team member should be unsubscribed.
-                unsubscribeUserFromEvent(userId);
 
                 // Send request to remove team member from the event in the database
                 removeTeamMemberFromCalendarEvent(eventId, userId)

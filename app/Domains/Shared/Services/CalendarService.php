@@ -30,6 +30,13 @@ class CalendarService
 
     public function saveCalendarEvent($data)
     {
+        
+        $event = !empty($data['id']) ? Calendar::findOrFail($data['id']) : null;
+        
+        if (auth('web')->id()) {
+            $data['user_id'] = $event ? $event->user_id : auth()->id();
+        }
+
         $event = Calendar::updateOrCreate(
             ['id' => $data['id'] ?? null],
             [

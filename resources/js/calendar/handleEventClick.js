@@ -1,8 +1,24 @@
 import { fetchMessagesForEvent } from './modal/messages/fetchMessagesForEvent';
-import { state, connectToEventWebSocket } from './state';
+import { state, getCurrentUser, connectToEventWebSocket } from './state';
 
 // Update the global state (state.currentEvent) from the existing saved fullcalendar (db) event.
 function updateCurrentEvent(event) {
+
+  let currentTeamMembers = event.extendedProps.team_members || [];
+
+  if (event.id == null || state.currentEvent.isNew) {
+    let currentUser = getCurrentUser();
+    let currentUserId = currentUser.userId;
+
+    if (!state.teamMembers.some(member => member.userId === currentUserId) && !state.existingTeamMembers.some(member => member.userId === currentUserId)) {
+
+      // Only add current user if there are no existing team members
+      if (currentTeamMembers.length === 0 && currentUserId !== "admin") {
+        currentTeamMembers.push(currentUser);
+      }
+    }
+  }
+
   return {
     id: event.id,
     title: event.title,
@@ -10,7 +26,7 @@ function updateCurrentEvent(event) {
     time: event.extendedProps.time,
     allDay: event.allDay,
     files: event.extendedProps.files || [],
-    teamMembers: event.extendedProps.team_members || [],
+    teamMembers: currentTeamMembers,
     isNew: false
   };
 }

@@ -10,7 +10,7 @@ class CreateCalendarFilesTable extends Migration
     {
         Schema::create('calendar_files', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('calendar_id')->constrained('calendars')->onDelete('cascade');  // Foreign key to the calendar table
+            $table->foreignId('calendar_id')->constrained('calendar')->onDelete('cascade');  // Foreign key to the calendar table
             $table->string('file_path');  // File path
             $table->timestamps();
         });

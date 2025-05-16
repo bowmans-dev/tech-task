@@ -29,15 +29,15 @@ const calendarWrapper = document.getElementById("calendar-wrapper");
 const currentUserId = calendarWrapper?.getAttribute("data-user-id") ?? "admin";
 
 export function getCurrentUser() {
-  const profilePicture = calendarWrapper?.getAttribute("data-user-picture");
-  const firstName = calendarWrapper?.getAttribute("data-user-first-name");
-  const lastName = calendarWrapper?.getAttribute("data-user-last-name");
+  const profilePicture = calendarWrapper?.getAttribute("data-profile-picture");
+  const firstName = calendarWrapper?.getAttribute("data-first-name");
+  const lastName = calendarWrapper?.getAttribute("data-last-name");
 
   return {
     userId: currentUserId,
-    profile_picture: profilePicture || "/storage/default_profile_image.png",
-    first_name: firstName || "User",
-    last_name: lastName || "Name"
+    profilePicture: profilePicture || "/storage/default_profile_image.png",
+    firstName: firstName || "User",
+    lastName: lastName || "Name"
   };
 }
 

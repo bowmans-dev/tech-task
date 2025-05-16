@@ -5,8 +5,6 @@ const server = http.createServer();
 const wss = new WebSocketServer({ server });
 
 const eventSubscriptions = {}; // Tracks subscribed users per event ID
-// global map that tracks which users are subscribed to each event, 
-// making it easy to broadcast messages to all relevant users.
 
 server.on("error", (err) => {
     if (err.code === "EADDRINUSE") {
@@ -103,7 +101,7 @@ wss.on("connection", (ws, req) => {
         return;
     }
 
-    ws.subscriptions = [];
+    ws.subscriptions = []; // Track event subscriptions for a given client connection
 
     ws.on("message", (message) => {
         try {
@@ -149,7 +147,7 @@ wss.on("connection", (ws, req) => {
                         id: user.userId,
                         first_name: user.firstName,
                         last_name: user.lastName,
-                        profile_picture: user.profilePicture || "/storage/default_profile_image.png"
+                        profile_picture: user.profilePicture
                     };
                 }
                 if (jsonData.currentEvent) {

@@ -1,17 +1,28 @@
 import { state } from "./state";
 export async function handleDateClick(info) {
 
-  // 1. Update your global state for the new event
+  // 1. Get user info from the calendar wrapper
+  const calendarWrapper = document.getElementById('calendar-wrapper');
+  let userId = calendarWrapper.getAttribute('data-user-id');
+  const profilePicture = calendarWrapper.getAttribute('data-profile-picture');
+  const firstName = calendarWrapper.getAttribute('data-first-name');
+  const lastName = calendarWrapper.getAttribute('data-last-name');
+
+  const eventOwner = { userId, profilePicture, firstName, lastName };
+
+  // 2. Update your global state for the new event
   state.currentEvent = {
     id: null,           // Will be updated when the event is saved
     title: 'New Event',
     date: info.dateStr,
     time: null,
     allDay: info.allDay,
-    isNew: true
+    isNew: true,
+    teamMembers: [eventOwner],
   };
+  state.teamMembers = [eventOwner];
 
-  // 2. Reset team members and file preview containers
+  // 3. Reset team members and file preview containers
   const teamMembersDiv = document.getElementById('team-members');
   teamMembersDiv.innerHTML = '';
   const teamMembersLabel = document.createElement('div');
@@ -20,13 +31,7 @@ export async function handleDateClick(info) {
 
   const filePreview = document.getElementById('file-preview');
   filePreview.innerHTML = '';
-
-  // 3. Get user info from the calendar wrapper
-  const calendarWrapper = document.getElementById('calendar-wrapper');
-  let userId = calendarWrapper.getAttribute('data-user-id');
-  const profilePicture = calendarWrapper.getAttribute('data-profile-picture');
-  const firstName = calendarWrapper.getAttribute('data-first-name');
-  const lastName = calendarWrapper.getAttribute('data-last-name');
+  
 
   // 4. Update modal elements with user info
   document.getElementById('modal-profile-picture').src = `/storage/${profilePicture}`;
@@ -36,6 +41,8 @@ export async function handleDateClick(info) {
   const modal = document.getElementById('event-modal');
   modal.dataset.date = info.dateStr;
   modal.dataset.userId = userId;
+
+  modal.classList.add('hidden');
 
   
   // 6. Trigger auto-save of the event
@@ -56,4 +63,6 @@ export async function handleDateClick(info) {
   eventNameInput.oninput = function () {
     event.setProp('title', this.value);
   };
+
+  window.location.reload();
 }

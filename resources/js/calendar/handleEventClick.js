@@ -1,32 +1,18 @@
 import { fetchMessagesForEvent } from './modal/messages/fetchMessagesForEvent';
-import { state, getCurrentUser, connectToEventWebSocket } from './state';
+import { state, connectToEventWebSocket } from './state';
 
 // Update the global state (state.currentEvent) from the existing saved fullcalendar (db) event.
 function updateCurrentEvent(event) {
 
-  let currentTeamMembers = event.extendedProps.team_members || [];
-
-  if (event.id == null || state.currentEvent.isNew) {
-    let currentUser = getCurrentUser();
-    let currentUserId = currentUser.userId;
-
-    if (!state.teamMembers.some(member => member.userId === currentUserId) && !state.existingTeamMembers.some(member => member.userId === currentUserId)) {
-
-      // Only add current user if there are no existing team members
-      if (currentTeamMembers.length === 0 && currentUserId !== "admin") {
-        currentTeamMembers.push(currentUser);
-      }
-    }
-  }
-
   return {
     id: event.id,
+    eventOwnerId: event.extendedProps.userId,
     title: event.title,
     date: event.startStr.split('T')[0],
     time: event.extendedProps.time,
     allDay: event.allDay,
     files: event.extendedProps.files || [],
-    teamMembers: currentTeamMembers,
+    teamMembers: event.extendedProps.team_members,
     isNew: false
   };
 }
@@ -47,13 +33,9 @@ function updateModalHiddenFields(eventId) {
 function updateModalUserInfo(user) {
   let profilePicture = user.profile_picture;
 
-  if (!profilePicture) {
-    profilePicture = '/storage/default_profile_image.png';
-  } else if (!profilePicture.startsWith('http')) {
-    profilePicture = `/storage/${profilePicture}`;
-  }
-  
-  document.getElementById('modal-profile-picture').src = profilePicture;
+  profilePicture = `${profilePicture}`;
+  document.getElementById('modal-profile-picture').src = `/storage/${profilePicture}`
+
   document.getElementById('modal-user-name').textContent =
     user.first_name + " " + user.last_name;
 }
@@ -67,13 +49,7 @@ function updateModalUserInfoFallback() {
     const lastName = calendarWrapper.getAttribute('data-last-name');
     let profilePicture = calendarWrapper.getAttribute('data-profile-picture');
 
-    if (!profilePicture) {
-      profilePicture = '/storage/default_profile_image.png';
-    } else if (!profilePicture.startsWith('http')) {
-      profilePicture = `/storage/${profilePicture}`;
-    }
-
-    document.getElementById('modal-profile-picture').src = profilePicture;
+    document.getElementById('modal-profile-picture').src = `/storage/${profilePicture}`
     document.getElementById('modal-user-name').textContent = firstName + " " + lastName;
     return userId;
   }
@@ -91,8 +67,11 @@ function scrollModalIntoView() {
 
 // update current event state, update the UI, fetch messages, scroll the modal into view, and set up Websocket connection.
 export async function handleEventClick(info) {
-  const event = info.event;
 
+  const event = info.event;
+  
+  state.existingTeamMembers = event.extendedProps.team_members || [];
+  
   console.groupCollapsed(`🔍[EVENT CLICK] Handling click for event ID: ${event.id}`);
 
   // 1. Parse current user and event data
@@ -110,6 +89,9 @@ export async function handleEventClick(info) {
   // 2. Update the global state
   if (event.id) {
     state.currentEvent = updateCurrentEvent(event);
+    if (event.extendedProps.user_id) {
+      state.currentEvent.eventOwnerId = event.extendedProps.user_id;
+    }
   }
 
   console.log("🌍🗓️ Updated Global State (state.currentEvent):", state.currentEvent);
@@ -133,7 +115,7 @@ export async function handleEventClick(info) {
   const date = event.startStr.split('T')[0];
   const time = event.extendedProps.time;
   const files = event.extendedProps.files || [];
-  const teamMembers = event.extendedProps.team_members || [];
+   const teamMembers = event.extendedProps.team_members || [];
 
   // 5. Fetch messages for this event
   await fetchMessagesForEvent(eventId);
@@ -176,7 +158,7 @@ export async function handleEventClick(info) {
   console.log("Attempting WebSocket subscription:");
   console.log("Subscribing with userId:", currentUserId, "eventId:", eventId);
 
-  connectToEventWebSocket();
-
   console.groupEnd();
+
+  connectToEventWebSocket();
 }

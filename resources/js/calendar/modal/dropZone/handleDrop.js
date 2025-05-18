@@ -4,8 +4,9 @@ import { isUserInDatabase } from "../../state";
 import { addTeamMember } from "../../state";
 import { removeTeamMember } from "../../state";
 import { removeTeamMemberFromCalendarEvent } from "../../removeTeamMemberFromCalendarEvent";
+import { sendEventUpdate } from "../../state";
 
-export function handleDrop(event) {
+export function handleDrop(event) { // Clear the dropped files array
     event.preventDefault(); // Prevent default browser behavior
     event.stopPropagation(); // Stop the event from bubbling up
 
@@ -91,9 +92,21 @@ export function handleDrop(event) {
         }
     }
 
+    const eventId = state.currentEvent.id;
+    const calendarEvent = calendar.getEventById(eventId);
+
+    if (!calendarEvent) {
+        console.error(`Event not found: ${eventId}`);
+        return;
+    }
+
+    // Ensure `extendedProps.files` exists
+    if (!calendarEvent.extendedProps.files) {
+        calendarEvent.extendedProps.files = [];
+    }
+
     // Handle dropped files
     if (files.length > 0) {
-        const previewContainer = document.getElementById('file-preview');
 
         files.forEach(file => {
             // Check if the file is already added to the droppedFiles array
@@ -101,41 +114,24 @@ export function handleDrop(event) {
                 // Append the file to the droppedFiles array
                 state.droppedFiles.push(file);
 
-                // Update the UI
-                const fileType = file.type;
-                const fileName = file.name;
-                const fileSize = (file.size / 1024).toFixed(1); // File size in KB
+                const fileData = {
+                    fileName: file.name,
+                    fileType: file.type,
+                    fileSize: (file.size / 1024).toFixed(1), // Convert size to KB
+                    eventId: eventId,
+                    userId: state.currentEvent.eventOwnerId,
+                    file_path: `/storage/events/${eventId}/${state.currentEvent.eventOwnerId}/${file.name}`,
+                };
 
-                const fileDiv = document.createElement('div');
-                fileDiv.className = 'p-3 rounded bg-gray-100 flex items-center space-x-3';
+                calendarEvent.extendedProps.files.push(fileData);
 
-                if (fileType.startsWith('image/')) {
-                    const img = document.createElement('img');
-                    img.className = 'w-12 h-12 object-cover rounded';
-                    img.src = URL.createObjectURL(file);
-                    fileDiv.appendChild(img);
-                } else {
-                    const icon = document.createElement('div');
-                    icon.className = 'w-12 h-12 bg-gray-300 rounded flex items-center justify-center text-gray-700 font-bold';
-                    icon.textContent = fileType.split('/')[1]?.toUpperCase() || 'FILE';
-                    fileDiv.appendChild(icon);
-                }
-
-                const info = document.createElement('div');
-                info.innerHTML = `
-                    <p class="text-sm font-medium text-gray-700 max-w-[200px] truncate">${fileName}</p>
-                    <p class="text-xs text-gray-500">${fileType || 'Unknown type'} · ${fileSize} KB</p>
-                `;
-
-                fileDiv.appendChild(info);
-                previewContainer.appendChild(fileDiv);
-
-                console.log("File added to droppedFiles:", { fileName, fileType, fileSize });
             } else {
                 console.log("File already exists in droppedFiles:", file.name);
             }
         });
+        state.teamMembers = [];
         saveCalendarEvent();
+        sendEventUpdate();
         state.droppedFiles = [];
     }
 

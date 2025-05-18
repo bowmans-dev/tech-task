@@ -178,7 +178,7 @@ wss.on("connection", (ws, req) => {
                 [...wss.clients].forEach((client) => {
                     if (
                         client.subscriptions &&
-                        client.subscriptions.some(sub => sub.userId === unsubscribedUserId && sub.eventId === eventId)
+                        client.subscriptions?.some(sub => sub.userId === unsubscribedUserId && sub.eventId === eventId)
                     ) {
                         client.send(JSON.stringify({
                             action: "unsubscribed",
@@ -199,6 +199,33 @@ wss.on("connection", (ws, req) => {
                 });
                 console.log(`📋 [AFTER UNSUBSCRIBE] [${eventId}] eventSubscriptions state:`, eventSubscriptions[eventId]);
             } 
+
+            if (jsonData.action === "update_event") {
+                const eventId = jsonData.event_id;
+
+                if (!eventSubscriptions[eventId]) {
+                    console.warn(`No subscriptions found for event ${eventId}`);
+                    return;
+                }
+                
+                console.log(`\n\n🔄 [UPDATE EVENT] Received update from event ${eventId}`);
+
+                wss.clients.forEach((client) => {
+                    console.log(`📫 Client: subscriptions =`, client.subscriptions);
+                });
+
+                wss.clients.forEach((client) => {
+                    if (client.subscriptions?.some(sub => sub.eventId === eventId)) {
+                        console.log(`📨 Broadcasting event update to client subscribed to event ${eventId}`);
+                        client.send(JSON.stringify({
+                            action: "update_event",
+                            event_id: eventId,
+                            teamMembers: jsonData.teamMembers,
+                            files: jsonData.files
+                        }));
+                    }
+                });
+            }
 
             if (jsonData.action === "message_broadcast") {
                 const senderId = String(jsonData.user.id);

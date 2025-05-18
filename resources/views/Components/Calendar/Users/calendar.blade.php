@@ -2,7 +2,7 @@
         <div id="calendar-wrapper" 
             style="calendar-wrapper max-width: 900px; margin-bottom: 30px;" 
             data-user-id="{{ auth()->user()->id }}"
-            data-profile-picture="{{ auth()->user()->profile_picture ?? asset('/storage/default_profile_image.png') }}"
+            data-profile-picture="{{ auth()->user()->profile_picture }}"
             data-first-name="{{ auth()->user()->first_name }}"
             data-last-name="{{ auth()->user()->last_name }}">
             

@@ -1,18 +1,16 @@
-import { state } from "./state";
+import { state, getCurrentUser, renderTeamMembers } from "./state";
 export async function handleDateClick(info) {
 
-  // 1. Get user info from the calendar wrapper
-  const calendarWrapper = document.getElementById('calendar-wrapper');
-  let userId = calendarWrapper.getAttribute('data-user-id');
-  const profilePicture = calendarWrapper.getAttribute('data-profile-picture');
-  const firstName = calendarWrapper.getAttribute('data-first-name');
-  const lastName = calendarWrapper.getAttribute('data-last-name');
-
-  const eventOwner = { userId, profilePicture, firstName, lastName };
+  // 1. Reset the state for the new event and get current user
+  state.currentEvent.teamMembers = [];
+  state.existingTeamMembers = [];
+  
+  const eventOwner = getCurrentUser();
 
   // 2. Update your global state for the new event
   state.currentEvent = {
-    id: null,           // Will be updated when the event is saved
+    id: null, 
+    eventOwnerId: eventOwner.userId,
     title: 'New Event',
     date: info.dateStr,
     time: null,
@@ -21,6 +19,7 @@ export async function handleDateClick(info) {
     teamMembers: [eventOwner],
   };
   state.teamMembers = [eventOwner];
+  state.existingTeamMembers.push(eventOwner);
 
   // 3. Reset team members and file preview containers
   const teamMembersDiv = document.getElementById('team-members');
@@ -29,34 +28,44 @@ export async function handleDateClick(info) {
   teamMembersLabel.innerHTML = `<p>Team Members</p>`;
   teamMembersDiv.appendChild(teamMembersLabel);
 
+  renderTeamMembers();
+
   const filePreview = document.getElementById('file-preview');
-  filePreview.innerHTML = '';
-  
+  filePreview.innerHTML = '';;
 
-  // 4. Update modal elements with user info
-  document.getElementById('modal-profile-picture').src = `/storage/${profilePicture}`;
-  document.getElementById('modal-user-name').innerText = `${firstName} ${lastName}`;
-
-  // 5. Update modal dataset attributes
+  // 4. Update modal dataset attributes
   const modal = document.getElementById('event-modal');
   modal.dataset.date = info.dateStr;
-  modal.dataset.userId = userId;
+  modal.dataset.userId = eventOwner.userId;
 
   modal.classList.add('hidden');
 
   
-  // 6. Trigger auto-save of the event
+  // 5. Trigger auto-save of the event
   const storedId = await saveCalendarEvent();
   
-  // 7. Add event to calendar
+  // 6. Add event to calendar
   let event = calendar.addEvent({
     id: storedId,
     title: 'New Event',
     start: info.date,
-    allDay: info.allDay
+    allDay: info.allDay,
+    extendedProps: {
+        userId: eventOwner.userId,
+        team_members: [
+            {
+                userId: Number(eventOwner.userId),
+                profilePicture: eventOwner.profilePicture,
+                firstName: eventOwner.firstName,
+                lastName: eventOwner.lastName,
+                debug: "test"
+            }
+        ],
+        files: []
+    }
   });
 
-  // 8. Setup event name input field
+  // 7. Setup event name input field
   const eventNameInput = document.getElementById('eventName');
   eventNameInput.oninput = null;
   eventNameInput.value = 'New Event';
@@ -64,5 +73,5 @@ export async function handleDateClick(info) {
     event.setProp('title', this.value);
   };
 
-  window.location.reload();
+  state.teamMembers = [];
 }

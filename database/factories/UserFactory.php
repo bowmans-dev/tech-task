@@ -33,7 +33,7 @@ class UserFactory extends Factory
             'phone' => fake()->numerify('+###########'), // Generates a numeric phone number with country code
             'country' => fake()->randomElement(config('countries')),
             'gender' => fake()->randomElement(['male', 'female', 'other']), // Random gender
-            'profile_picture' => null, // Placeholder for profile picture (can be set later)
+            'profile_picture' => 'default_profile_image.webp', // Placeholder for profile picture (can be set later)
             'created_at' => now(),
             'updated_at' => now(),
         ];

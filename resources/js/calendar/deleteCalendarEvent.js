@@ -1,3 +1,4 @@
+import { state } from "./state";
 export function deleteCalendarEvent() {
 
   const dropZone = document.getElementById('drop-zone');
@@ -40,7 +41,9 @@ export function deleteCalendarEvent() {
         if (eventToRemove) {
           eventToRemove.remove();
         }
-
+        state.teamMembers = [];
+        state.existingTeamMembers = [];
+        state.currentEvent.teamMembers = [];
       } else {
         alert(data.message || "You are not authorized to delete this event.");
       }

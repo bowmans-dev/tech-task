@@ -4,6 +4,7 @@ import { isUserInDatabase } from "../../state";
 import { addTeamMember } from "../../state";
 import { removeTeamMember } from "../../state";
 import { removeTeamMemberFromCalendarEvent } from "../../removeTeamMemberFromCalendarEvent";
+import { sendEventUpdate } from "../../state";
 
 export function clickAddUserToDropZone(user) {
 
@@ -47,6 +48,10 @@ export function clickAddUserToDropZone(user) {
 
     // Save the calendar event after adding the user
     saveCalendarEvent();
+
+    state.teamMembers = [];
+
+    sendEventUpdate();
 
 
     const eventId = state.currentEvent.id;

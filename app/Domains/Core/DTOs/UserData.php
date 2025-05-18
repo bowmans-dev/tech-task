@@ -34,7 +34,9 @@ class UserData
             password: new Password($data['password']),
             phone: new Phone($data['phone']),
             country: new Country($data['country']),
-            profilePicture: isset($data['profile_picture']) ? new ProfilePicture($data['profile_picture']) : null
+            profilePicture: isset($data['profile_picture']) && !empty($data['profile_picture'])
+                ? new ProfilePicture($data['profile_picture'])
+                : new ProfilePicture('default_profile_image.webp')
         );
     }
 
@@ -49,7 +51,9 @@ class UserData
             password: new Password($model->password, true), // Already hashed
             phone: $model->phone ? new Phone($model->phone) : null,
             country: $model->country ? new Country($model->country) : null,
-            profilePicture: $model->profile_picture ? new ProfilePicture($model->profile_picture) : null
+            profilePicture: $model->profile_picture 
+                ? new ProfilePicture($model->profile_picture)
+                : new ProfilePicture('default_profile_image.webp')
         );
     }
 }

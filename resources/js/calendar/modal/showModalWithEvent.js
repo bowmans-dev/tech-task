@@ -1,10 +1,6 @@
-import { state } from "../state";
-
 export function showModalWithEvent({ eventId, title, userId, date, time, files, teamMembers }) {
 
     const modal = document.getElementById('event-modal'); 
-
-    state.existingTeamMembers = teamMembers;
 
     document.getElementById('eventName').value = title;
     document.getElementById('modal-event-time').value = time || '';
@@ -28,13 +24,17 @@ export function showModalWithEvent({ eventId, title, userId, date, time, files, 
     filePreview.innerHTML = '';
 
     files.forEach(file => {
+        if (!file || !file.file_path) {
+            console.warn("Skipping invalid file:", file);
+            return;
+        }
         const a = document.createElement('a');
-        const filePath = `/storage/${file.file_path}`;
+        const file_path = `/storage/${file.file_path}`;
         const fileType = file.file_path.split('.').pop().toLowerCase(); // Extract file extension
         const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(fileType); 
     
         a.className = 'p-3 rounded bg-gray-100 flex items-center space-x-3';
-        a.href = filePath;
+        a.href = file_path;
         a.target = '_blank';
         
         a.innerHTML = `
@@ -54,15 +54,20 @@ export function showModalWithEvent({ eventId, title, userId, date, time, files, 
     // Render team members in drop-zone
     if (teamMembers && teamMembers.length > 0) {
         teamMembers.forEach(({ userId, profilePicture, firstName, lastName }) => {
-            if (profilePicture !== '/storage/default_profile_image.png') {
+
+            if (profilePicture.startsWith('profile_pictures')) {
                 profilePicture = `/storage/${profilePicture}`;
             }
+            if (profilePicture.startsWith('default')) {
+                profilePicture = `/storage/${profilePicture}`;
+            }
+
             const userDiv = document.createElement('div');
             userDiv.className = 'team-members relative flex items-center mb-2 mt-2 border border-gray-900/25 rounded-full p-1';
             userDiv.setAttribute('data-user-id', userId);
             userDiv.innerHTML = `
                 <a href="/users/${userId}" class="cursor-pointer flex items-center">
-                    <img src="${profilePicture}" 
+                    <img src="${profilePicture}"
                         alt="${firstName} ${lastName}" 
                         class="w-8 h-8 rounded-full object-cover mr-2">
                     <span class="text-sm font-medium text-gray-700">${firstName} ${lastName}</span>

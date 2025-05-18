@@ -69,6 +69,7 @@ export async function saveCalendarEvent() {
       console.log("Event ID saved for future updates:", data.event.id);
       // Update global state with the new ID.
       state.currentEvent.id = data.event.id;
+      state.droppedFiles = [];
       console.log("Updated current event ID:", state.currentEvent.id);
       return data.event.id; // Return the new ID.
     }

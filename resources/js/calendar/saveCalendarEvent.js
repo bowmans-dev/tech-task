@@ -10,7 +10,6 @@ function debounce(func, delay) {
 
 export async function saveCalendarEvent() {
   const formData = new FormData();
-  const modal = document.getElementById('event-modal');
   const dropZone = document.getElementById('drop-zone'); 
   const calendarWrapper = document.getElementById('calendar-wrapper'); 
 
@@ -27,7 +26,7 @@ export async function saveCalendarEvent() {
   const firstName = calendarWrapper.getAttribute('data-first-name');
   const lastName = calendarWrapper.getAttribute('data-last-name');
 
-  const date = modal.dataset.date;
+  const date = state.currentEvent.date;
   const time = document.getElementById('modal-event-time').value.trim();
   const allDay = time === '';
 
@@ -65,12 +64,17 @@ export async function saveCalendarEvent() {
 
     // If this is a new event, get ID from the backend:
     if (!id && data.event && data.event.id) {
+      
       dropZone.setAttribute('data-event-id', data.event.id);
       console.log("Event ID saved for future updates:", data.event.id);
+
       // Update global state with the new ID.
       state.currentEvent.id = data.event.id;
-      state.droppedFiles = [];
       console.log("Updated current event ID:", state.currentEvent.id);
+
+      state.droppedFiles = [];
+      state.teamMembers = [];
+
       return data.event.id; // Return the new ID.
     }
     // Return the existing id if this was an update.

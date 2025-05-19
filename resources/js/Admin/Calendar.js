@@ -12,7 +12,6 @@ import { handleEventClick } from '../calendar/handleEventClick.js';
 // Calendar Modal 
 import { closeModal } from '../calendar/modal/closeModal.js';
 import { openModalToCreateEvent } from '../calendar/modal/openModalToCreateEvent.js';
-import { showModalWithEvent } from '../calendar/modal/showModalWithEvent.js';
 
 // Calendar Toolbar
 import {toggleToolbarHighlight, toggleSearch, toggleLabel } from '../calendar/modal/toolbar/setupToolbar.js';
@@ -34,7 +33,6 @@ window.handleEventClick = handleEventClick;
 // Global Variables: Calendar Modal
 window.closeModal = closeModal;
 window.openModalToCreateEvent = openModalToCreateEvent;
-window.showModalWithEvent = showModalWithEvent;
 
 // Global Variables: Calendar Toolbar
 window.toggleToolbarHighlight = toggleToolbarHighlight;

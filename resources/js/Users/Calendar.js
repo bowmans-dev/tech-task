@@ -19,7 +19,6 @@ import { handleEventClick } from '../calendar/handleEventClick.js';
 // Calendar Modal 
 import { closeModal } from '../calendar/modal/closeModal.js';
 import { openModalToCreateEvent } from '../calendar/modal/openModalToCreateEvent.js';
-import { showModalWithEvent } from '../calendar/modal/showModalWithEvent.js';
 
 // Calendar DropZone
 import { initializeUserListDragHandlers } from '../calendar/modal/dropZone/initializeUserListDragHandlers.js';
@@ -39,7 +38,6 @@ window.handleEventClick = handleEventClick;
 // Global Variables: Calendar Modal
 window.closeModal = closeModal;
 window.openModalToCreateEvent = openModalToCreateEvent;
-window.showModalWithEvent = showModalWithEvent;
 
 // Global Variables: Calendar DropZone
 window.handleDrop = handleDrop;
@@ -122,9 +120,7 @@ function renderCalendar() {
 document.removeEventListener("turbo:load", renderCalendar);
 document.removeEventListener("turbo:render", renderCalendar);
 document.addEventListener("turbo:load", renderCalendar);
-document.addEventListener("turbo:render", () => {
-    renderCalendar();
-});
+document.addEventListener("turbo:render", renderCalendar);
 
 document.addEventListener('DOMContentLoaded', () => {
 

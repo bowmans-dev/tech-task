@@ -49,8 +49,7 @@ export function clickAddUserToDropZone(user) {
     // Save the calendar event after adding the user
     saveCalendarEvent();
 
-    state.teamMembers = [];
-
+    
     sendEventUpdate();
 
 

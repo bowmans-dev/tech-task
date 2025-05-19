@@ -12,6 +12,7 @@ export let state = {
   currentEvent: {
     id: null,
     eventOwnerId: null,
+    eventOwnerDetails: null,
     title: '',
     date: '',
     time: '',

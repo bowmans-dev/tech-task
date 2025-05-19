@@ -63,6 +63,8 @@ export function handleDrop(event) { // Clear the dropped files array
             // Save the calendar event after adding the user
             saveCalendarEvent();
 
+            sendEventUpdate();
+
 
             const eventId = state.currentEvent.id; 
 
@@ -115,12 +117,12 @@ export function handleDrop(event) { // Clear the dropped files array
                 state.droppedFiles.push(file);
 
                 const fileData = {
-                    fileName: file.name,
-                    fileType: file.type,
-                    fileSize: (file.size / 1024).toFixed(1), // Convert size to KB
                     eventId: eventId,
                     userId: state.currentEvent.eventOwnerId,
-                    file_path: `/storage/events/${eventId}/${state.currentEvent.eventOwnerId}/${file.name}`,
+                    fileType: file.type,
+                    fileSize: (file.size / 1024).toFixed(1), // Convert size to KB
+                    file_name: file.name,
+                    file_path: `events/${eventId}/${state.currentEvent.eventOwnerId}/${file.name}`, 
                 };
 
                 calendarEvent.extendedProps.files.push(fileData);

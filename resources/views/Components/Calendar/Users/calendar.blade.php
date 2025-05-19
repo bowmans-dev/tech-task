@@ -32,7 +32,6 @@
                                 <p class="text-sm text-gray-500">Event Date: <span id="modal-event-date" class="font-medium"></span>&nbsp;&nbsp;&nbsp;<input type="time" name="time" id="modal-event-time"></p>
                             </div>
                             
-                            <input type="hidden" name="event_id" id="eventId">
                         </div>
                         <x-input.form-input class="h-8" type="text" name="event_name" id="eventName" label="Event Name" value="{{ old('event_name') }}"  required />
                         <div class="mt-6">

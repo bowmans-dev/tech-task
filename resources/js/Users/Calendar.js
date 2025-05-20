@@ -128,4 +128,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const sendButton = document.getElementById('send-message-button');
     sendButton.addEventListener('click', setUpSendMessageButton);
-});
+}); 

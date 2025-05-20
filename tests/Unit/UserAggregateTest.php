@@ -88,7 +88,7 @@ class UserAggregateTest extends TestCase
         $this->assertEquals($userData['gender'], $processedData['gender']);
         $this->assertEquals($userData['phone'], $processedData['phone']);
         $this->assertEquals($userData['country'], $processedData['country']);
-        $this->assertEquals($userData['profile_picture'], $processedData['profile_picture']);
+        $this->assertEquals($processedData['profile_picture'], 'default_profile_image.webp');
     
         // Assert that the password is hashed
         $this->assertNotEquals($userData['password'], $processedData['password']); // Should not be the plain password

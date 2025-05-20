@@ -63,7 +63,7 @@ class UserServiceTest extends TestCase
             'phone' => '1234567890',
             'country' => 'United Kingdom',
             'password' => Hash::make('password123'),
-            'profile_picture' => null,
+            'profile_picture' => 'profile.webp',
         ]);
 
         $updateData = [
@@ -86,7 +86,7 @@ class UserServiceTest extends TestCase
             'phone' => '1234567890',
             'country' => 'United Kingdom',
             'password' => Hash::make('password123'),
-            'profile_picture' => null,
+            'profile_picture' => 'profile.webp',
         ]);
 
         $this->userService->deleteUser($user);

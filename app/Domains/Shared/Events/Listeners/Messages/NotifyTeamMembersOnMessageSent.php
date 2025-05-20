@@ -42,19 +42,31 @@ class NotifyTeamMembersOnMessageSent
         // Read handshake response for optional debugging
         $response = fread($socket, 1500);
 
+        $sender = $message->sender;
+        $senderType = class_basename(get_class($sender));
+
+        $userPayload = [
+            'id'         => $sender->id,
+            'type'       => $senderType,
+            'profile_picture' => $sender->profile_picture 
+                ? "/storage/{$sender->profile_picture}" 
+                : "/storage/default_profile_image.png"
+        ];
+
+        if ($senderType === 'Admin') {
+            $userPayload['name'] = $sender->name;
+        } else {
+            $userPayload['first_name'] = $sender->first_name;
+            $userPayload['last_name']  = $sender->last_name;
+        }
+
         $data = json_encode([
             'action'   => 'message_broadcast',
             'event_id' => $message->event_id,
             'message'  => $message->content,
-            'user'     => [
-                'id'             => $message->sender->id,
-                'first_name'     => $message->sender->first_name,
-                'last_name'      => $message->sender->last_name,
-                'profile_picture'=> $message->sender->profile_picture 
-                    ? "/storage/{$message->sender->profile_picture}" 
-                    : "/storage/default_profile_image.png"
-            ],
+            'user'     => $userPayload,
         ]);
+
 
         $webSocketFrame = createWebSocketFrame($data);
         Log::info("WebSocket Frame Being Sent:", ['frame' => bin2hex($webSocketFrame)]);

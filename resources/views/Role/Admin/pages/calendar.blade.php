@@ -110,9 +110,9 @@
                         <textarea 
                             name="content" 
                             id="message-content"
-                            placeholder="Admins can't send messages..." 
-                            class="flex-grow bg-gray-300 border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-                            rows="1" disabled></textarea>
+                            placeholder="Send a message..." 
+                            class="flex-grow bg-white border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                            rows="1"></textarea>
                         
                         <!-- Send button -->
                         <div

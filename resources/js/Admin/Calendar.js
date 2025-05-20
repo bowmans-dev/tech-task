@@ -23,7 +23,7 @@ import { clickAddUserToDropZone } from '../calendar/modal/dropZone/clickAddUserT
 
 // Calendar Messaging
 // import { fetchMessagesForEvent } from '../calendar/modal/messages/fetchMessagesForEvent.js';
-// import { sendMessageForEvent } from '../calendar/modal/messages/sendMessageForEvent.js';
+import { sendMessageForEvent } from '../calendar/modal/messages/sendMessageForEvent.js';
 
 // Global Variables: Calendar Actions
 window.removeTeamMemberFromCalendarEvent = removeTeamMemberFromCalendarEvent;
@@ -55,11 +55,22 @@ function renderCalendar() {
         new Draggable(sidebarEl, {
             itemSelector: '.user-link',
             eventData: function (eventEl) {
+                let profilePicture = eventEl.dataset.profilePicture;
+    
+                // Normalize path: Remove any leading "./storage/"
+                profilePicture = profilePicture.replace(/^\.\/storage\//, '');
+
                 return {
                     id: eventEl.dataset.userId,
                     title: `${eventEl.dataset.firstName} ${eventEl.dataset.lastName}`,
                     extendedProps: {
-                        profilePicture: eventEl.dataset.profilePicture
+                        eventOwnerId: eventEl.dataset.userId,
+                        eventOwnerDetails: {
+                            userId: eventEl.dataset.userId,
+                            profilePicture: profilePicture,
+                            firstName: eventEl.dataset.firstName,
+                            lastName: eventEl.dataset.lastName,
+                        },
                     }
                 };
             },
@@ -95,6 +106,9 @@ function renderCalendar() {
             filePreview.innerHTML = '';
         
             const userId = info.event.id;
+            const saveButton = document.querySelector('.save-event-button');
+            saveButton.setAttribute('data-user-id', userId);
+
             const profilePicture = info.event.extendedProps.profilePicture;
             const [firstName, lastName] = info.event.title.split(' ');
         
@@ -112,25 +126,25 @@ function renderCalendar() {
 
 document.addEventListener("turbo:load", renderCalendar());
  
-// document.addEventListener('DOMContentLoaded', function () {
-//     const sendButton = document.getElementById('send-message-button');
-//     const textarea = document.getElementById('message-content');
-//     const eventIdInput = document.getElementById('event-id');
+document.addEventListener('DOMContentLoaded', function () {
+    const sendButton = document.getElementById('send-message-button');
+    const textarea = document.getElementById('message-content');
+    const eventIdInput = document.getElementById('event-id');
 
-//     sendButton.addEventListener('click', async (event) => {
-//         event.preventDefault(); // Prevent default form submission
+    sendButton.addEventListener('click', async (event) => {
+        event.preventDefault(); // Prevent default form submission
 
-//         const content = textarea.value.trim();
-//         const eventId = eventIdInput.value;
-//         const csrfToken = document.querySelector('input[name="_token"]').value;
+        const content = textarea.value.trim();
+        const eventId = eventIdInput.value;
+        const csrfToken = document.querySelector('input[name="_token"]').value;
 
-//         const result = await sendMessageForEvent(content, eventId, csrfToken);
+        const result = await sendMessageForEvent(content, eventId, csrfToken);
 
-//         if (result.success) {
-//             textarea.value = '';
-//         }
-//     });
-// });
+        if (result.success) {
+            textarea.value = '';
+        }
+    });
+});
 
 document.addEventListener('turbo:before-cache', function () {
     window.calendar = null;

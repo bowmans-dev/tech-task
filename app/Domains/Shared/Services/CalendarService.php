@@ -94,13 +94,13 @@ class CalendarService
                     : $event->event_date . 'T' . $event->event_time,
                 'allDay' => $event->all_day,
                 'extendedProps' => [
-                    'user_id' => $event->user_id,
+                    'eventOwnerId' => $event->user_id,
                     'files' => $event->files,
                     'time' => $event->event_time,
-                    'user' => [
-                        'first_name' => $event->user->first_name,
-                        'last_name' => $event->user->last_name,
-                        'profile_picture' => $event->user->profile_picture,
+                    'eventOwnerDetails' => [
+                        'firstName' => $event->user->first_name,
+                        'lastName' => $event->user->last_name,
+                        'profilePicture' => $event->user->profile_picture,
                     ],
                     'team_members' => $event->teamMembers->map(function ($user) {
                         return [

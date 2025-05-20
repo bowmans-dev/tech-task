@@ -58,7 +58,7 @@ class UserDataTest extends TestCase
             'phone' => '1234567890',
             'country' => 'United Kingdom',
             'password' => Hash::make('password123'),
-            'profile_picture' => null,
+            'profile_picture' => 'profile.webp',
         ]);
 
         // Create UserData object from model

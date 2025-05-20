@@ -7,6 +7,13 @@
 
 ---
 
+### **Install Dependencies**
+Install the required dependencies for the project:
+```bash
+npm i
+composer install
+```
+---
 ### **Environment Setup**
 These steps set up the environment variables and generate necessary keys for authentication:
 ```bash
@@ -14,16 +21,6 @@ cp .env.example .env
 php artisan key:generate
 php artisan jwt:secret
 ```
-
----
-
-### **Install Dependencies**
-Install the required dependencies for the project:
-```bash
-npm i
-composer install
-```
-
 ---
 
 ### **Setup Database**
@@ -65,7 +62,7 @@ php artisan queue:work
 ### **Start The Websocket server**
 (For realtime calendar group messaging)
 ```bash
-node websocket-server.js
+node websocket-server
 ```
 
 ---

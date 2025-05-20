@@ -126,27 +126,45 @@ export function connectToEventWebSocket() {
         renderDroppedFiles();
       }
 
-      if (data.action == "message_broadcast") { 
+      if (data.action === "message_broadcast") {
         const dropZone = document.getElementById("drop-zone");
         const dropZoneEventId = dropZone?.getAttribute("data-event-id");
 
         if (dropZoneEventId === data.event_id) {
           const messagesContainer = document.getElementById("messages");
+
+          const isSender = parseInt(data.user.id) === parseInt(currentUser.userId);
+          const alignmentClass = isSender ? "justify-end" : "justify-start";
+
+          const displayName =
+            data.user.type === "Admin"
+              ? `(Admin) ${data.user.name}`
+              : `${data.user.first_name} ${data.user.last_name}`;
+
+          // Outer wrapper for alignment
+          const wrapper = document.createElement("div");
+          wrapper.className = `w-full flex ${alignmentClass}`;
+
+          // Inner message block
           const messageElement = document.createElement("div");
-          messageElement.classList.add("message");
+          messageElement.className = "message mb-8 text-left w-[200px]";
+
           messageElement.innerHTML = `
-            <div class="w-full text-left flex flex-row align-center">
+            <div class="flex flex-row align-center">
               <img 
-                class="rounded-full bg-gray-50 h-8 w-8 left-1 mr-4 flex-shrink-0 object-cover"
-                src="${data.user.profile_picture}"
-                alt="${data.user.first_name} ${data.user.last_name}'s profile picture" />
-              <p>${data.user.first_name} ${data.user.last_name}:</p>
+                class="rounded-full bg-gray-50 h-8 w-8 left-1 mr-4 flex-shrink-0 object-cover" 
+                src="${data.user.profile_picture}" 
+                alt="${displayName}'s profile picture" />
+              <p class="flex items-center">${displayName}:</p>
             </div>
-            <p class="text-left text-black mb-4">${data.message}</p>
+            <p class="text-black mt-2 mb-4">${data.message}</p>
           `;
-          messagesContainer.appendChild(messageElement);
+
+          wrapper.appendChild(messageElement);
+          messagesContainer.appendChild(wrapper);
         }
       }
+
     } catch (err) {
       console.error("WebSocket message parsing failed:", err);
     }

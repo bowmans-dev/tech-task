@@ -11,6 +11,7 @@ class NotifyTeamMembersOnMessageSent
     public function handle(MessageSent $event)
     {
         $message = $event->message;
+        $eventName = $event->eventName;
         Log::info("Sending message update", ['message' => $message->toArray()]);
 
         $teamMembers = User::whereHas('calendarEvents', function ($query) use ($message) {
@@ -63,6 +64,7 @@ class NotifyTeamMembersOnMessageSent
         $data = json_encode([
             'action'   => 'message_broadcast',
             'event_id' => $message->event_id,
+            'event_name' => $eventName,
             'message'  => $message->content,
             'user'     => $userPayload,
         ]);

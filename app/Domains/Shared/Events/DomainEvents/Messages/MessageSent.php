@@ -7,9 +7,11 @@ use App\Models\Message;
 class MessageSent
 {
     public Message $message;
+    public string $eventName;
 
-    public function __construct(Message $message)
+    public function __construct(Message $message, string $eventName)
     {
         $this->message = $message;
+        $this->eventName = $eventName;
     }
 }

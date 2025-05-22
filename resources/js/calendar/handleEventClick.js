@@ -4,7 +4,8 @@ import { showEventModal } from './modal/showEventModal';
 
 // Update the global state (state.currentEvent) from the existing saved fullcalendar (db) event.
 function updateCurrentEvent(event) {
-
+  // Set the event's background color to null if it was highlighted by notification
+  event.setProp("backgroundColor", null);
   return {
     id: event.id,
     eventOwnerId: event.extendedProps.eventOwnerId,

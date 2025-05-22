@@ -9,6 +9,7 @@ use Hotwired\TurboLaravel\Turbo;
 use App\Domains\Shared\Events\DomainEventPublisher;
 use App\Domains\Shared\Events\DomainEvents\Messages\MessageSent;
 use App\Models\Admin;
+use Illuminate\Support\Facades\Log;
 
 
 class MessageController extends Controller 
@@ -24,6 +25,8 @@ class MessageController extends Controller
 
         $sender = $auth->user();
 
+        $eventName = $request->input('event_name');
+
         $message = Message::create([
             'sender_id' => $sender->id,
             'sender_type' => get_class($sender), // App\Models\User or App\Models\Admin
@@ -32,7 +35,7 @@ class MessageController extends Controller
         ]);
 
         // Dispatch domain event via the publisher
-        DomainEventPublisher::publish(new MessageSent($message));
+        DomainEventPublisher::publish(new MessageSent($message, $eventName));
 
         // Eager-load sender for the view
         $message->load('sender');

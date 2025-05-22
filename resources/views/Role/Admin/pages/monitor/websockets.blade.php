@@ -113,11 +113,15 @@
         }
 
         /* ---------- CLIENTS CARD ---------- */
+
+      // Filter out global clients. (global clients have an empty subscriptions array).
+      const filteredClients = clients.filter(cl => cl.subscriptions && cl.subscriptions.length > 0);
+
         $clients.innerHTML = "";
-        if (!clients.length) {
+        if (!filteredClients.length) {
           $clients.innerHTML = "<em>No connected sockets.</em>";
         } else {
-          clients.forEach((cl, i) => {
+          filteredClients.forEach((cl, i) => {
             const div = document.createElement("div");
             div.style.marginBottom = "14px";
             const subs = cl.subscriptions?.length

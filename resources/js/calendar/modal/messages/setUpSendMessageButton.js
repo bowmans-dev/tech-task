@@ -9,6 +9,8 @@ export async function setUpSendMessageButton(e) {
   // Retrieve the message content.
   const content = textarea.value.trim();
 
+  const eventName = document.getElementById('eventName').value;
+
   let eventId = state.currentEvent.id;
 
   if (!eventId) {
@@ -19,7 +21,7 @@ export async function setUpSendMessageButton(e) {
   // Send message for event
   const csrfToken = document.querySelector('input[name="_token"]').value;
   try {
-    const result = await sendMessageForEvent(content, eventId, csrfToken);
+    const result = await sendMessageForEvent(content, eventId, eventName, csrfToken);
     if (result.success) {
       // Clear out the textarea after a successful send
       textarea.value = '';

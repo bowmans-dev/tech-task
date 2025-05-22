@@ -135,6 +135,7 @@ export function connectToEventWebSocket() {
 
           const isSender = parseInt(data.user.id) === parseInt(currentUser.userId);
           const alignmentClass = isSender ? "justify-end" : "justify-start";
+          const backgroundClass = isSender ? "bg-[#d9fdd3]" : "bg-[#ffffff]";
 
           const displayName =
             data.user.type === "Admin"
@@ -147,12 +148,12 @@ export function connectToEventWebSocket() {
 
           // Inner message block
           const messageElement = document.createElement("div");
-          messageElement.className = "message mb-8 text-left w-[200px]";
+          messageElement.className = `message mb-4 mt-4 text-left w-[200px] p-2 rounded-2xl shadow-md ${backgroundClass}`;
 
           messageElement.innerHTML = `
             <div class="flex flex-row align-center">
               <img 
-                class="rounded-full bg-gray-50 h-8 w-8 left-1 mr-4 flex-shrink-0 object-cover" 
+                class="rounded-full bg-gray-50 h-8 w-8 left-1 mr-2 flex-shrink-0 object-cover" 
                 src="${data.user.profile_picture}" 
                 alt="${displayName}'s profile picture" />
               <p class="flex items-center">${displayName}:</p>

@@ -1,4 +1,4 @@
-export async function sendMessageForEvent(content, eventId, csrfToken) {
+export async function sendMessageForEvent(content, eventId, eventName, csrfToken) {
     try {
 
         if (!content || !eventId) {
@@ -10,6 +10,7 @@ export async function sendMessageForEvent(content, eventId, csrfToken) {
         formData.append('_token', csrfToken);
         formData.append('content', content);
         formData.append('event_id', eventId);
+        formData.append('event_name', eventName);
 
         const response = await fetch('/messages', {
             method: 'POST',

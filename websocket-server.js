@@ -4,7 +4,8 @@ import { WebSocketServer, WebSocket } from "ws";
 const server = http.createServer();
 const wss = new WebSocketServer({ server });
 
-const eventSubscriptions = {}; // Tracks subscribed users per event ID
+const eventSubscriptions = {}; // Tracks subscribed users per event ID (Event scoped connections)
+const connectedUsers = {}; // User IDs of all users currently on the calendar page (Global scoped connections [notifications])
 
 server.on("error", (err) => {
     if (err.code === "EADDRINUSE") {
@@ -79,7 +80,7 @@ wss.on("connection", (ws, req) => {
                 const senderId = String(data.user.id);
                 const eventId = data.event_id;
 
-                const recipients = eventSubscriptions[eventId] || [];
+                const recipients = eventSubscriptions[eventId]?.filter(id => id !== senderId) || [];
                 if (!recipients.includes(senderId)) recipients.push(senderId);
 
                 console.log(`\n\n 📢 [INTERNAL BROADCAST] from user ${senderId} to event ${eventId}`);
@@ -88,12 +89,24 @@ wss.on("connection", (ws, req) => {
                 wss.clients.forEach((client) => {
                     if (
                         !client.isInternal &&
-                        client.subscriptions?.some(sub => sub.eventId === eventId && recipients.includes(sub.userId))
+                        client.subscriptions?.some(sub => sub.eventId === eventId) &&
+                        String(client.subscriptions.map(s => s.userId)) !== senderId
                     ) {
                         console.log(`📨 Sending to client userId: ${client.subscriptions.map(s => s.userId).join(", ")}`);
                         client.send(JSON.stringify(data));
                     }
                 });
+
+                console.log(`💬 New message in event ${data?.event_id}:`, data?.message);
+                console.log(`📨 Calling notifyTeamMembers...`);
+
+                notifyTeamMembers(data.event_id, "message_broadcast", {
+                    eventId: data.event_id,
+                    eventName: data.event_name,
+                    message: data.message,
+                    user: data?.user
+                });
+
                 ws.terminate(); // Immediately close the internal socket after broadcast
             }
         });
@@ -102,6 +115,7 @@ wss.on("connection", (ws, req) => {
     }
 
     ws.subscriptions = []; // Track event subscriptions for a given client connection
+    ws.eventIds = []; // Track all of the event ids connected to the current user
 
     ws.on("message", (message) => {
         try {
@@ -109,6 +123,28 @@ wss.on("connection", (ws, req) => {
 
             const totalConnectedClients = [...wss.clients].filter(c => !c.isMonitor && !c.isInternal);
             console.log(`\n\n🔧 Total connected clients: ${totalConnectedClients.length}`);
+
+            if (jsonData.action === "register_user") {
+                connectedUsers[jsonData.userId] = { ws, eventIds: jsonData.eventIds };
+                ws.eventIds = jsonData.eventIds;
+                ws.userId = jsonData.userId;
+                // console.log("WS EVENT IDS: ", ws.eventIds);
+                console.log(`User ${jsonData.userId} connected with eventIds:`, jsonData.eventIds);
+            }
+
+            if (jsonData.action === "user_added_to_event") {
+                console.log(`📌 User ${jsonData.userId} added to event ${jsonData.eventId}`);
+
+                // Send notification only if the user is connected
+                if (connectedUsers[jsonData.userId]) {
+                    connectedUsers[jsonData.userId].ws.send(JSON.stringify({
+                        action: "new_event_assigned",
+                        payload: { eventId: jsonData.eventId, eventTitle: jsonData.eventTitle }
+                    }));
+                }
+            }
+
+
 
             if (jsonData.action === "subscribe") {
                 const subscribingUserId = String(jsonData.userId);
@@ -269,6 +305,9 @@ wss.on("connection", (ws, req) => {
     ws.on("error", (err) => console.error("WebSocket server error:", err.message));
 
     ws.on("close", () => {
+        Object.keys(connectedUsers).forEach(userId => {
+            if (connectedUsers[userId].ws === ws) delete connectedUsers[userId];
+        });
         if (ws.subscriptions) {
             ws.subscriptions.forEach(({ userId, eventId }) => {
                 if (eventSubscriptions[eventId]) {
@@ -287,6 +326,23 @@ wss.on("connection", (ws, req) => {
         }
     });
 });
+
+function notifyTeamMembers(eventId, action, payload) {
+    console.log(`🚀 Triggering notifyTeamMembers for event ${eventId} (${action})`);
+
+    const senderId = String(payload.user.id); // Get sender's ID
+
+    // Create a filtered list of recipients (excluding the sender)
+    const recipients = Object.values(connectedUsers).filter(client => 
+        client.eventIds.some(id => id == eventId) && String(client.ws.userId) !== senderId
+    );;
+
+    // Send message only to filtered recipients
+    recipients.forEach(client => {
+        console.log(`📨 Sending message to user ${client.ws.userId}`);
+        client.ws.send(JSON.stringify({ action, payload }));
+    });
+}
 
 process.on("SIGINT", () => {
     wss.clients.forEach((client) => client.terminate());

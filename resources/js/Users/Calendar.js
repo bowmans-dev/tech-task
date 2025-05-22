@@ -28,6 +28,9 @@ import { clickAddUserToDropZone } from '../calendar/modal/dropZone/clickAddUserT
 // Calendar Messaging
 import { setUpSendMessageButton } from '../calendar/modal/messages/setUpSendMessageButton.js';
 
+// Global Calendar WebSocket Notifications
+import { globalCalendarEventsWS } from '../calendar/global/globalCalendarEventsWS.js';
+
 // Global Variables: Calendar Actions
 window.removeTeamMemberFromCalendarEvent = removeTeamMemberFromCalendarEvent;
 window.saveCalendarEvent = saveCalendarEvent;
@@ -125,6 +128,8 @@ document.addEventListener("turbo:render", renderCalendar);
 document.addEventListener('DOMContentLoaded', () => {
 
     renderCalendar();
+    globalCalendarEventsWS();
+    
 
     const sendButton = document.getElementById('send-message-button');
     sendButton.addEventListener('click', setUpSendMessageButton);

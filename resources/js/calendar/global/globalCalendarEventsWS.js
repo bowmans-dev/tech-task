@@ -19,8 +19,8 @@ async function globalCalendarEventsWS() {
     socket = new WebSocket("ws://localhost:8080");
 
     socket.addEventListener("open", () => {
-        console.log(`Connected to WebSocket as user ${currentUser.userId}`);
-        socket.send(JSON.stringify({ action: "register_user", userId: currentUser.userId, eventIds: userEventIds }));
+        console.log(`Connected to Global Notifications WebSocket as user ${currentUser.userId}`);
+        socket.send(JSON.stringify({ action: "online", userId: currentUser.userId, eventIds: userEventIds }));
     });
 
     socket.addEventListener("message", handleIncomingMessage);
@@ -34,17 +34,6 @@ async function globalCalendarEventsWS() {
 
 function handleIncomingMessage(event) {
     const data = JSON.parse(event.data);
-
-    if (data.action === "new_event_assigned") {
-        console.log(`Added to new event: ${data.payload.eventId}`);
-
-        calendar.refetchEvents();
-
-        const event = window.calendar.getEventById(eventId);
-        if (event) {
-            event.setProp("backgroundColor", "#2D89EF");
-        }
-    }
 
     if (data.action === "message_broadcast") {
         showNotification(data.payload);
@@ -91,7 +80,7 @@ function showNotification(payload) {
     setTimeout(() => {
         notification.classList.remove("show");
         setTimeout(() => notification.remove(), 500);
-    }, 15000);
+    }, 10000);
 }
 
 function openEventModal(eventId) {

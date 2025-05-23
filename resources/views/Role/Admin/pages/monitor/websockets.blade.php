@@ -70,15 +70,15 @@
 
     socket.onmessage = ({data}) => {
       try {
-        const {type, eventSubscriptions, eventDetails, userDetails, clients} = JSON.parse(data);
+        const {type, eventScopedConnections, eventDetails, userDetails, clients} = JSON.parse(data);
         if (type !== "monitor_update") return;
 
         /* ---------- EVENTS CARD ---------- */
         $events.innerHTML = "";
-        if (Object.keys(eventSubscriptions).length === 0) {
+        if (Object.keys(eventScopedConnections).length === 0) {
           $events.innerHTML = "<em>No active subscriptions.</em>";
         } else {
-          for (const [eventId, userIds] of Object.entries(eventSubscriptions)) {
+          for (const [eventId, userIds] of Object.entries(eventScopedConnections)) {
             const evt   = eventDetails?.[eventId] ?? {};
             const title = evt.title ? `#${eventId} - ${evt.title}` : `Event ${eventId}`;
             const date = evt.date ? ` · <span class="small">${formatReadableDate(evt.date)}</span>` : "";
@@ -115,7 +115,7 @@
         /* ---------- CLIENTS CARD ---------- */
 
       // Filter out global clients. (global clients have an empty subscriptions array).
-      const filteredClients = clients.filter(cl => cl.subscriptions && cl.subscriptions.length > 0);
+      const filteredClients = clients.filter(cl => cl.connectedEvent && cl.connectedEvent.length > 0);
 
         $clients.innerHTML = "";
         if (!filteredClients.length) {
@@ -124,8 +124,8 @@
           filteredClients.forEach((cl, i) => {
             const div = document.createElement("div");
             div.style.marginBottom = "14px";
-            const subs = cl.subscriptions?.length
-              ? cl.subscriptions.map(s => `#${s.userId}@${s.eventId}`).join(", ")
+            const subs = cl.connectedEvent?.length
+              ? cl.connectedEvent.map(s => `#${s.userId}@${s.eventId}`).join(", ")
               : "<em>no subscriptions</em>";
             div.innerHTML = `
               <strong>Socket ${i + 1}</strong>

@@ -60,7 +60,6 @@ export async function saveCalendarEvent() {
       body: formData
     });
     const data = await response.json();
-    console.log('Event successfully saved or updated!', data);
 
     // If this is a new event, get ID from the backend:
     if (!id && data.event && data.event.id) {

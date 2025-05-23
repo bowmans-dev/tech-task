@@ -101,11 +101,11 @@ test("only subscribed users receive messages for their event", (done) => {
     const clientB = new WebSocket("ws://localhost:8080");
 
     clientA.on("open", () => {
-        clientA.send(JSON.stringify({ action: "subscribe", userId: 999, event_id: 100 }));
+        clientA.send(JSON.stringify({ action: "connect_to_event", userId: 999, event_id: 100 }));
     });
 
     clientB.on("open", () => {
-        clientB.send(JSON.stringify({ action: "subscribe", userId: 777, event_id: 200 }));
+        clientB.send(JSON.stringify({ action: "connect_to_event", userId: 777, event_id: 200 }));
     });
 
     setTimeout(() => {
@@ -133,11 +133,11 @@ test("users subscribed to different events do not receive messages", (done) => {
     const clientSubscribedTo200 = new WebSocket("ws://localhost:8080");
 
     clientSubscribedTo100.on("open", () => {
-        clientSubscribedTo100.send(JSON.stringify({ action: "subscribe", userId: 999, event_id: 100 }));
+        clientSubscribedTo100.send(JSON.stringify({ action: "connect_to_event", userId: 999, event_id: 100 }));
     });
 
     clientSubscribedTo200.on("open", () => {
-        clientSubscribedTo200.send(JSON.stringify({ action: "subscribe", userId: 888, event_id: 200 }));
+        clientSubscribedTo200.send(JSON.stringify({ action: "connect_to_event", userId: 888, event_id: 200 }));
     });
 
     setTimeout(() => {
@@ -166,22 +166,21 @@ test("user can unsubscribe from an event", (done) => {
 
     clientA.on("open", () => {
         // First, subscribe clientA to an event (Event 100)
-        clientA.send(JSON.stringify({ action: "subscribe", userId: 999, event_id: 100 }));
+        clientA.send(JSON.stringify({ action: "connect_to_event", userId: 999, event_id: 100 }));
 
         // After subscribing, send unsubscribe request
         setTimeout(() => {
-            clientA.send(JSON.stringify({ action: "unsubscribe", userId: 999, event_id: 100 }));
+            clientA.send(JSON.stringify({ action: "disconnect_from_event", userId: 999, event_id: 100 }));
         }, 500);
     });
 
     clientA.on("message", (data) => {
-        const response = JSON.parse(data.toString());
+        const response = JSON.parse(data.toString()); 
 
         // Ensure the unsubscribe response contains correct data
         if (response.action === "unsubscribed") {
             expect(response.userId).toBe("999");
             expect(response.event_id).toBe("100");
-            console.log(`📡 [UNSUBSCRIBED] userId: 999, eventId: 100`);
 
             // Verify the connection is terminated
             setTimeout(() => {
@@ -198,11 +197,11 @@ test("broadcasting to different events works independently", (done) => {
     const clientB = new WebSocket("ws://localhost:8080");
 
     clientA.on("open", () => {
-        clientA.send(JSON.stringify({ action: "subscribe", userId: 999, event_id: 100 }));
+        clientA.send(JSON.stringify({ action: "connect_to_event", userId: 999, event_id: 100 }));
     });
 
     clientB.on("open", () => {
-        clientB.send(JSON.stringify({ action: "subscribe", userId: 888, event_id: 200 }));
+        clientB.send(JSON.stringify({ action: "connect_to_event", userId: 888, event_id: 200 }));
     });
 
     // Give some time for the clients to subscribe

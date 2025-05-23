@@ -62,16 +62,14 @@ export function connectToEventWebSocket() {
   const socket = new WebSocket("ws://localhost:8080");
 
   if (state.currentWs) {
-    console.log("🔌Closing previous WebSocket connection.");
     state.currentWs.close();
   }
 
   state.currentWs = socket;
 
   socket.onopen = () => {
-    console.log(`✅Connected to WebSocket for event ${eventId}`);
     socket.send(JSON.stringify({
-      action: "subscribe",
+      action: "connect_to_event",
       event_id: eventId,
       userId: normalizedUserId,
       existingTeamMembers: state.existingTeamMembers,
@@ -88,9 +86,8 @@ export function connectToEventWebSocket() {
   socket.onmessage = (message) => {
     try {
       const data = JSON.parse(message.data);
-      console.log("📨 WebSocket message received:", data);
 
-      if (data.action === "unsubscribed") {
+      if (data.action === "disconnect_from_event") {
         console.log(`User ${data.userId} has unsubscribed from ${data.event_id}`);
         return;
       }
@@ -115,11 +112,6 @@ export function connectToEventWebSocket() {
         }
 
         state.droppedFiles = data.files || state.droppedFiles;
-
-        // Check if user object exists before accessing properties
-        if (data.user && data.user.profile_picture) {
-            console.log("User profile picture exists:", data.user.profile_picture);
-        }
 
         // Re-render UI with updated team members and files
         renderTeamMembers();
@@ -184,25 +176,21 @@ export function subscribeUserToEvent(userId) {
   const eventId = state.currentEvent.id || "MISSING_EVENT_ID";
 
   state.currentWs?.send(JSON.stringify({
-    action: "subscribe",
+    action: "connect_to_event",
     event_id: eventId,
     userId,
     existingTeamMembers: state.currentEvent.teamMembers.map(member => member.userId),
   }));
-
-  console.log(`Subscribed user ${userId} to event ${eventId}`);
 }
 
 export function unsubscribeUserFromEvent(userId) {
   const eventId = state.currentEvent.id;
 
   state.currentWs?.send(JSON.stringify({
-    action: "unsubscribe",
+    action: "disconnect_from_event",
     event_id: eventId,
     userId,
   }));
-
-  console.log(`Unsubscribed user ${userId} from event ${eventId}`);
 }
 
 // ─────────────────────────────────────────────
@@ -215,8 +203,6 @@ export function sendEventUpdate() {
         return;
     }
 
-    console.log("📡 Sending event update to WebSocket with files:", state.droppedFiles);
-
     const sanitizedFiles = state.droppedFiles.map(file => ({
         fileName: file.name,
         fileType: file.type,
@@ -224,8 +210,6 @@ export function sendEventUpdate() {
         eventId: state.currentEvent.id,
         userId: state.currentEvent.eventOwnerId
     }));
-
-    console.log("🚀 Sanitized files being sent:", JSON.stringify(sanitizedFiles));
 
     state.currentWs.send(JSON.stringify({
         action: "update_event",
@@ -264,7 +248,6 @@ export function addTeamMember(user) {
 }
 
 export function removeTeamMember(userId) {
-  console.log("Removing team member:", userId);
 
   state.existingTeamMembers = state.existingTeamMembers.filter(member => member.userId !== userId);
   state.teamMembers = state.teamMembers.filter(member => member.userId !== userId);
@@ -283,8 +266,6 @@ export function renderTeamMembers() {
     teamMembersDiv.innerHTML = '';
 
     state.existingTeamMembers.forEach(user => {
-
-      console.log(`🆕 Adding user to UI: ${user.firstName} ${user.lastName}`);
 
       let profilePicture = user.profilePicture;
 
@@ -320,7 +301,7 @@ export function renderTeamMembers() {
       teamMembersDiv.appendChild(userDiv);
 
     });
-
+    state.teamMembers = [];
 }
 // ─────────────────────────────────────────────
 // 5. UI Rendering - File Drops

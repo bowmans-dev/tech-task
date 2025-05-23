@@ -129,7 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderCalendar();
     globalCalendarEventsWS();
-    
 
     const sendButton = document.getElementById('send-message-button');
     sendButton.addEventListener('click', setUpSendMessageButton);

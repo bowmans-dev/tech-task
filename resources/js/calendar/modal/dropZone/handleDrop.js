@@ -13,8 +13,6 @@ export function handleDrop(event) { // Clear the dropped files array
     const rawData = event.dataTransfer.getData('text/plain'); // Dragged user data
     const files = Array.from(event.dataTransfer.files); // Dragged files
 
-    console.log("existingTeamMembers: ", state.existingTeamMembers);
-
     // Handle dropped users
     if (rawData) {
         try {
@@ -84,10 +82,6 @@ export function handleDrop(event) { // Clear the dropped files array
                 removeTeamMemberFromCalendarEvent(eventId, userId)
 
             });
-
-
-
-            console.log("User added to teamMembers:", state.teamMembers);
             
         } catch (error) {
             console.error("Error parsing user data:", error);

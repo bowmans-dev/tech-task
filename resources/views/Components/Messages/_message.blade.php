@@ -5,7 +5,7 @@
             class="rounded-full bg-gray-50 h-8 w-8 left-1 mr-2 flex-shrink-0 object-cover" 
             src="{{ $profilePicture }}" 
             alt="{{ $displayName }}'s profile picture" />
-        <p class="flex items-center">{{ $displayName }}:</p>
+        <div class="flex items-center">{{ $displayName }}:</div>
     </div>
     <p class="text-black mt-2 mb-4">{{ $message->content }}</p>
   </div>

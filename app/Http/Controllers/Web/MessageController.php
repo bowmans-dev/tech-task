@@ -62,6 +62,8 @@ class MessageController extends Controller
     }
 
 
+
+
     public function fetchMessages(Request $request, $eventId)
     {
         $messages = Message::where('event_id', $eventId)
@@ -99,11 +101,7 @@ class MessageController extends Controller
             );
         }
 
-
         return response($streams, 200, ['Content-Type' => 'text/vnd.turbo-stream.html']);
     }
-
-
-
 
 } 

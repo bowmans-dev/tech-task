@@ -3,57 +3,53 @@ export default function internal(ws, wss, eventScopedConnections, notifyTeamMemb
 
     ws.on("message", (message) => {
         const data = JSON.parse(message.toString());
+
         if (data.action === "message_broadcast") {
             const senderId = String(data.user.id);
             const eventId = data.event_id;
 
-            // Ensure the sender's WebSocket is aware of the event
             const senderClient = [...wss.clients].find(c => String(c.userId) === senderId);
             if (senderClient) {
-                // Update per-client subscription state
+
                 if (!senderClient.connectedEvent) senderClient.connectedEvent = [];
                 if (!senderClient.connectedEvent.some(sub => sub.eventId === eventId)) {
                     senderClient.connectedEvent.push({ userId: senderId, eventId });
                 }
 
-                // Update eventScopedConnections map
-                if (!eventScopedConnections[eventId]) eventScopedConnections[eventId] = [];
-                if (!eventScopedConnections[eventId].includes(senderId)) {
-                    eventScopedConnections[eventId].push(senderId);
-                }
-
-                // Ensure senderClient.allEventIds includes this event
                 if (!senderClient.allEventIds) senderClient.allEventIds = [];
                 if (!senderClient.allEventIds.includes(eventId)) {
                     senderClient.allEventIds.push(eventId);
                 }
 
-                // Update globalConnectedUsers map for event tracking
+                if (!eventScopedConnections[eventId]) eventScopedConnections[eventId] = [];
+                if (!eventScopedConnections[eventId].includes(senderId)) {
+                    eventScopedConnections[eventId].push(senderId);
+                }
+
                 if (globalConnectedUsers[senderId]) {
                     if (!globalConnectedUsers[senderId].allEventIds.includes(eventId)) {
                         globalConnectedUsers[senderId].allEventIds.push(eventId);
                     }
                 }
+            } else {
+                console.log(`Sender client not found in wss.clients`);
             }
 
-            // Broadcast to all clients currently viewing the event
+            // Broadcast to those currently viewing
             wss.clients.forEach((client) => {
-                if (!client.isInternal &&
-                    client.connectedEvent?.some(sub => sub.eventId === eventId)
-                ) {
+                const isSubscribed = client.connectedEvent?.some(sub => sub.eventId === eventId);
+                if (!client.isInternal && isSubscribed) {
                     client.send(JSON.stringify(data));
                 }
             });
 
-            // Notify online team members not actively viewing the event (for UI badge notification updates)
-            notifyTeamMembers(eventId, "message_broadcast", {
-                eventId,
+            notifyTeamMembers(eventId, senderId, "message_broadcast", {
                 eventName: data.event_name,
                 message: data.message,
-                user: data?.user
-            });
+                user: data.user
+            }, wss);
 
-            // Internal connections are one-time use — close after sending
+            // Internal socket is one-time use
             ws.terminate();
         }
     });

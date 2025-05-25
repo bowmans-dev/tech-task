@@ -339,14 +339,29 @@
             transform: translateX(0);
         }
 
+        .message p {
+            color: black;
+        }
+
         @keyframes highlightGradient {
-            0% { background-color: #fff; color: #ccc; }
+            0% { background-color: #fff; color: #ccc; } /* Applies to container */
             50% { background-color: #2D89EF; color: #fff; }
-            100% { background-color: #fff; color: #ccc; }
+            100% { background-color: #fff; color: #ccc; } /* Resets to default */
+        }
+
+        @keyframes messageTextColor {
+            0% { color: black; } /* Ensure text starts black */
+            50% { color: white; } /* Change to white during highlight */
+            100% { color: black; } /* Return to black */
         }
 
         .highlight-message {
-            animation: highlightGradient 3s ease-in-out 1;
+            animation: highlightGradient 4s ease-in-out 1;
+        }
+
+        /* Apply separate animation for message text */
+        .highlight-message p {
+            animation: messageTextColor 4.5s ease-in-out 1;
         }
 
         @media (max-width: 785px) {

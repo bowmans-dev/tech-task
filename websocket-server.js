@@ -1,5 +1,5 @@
 import http from "http";
-import { WebSocketServer } from "ws";
+import { WebSocketServer, WebSocket } from "ws";
 import monitor from "./websocket/monitor.js";
 import internal from "./websocket/internal.js";
 
@@ -7,6 +7,7 @@ import online from "./websocket/actions/online.js";
 import subscribe from "./websocket/actions/subscribe.js";
 import unsubscribe from "./websocket/actions/unsubscribe.js";
 import updateEvent from "./websocket/actions/updateEvent.js";
+import teamMemberAdded from "./websocket/actions/teamMemberAdded.js";
 import messageBroadcast from "./websocket/actions/messageBroadcast.js";
 
 
@@ -33,6 +34,7 @@ wss.on("connection", (ws, req) => {
 
     const actionHandlers = {
         online:                (ws, data) => online(ws, data, globalConnectedUsers),
+        team_member_added:     (ws, data) => teamMemberAdded(ws, data, globalConnectedUsers, wss, notifyTeamMembers, WebSocket),
         connect_to_event:      (ws, data) => subscribe(ws, data, eventScopedConnections),
         disconnect_from_event: (ws, data) => unsubscribe(ws, data, eventScopedConnections, wss),
         update_event:          (ws, data) => updateEvent(data, eventScopedConnections, wss),
@@ -93,17 +95,27 @@ process.on("SIGINT", () => {
     });
 });
 
-function notifyTeamMembers(eventId, action, payload) {
 
-    const senderId = String(payload.user.id);
+function notifyTeamMembers(eventId, senderId, actionType, payload, wss) {
+    const { eventName, message = "", user } = payload;
 
-    const recipients = Object.values(globalConnectedUsers).filter(client => 
-        client.allEventIds.some(id => id == eventId) && String(client.userId) !== senderId
-    );;
+    for (const client of wss.clients) {
+        const isNotSender = String(client.userId) !== String(senderId);
+        const isSubscribed = client.allEventIds?.includes(eventId);
 
-    recipients.forEach(client => {
-        client.send(JSON.stringify({ action, payload }));
-    });
+        if (client.readyState === WebSocket.OPEN && isSubscribed && isNotSender) {
+            client.send(JSON.stringify({
+                action: actionType,
+                payload: {
+                    eventId,
+                    eventName,
+                    message,
+                    user
+                }
+            }));
+        }
+    }
 }
+
 
 export { server, wss };

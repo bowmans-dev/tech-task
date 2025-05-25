@@ -49,123 +49,133 @@ export const currentUser = getCurrentUser();
 // 3. WebSocket Connection
 // ─────────────────────────────────────────────
 
+let retryInterval;
+let retryCount = 0;
+const retryDelays = [10000, 30000, 60000];
+
 export function connectToEventWebSocket() {
-  const eventId = state.currentEvent.id;
-  const user = getCurrentUser();
+    const eventId = state.currentEvent?.id;
+    const user = getCurrentUser();
 
-  if (!eventId || !user?.userId) {
-    console.warn("Cannot connect to WebSocket: missing eventId or userId");
-    return;
-  }
-
-  const normalizedUserId = String(user.userId);
-  const socket = new WebSocket("ws://localhost:8080");
-
-  if (state.currentWs) {
-    state.currentWs.close();
-  }
-
-  state.currentWs = socket;
-
-  socket.onopen = () => {
-    socket.send(JSON.stringify({
-      action: "connect_to_event",
-      event_id: eventId,
-      userId: normalizedUserId,
-      existingTeamMembers: state.existingTeamMembers,
-      files: state.droppedFiles,
-      currentEvent: {
-        title: state.currentEvent.title,
-        date: state.currentEvent.date,
-        time: state.currentEvent.time,
-        allDay: state.currentEvent.allDay,
-      }
-    }));
-  };
-
-  socket.onmessage = (message) => {
-    try {
-      const data = JSON.parse(message.data);
-
-      if (data.action === "disconnect_from_event") {
-        console.log(`User ${data.userId} has unsubscribed from ${data.event_id}`);
+    if (!eventId || !user?.userId) {
+        console.warn("Cannot connect to WebSocket: missing eventId or userId");
         return;
-      }
-
-      if (data.action === "update_event") {
-
-        // Filter out existing users before adding new ones
-        const newUsers = data.teamMembers.filter(user =>
-          !state.existingTeamMembers.some(
-            existing => String(existing.userId) === String(user.userId)
-          )
-        );
-
-        // Ensure the newUsers array is not empty before processing
-        if (
-          newUsers.length > 0 &&
-          !state.existingTeamMembers.some(user =>
-            data.teamMembers.includes(user)
-          )
-        ) {
-          newUsers.forEach(user => addTeamMember(user));
-        }
-
-        state.droppedFiles = data.files || state.droppedFiles;
-
-        // Re-render UI with updated team members and files
-        renderTeamMembers();
-        renderDroppedFiles();
-      }
-
-      if (data.action === "message_broadcast") {
-        const dropZone = document.getElementById("drop-zone");
-        const dropZoneEventId = dropZone?.getAttribute("data-event-id");
-
-        if (dropZoneEventId === data.event_id) {
-          const messagesContainer = document.getElementById("messages");
-
-          const isSender = parseInt(data.user.id) === parseInt(currentUser.userId);
-          const alignmentClass = isSender ? "justify-end" : "justify-start";
-          const backgroundClass = isSender ? "bg-[#d9fdd3]" : "bg-[#ffffff]";
-
-          const displayName =
-            data.user.type === "Admin"
-              ? `(Admin) ${data.user.name}`
-              : `${data.user.first_name} ${data.user.last_name}`;
-
-          // Outer wrapper for alignment
-          const wrapper = document.createElement("div");
-          wrapper.className = `w-full flex ${alignmentClass}`;
-
-          // Inner message block
-          const messageElement = document.createElement("div");
-          messageElement.className = `message mb-4 mt-4 text-left w-[200px] p-2 rounded-2xl shadow-md ${backgroundClass}`;
-
-          messageElement.innerHTML = `
-            <div class="flex flex-row align-center">
-              <img 
-                class="rounded-full bg-gray-50 h-8 w-8 left-1 mr-2 flex-shrink-0 object-cover" 
-                src="${data.user.profile_picture}" 
-                alt="${displayName}'s profile picture" />
-              <p class="flex items-center">${displayName}:</p>
-            </div>
-            <p class="text-black mt-2 mb-4">${data.message}</p>
-          `;
-
-          wrapper.appendChild(messageElement);
-          messagesContainer.appendChild(wrapper);
-        }
-      }
-
-    } catch (err) {
-      console.error("WebSocket message parsing failed:", err);
     }
-  };
 
-  socket.onerror = (event) => {
-    console.error("WebSocket error:", event);
-  };
+    const normalizedUserId = String(user.userId);
+    const socket = new WebSocket("ws://localhost:8080");
+
+    if (state.currentWs) {
+        state.currentWs.close();
+    }
+
+    state.currentWs = socket;
+
+    socket.onopen = () => {
+        socket.send(JSON.stringify({
+            action: "connect_to_event",
+            event_id: eventId,
+            userId: normalizedUserId,
+            existingTeamMembers: state.existingTeamMembers,
+            files: state.droppedFiles,
+            currentEvent: {
+                title: state.currentEvent.title,
+                date: state.currentEvent.date,
+                time: state.currentEvent.time,
+                allDay: state.currentEvent.allDay,
+            }
+        }));
+        retryCount = 0;
+        clearInterval(retryInterval);
+    };
+
+    socket.onmessage = (message) => {
+        try {
+            const data = JSON.parse(message.data);
+
+            if (data.action === "disconnect_from_event") {
+                console.log(`User ${data.userId} has unsubscribed from ${data.event_id}`);
+                return;
+            }
+
+            if (data.action === "update_event") {
+                const newUsers = data.teamMembers.filter(user => 
+                    !state.existingTeamMembers.some(existing => String(existing.userId) === String(user.userId))
+                );
+
+                if (newUsers.length > 0 && !state.existingTeamMembers.some(user => data.teamMembers.includes(user))) {
+                    newUsers.forEach(user => addTeamMember(user));
+                }
+
+                state.droppedFiles = data.files || state.droppedFiles;
+
+                renderTeamMembers();
+                renderDroppedFiles();
+            }
+
+            if (data.action === "message_broadcast") {
+                const dropZone = document.getElementById("drop-zone");
+                const dropZoneEventId = dropZone?.getAttribute("data-event-id");
+
+                if (dropZoneEventId === data.event_id) {
+                    const messagesContainer = document.getElementById("messages");
+
+                    const isSender = parseInt(data.user.id) === parseInt(user.userId);
+                    const alignmentClass = isSender ? "justify-end" : "justify-start";
+                    const backgroundClass = isSender ? "bg-[#d9fdd3]" : "bg-[#ffffff]";
+
+                    const displayName = data.user.type === "Admin"
+                        ? `(Admin) ${data.user.name}`
+                        : `${data.user.first_name} ${data.user.last_name}`;
+
+                    const wrapper = document.createElement("div");
+                    wrapper.className = `w-full flex ${alignmentClass}`;
+
+                    const messageElement = document.createElement("div");
+                    messageElement.className = `message mb-4 mt-4 text-left w-[200px] p-2 rounded-2xl shadow-md ${backgroundClass}`;
+
+                    messageElement.innerHTML = `
+                        <div class="flex flex-row align-center">
+                          <img 
+                            class="rounded-full bg-gray-50 h-8 w-8 left-1 mr-2 flex-shrink-0 object-cover" 
+                            src="${data.user.profile_picture}" 
+                            alt="${displayName}'s profile picture" />
+                          <div class="flex items-center">${displayName}:</div>
+                        </div>
+                        <p class="mt-2 mb-4">${data.message}</p>
+                    `;
+
+                    wrapper.appendChild(messageElement);
+                    messagesContainer.appendChild(wrapper);
+                }
+            }
+        } catch (err) {
+            console.error("WebSocket message parsing failed:", err);
+        }
+    };
+
+    socket.onerror = (event) => {
+        if (socket.readyState !== 3) {  // Filter out standard error due to offline server
+            console.error("WebSocket error:", event);
+        }
+    };
+
+    socket.onclose = async () => {
+        // Check if the server is online before deciding retry strategy
+        try {
+            await fetch("http://localhost:8080", { method: "HEAD" }); // Ping server
+            console.warn("Event Server is online. Reconnecting in 3 seconds...");
+            retryInterval = setInterval(connectToEventWebSocket, 3000);
+        } catch {
+            if (retryCount < retryDelays.length) {
+                console.warn(`Event Server is down. Retrying in ${retryDelays[retryCount] / 1000}s...`);
+                setTimeout(connectToEventWebSocket, retryDelays[retryCount]); // Exponential backoff
+                retryCount++;
+            } else {
+                console.warn("Max retry reached. No further attempts.");
+            }
+        }
+    };
 }
 
 // ─────────────────────────────────────────────
@@ -255,6 +265,31 @@ export function removeTeamMember(userId) {
 
 }
 
+export function notifyNewTeamMembers() {
+  
+    if (!state.currentWs || state.currentWs.readyState !== WebSocket.OPEN) return;
+
+    const event = window.calendar.getEventById(state.currentEvent.id);
+    if (!event) return;
+
+    const owner = event.extendedProps.eventOwnerDetails;
+    const newMembers = state.teamMembers;
+
+    newMembers.forEach(member => {
+        state.currentWs.send(JSON.stringify({
+            action: "team_member_added",
+            event_id: state.currentEvent.id,
+            eventName: event.title,
+            newMemberId: member.userId,
+            user: {
+                first_name: owner.firstName,
+                last_name: owner.lastName,
+                profile_picture: owner.profilePicture || "/storage/default_profile_image.png"
+            }
+        }));
+    });
+}
+
 // ─────────────────────────────────────────────
 // 5. UI Rendering - Team Members
 // ─────────────────────────────────────────────
@@ -292,11 +327,14 @@ export function renderTeamMembers() {
       `;
 
       const removeButton = userDiv.querySelector('button');
-      removeButton.addEventListener('click', () => {
+      const handleRemoveClick = () => {
           userDiv.remove();
           removeTeamMember(user.userId);
           removeTeamMemberFromCalendarEvent(state.currentEvent.id, user.userId);
-      });
+      };
+
+      removeButton.removeEventListener('click', handleRemoveClick);
+      removeButton.addEventListener('click', handleRemoveClick);
 
       teamMembersDiv.appendChild(userDiv);
 

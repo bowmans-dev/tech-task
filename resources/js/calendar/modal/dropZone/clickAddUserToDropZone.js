@@ -5,6 +5,7 @@ import { addTeamMember } from "../../state";
 import { removeTeamMember } from "../../state";
 import { removeTeamMemberFromCalendarEvent } from "../../removeTeamMemberFromCalendarEvent";
 import { sendEventUpdate } from "../../state";
+import { notifyNewTeamMembers } from "../../state";
 
 export function clickAddUserToDropZone(user) {
 
@@ -48,6 +49,11 @@ export function clickAddUserToDropZone(user) {
 
     // Save the calendar event after adding the user
     saveCalendarEvent();
+
+    if (state.teamMembers.length > 0) {
+        notifyNewTeamMembers();
+    }
+    state.teamMembers = [];
 
     
     sendEventUpdate();

@@ -7,6 +7,11 @@ export default function subscribe(ws, jsonData, eventScopedConnections) {
         return;
     }
 
+    if (!ws.allEventIds) ws.allEventIds = [];
+    if (!ws.allEventIds.includes(eventId)) {
+        ws.allEventIds.push(eventId);
+    }
+
     ws.connectedEvent.push({ userId, eventId });
     if (!eventScopedConnections[eventId]) eventScopedConnections[eventId] = [];
     if (!eventScopedConnections[eventId].includes(userId)) eventScopedConnections[eventId].push(userId);

@@ -3,7 +3,7 @@ import { isUserAlreadyInTeam } from "../../state";
 import { isUserInDatabase } from "../../state";
 import { addTeamMember } from "../../state";
 import { removeTeamMember } from "../../state";
-import { removeTeamMemberFromCalendarEvent } from "../../removeTeamMemberFromCalendarEvent";
+import { removeTeamMemberFromCalendarEvent } from "./teamMembers/removeTeamMemberFromCalendarEvent";
 import { sendEventUpdate } from "../../state";
 
 export function handleDrop(event) { // Clear the dropped files array

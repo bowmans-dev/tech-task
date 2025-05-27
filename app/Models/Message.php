@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Calendar;
+use App\Models\MessageReaction;
 
 class Message extends Model
 {
@@ -20,4 +22,10 @@ class Message extends Model
     {
         return $this->belongsTo(Calendar::class, 'event_id');
     }
+
+    public function reactions()
+    {
+        return $this->hasMany(MessageReaction::class);
+    }
+
 }

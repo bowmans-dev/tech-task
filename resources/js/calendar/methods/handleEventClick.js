@@ -1,9 +1,16 @@
-import { fetchMessagesForEvent } from './modal/messages/fetchMessagesForEvent';
-import { state, connectToEventWebSocket } from './state';
-import { showEventModal } from './modal/showEventModal';
+import { fetchMessagesForEvent } from '../modal/messages/fetchMessagesForEvent';
+import { state, currentUser, connectToEventWebSocket } from '../state';
+import { showEventModal } from '../modal/actions/showEventModal';
 
 // Update the global state (state.currentEvent) from the existing saved fullcalendar (db) event.
 function updateCurrentEvent(event) {
+
+  // Give admin global delete permissions
+  if (currentUser.userId == "admin") {
+    const deleteButton = document.querySelector('.delete-event-button');
+    deleteButton.setAttribute('data-user-id', event.extendedProps.eventOwnerId);
+  }
+
   // Set the event's background color to null if it was highlighted by notification
   event.setProp("backgroundColor", null);
   return {

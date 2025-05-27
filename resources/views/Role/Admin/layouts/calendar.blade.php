@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Default Title')</title>
-    <script src="{{ Vite::asset('resources/js/Admin/Calendar.js') }}?v={{ time() }}" type="module" data-turbo-track="reload"></script>
+    <script src="{{ Vite::asset('resources/js/calendar/Calendar.js') }}?v={{ time() }}" type="module" data-turbo-track="reload"></script>
     <style>
         .fc-event-title {
             font-size: 10px !important;
@@ -233,14 +233,28 @@
                 display: none;
             }
         } */
-        @media (max-width: 740px) {
+        #drop-zone {
+            max-height: 500px;
+            height: 99%;
+            overflow-x: hidden;
+            overflow-y: scroll;
+            contain: content;
+        }
+        @media (max-width: 768px) {
             .modal-content {
                 display: block;
                 width: 100% !important;
                 width: 100% !important;
             }
-            #drop-zone {
+            .drop-zone-container {
                 margin-left: 0px !important;
+            }
+            #drop-zone {
+                height: 100%;
+            }
+            form#message-form {
+                padding-left: 0px;
+                padding-right: 0px; 
             }
             .save-event-button {
                 display: none;
@@ -263,28 +277,131 @@
         .fc .fc-daygrid-day-frame {
             overflow: hidden;
         }
-        #drop-zone {
-            max-height: 300px;
-            overflow-x: hidden;
-            overflow-y: scroll;
-            contain: content;
-        }
+
         @media (min-width: 740px) {
 
             .modal-content {
-                max-height: 500px;
                 contain: content;
             }
 
-            #drop-zone {
-                max-height: 500px;
-                overflow-x: hidden;
-                overflow-y: scroll;
-                contain: content;
+        }
+
+        #notification-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+            cursor: pointer;
+        }
+
+        .notification {
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, #2D89EF, #005A9E);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: translateX(50px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .notification img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #fff;
+        }
+
+        .notification-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .notification-title {
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .notification-message {
+            font-size: 14px;
+        }
+
+        /* Animation for notification appearing */
+        .show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .message p {
+            color: black;
+        }
+
+        @keyframes highlightGradient {
+            0% { background-color: #fff; color: #ccc; } /* Applies to container */
+            50% { background-color: #2D89EF; color: #fff; }
+            100% { background-color: #fff; color: #ccc; } /* Resets to default */
+        }
+
+        @keyframes messageTextColor {
+            0% { color: black; } /* Ensure text starts black */
+            50% { color: white; } /* Change to white during highlight */
+            100% { color: black; } /* Return to black */
+        }
+
+        .highlight-message {
+            animation: highlightGradient 4s ease-in-out 1;
+        }
+
+        /* Apply separate animation for message text */
+        .highlight-message p {
+            animation: messageTextColor 4.5s ease-in-out 1;
+        }
+
+        @media (max-width: 785px) {
+            .delete-event-button {
+                display: none;
             }
         }
+        #messages {
+            position: relative;
+        }
+        
+        /* Create a white overlay using a pseudo-element */
+        #messages::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: white;
+            transition: opacity 0.5s ease-in-out; 
+            z-index: 1;
+        }
+
+        .message {
+            position: relative; 
+            z-index: 2; /* Higher than the pseudo-element */
+        }
+
+        /* The .with-overlay class shows the white overlay */
+        #messages.with-overlay::before {
+            opacity: 1;
+        }
+
+        /* Removing the white overlay (or fading out) */
+        #messages.no-overlay::before {
+            opacity: 0;
+        }
     </style>
-    @vite(['resources/js/app.js', 'resources/css/app.css'])
+    @vite(['resources/js/Role/Admin/app.js', 'resources/css/app.css'])
 </head>
 <body class="bg-gray-100 h-full pt-16">
 

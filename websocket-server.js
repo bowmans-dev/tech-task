@@ -9,6 +9,7 @@ import unsubscribe from "./websocket/actions/unsubscribe.js";
 import updateEvent from "./websocket/actions/updateEvent.js";
 import teamMemberAdded from "./websocket/actions/teamMemberAdded.js";
 import messageBroadcast from "./websocket/actions/messageBroadcast.js";
+import reactionBroadcast from "./websocket/actions/reactionBroadcast.js";
 
 
 const server = http.createServer();
@@ -39,6 +40,7 @@ wss.on("connection", (ws, req) => {
         disconnect_from_event: (ws, data) => unsubscribe(ws, data, eventScopedConnections, wss),
         update_event:          (ws, data) => updateEvent(data, eventScopedConnections, wss),
         message_broadcast:     (ws, data) => messageBroadcast(data, eventScopedConnections, wss),
+        reaction_broadcast:    (ws, data) => reactionBroadcast(data, eventScopedConnections, wss),
     };
 
     ws.on("message", (message) => {
@@ -97,7 +99,7 @@ process.on("SIGINT", () => {
 
 
 function notifyTeamMembers(eventId, senderId, actionType, payload, wss) {
-    const { eventName, message = "", user } = payload;
+    const { eventName, message = "", created_at = null, user } = payload;
 
     for (const client of wss.clients) {
         const isNotSender = String(client.userId) !== String(senderId);
@@ -110,6 +112,7 @@ function notifyTeamMembers(eventId, senderId, actionType, payload, wss) {
                     eventId,
                     eventName,
                     message,
+                    created_at,
                     user
                 }
             }));

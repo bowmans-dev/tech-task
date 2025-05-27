@@ -1,4 +1,4 @@
-import { state } from "./state";
+import { state } from "../state";
 // Function to debounce API calls
 function debounce(func, delay) {
     let timeout;
@@ -20,13 +20,18 @@ export async function saveCalendarEvent() {
 
   let id = state.currentEvent.id;
 
-  // Get user info from the calendar wrapper.
-  let userId = calendarWrapper.getAttribute('data-user-id');
-  const profilePicture = calendarWrapper.getAttribute('data-profile-picture');
-  const firstName = calendarWrapper.getAttribute('data-first-name');
-  const lastName = calendarWrapper.getAttribute('data-last-name');
+  let event = calendar.getEventById(id);
 
-  const date = state.currentEvent.date;
+
+  // Get user info from the calendar wrapper.
+  console.log(event);
+  let userId = calendarWrapper?.getAttribute('data-user-id') ?? event.extendedProps.eventOwnerId;
+  const profilePicture = calendarWrapper?.getAttribute('data-profile-picture') ?? event.extendedProps.eventOwnerDetails.profilePicture;
+  const firstName = calendarWrapper?.getAttribute('data-first-name') ?? event.extendedProps.eventOwnerDetails.firstName;
+  const lastName = calendarWrapper?.getAttribute('data-last-name') ?? event.extendedProps.eventOwnerDetails.lastName;
+
+  const date = event.start.toISOString().split("T")[0];
+
   const time = document.getElementById('modal-event-time').value.trim();
   const allDay = time === '';
 

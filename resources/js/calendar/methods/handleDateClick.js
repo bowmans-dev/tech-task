@@ -1,4 +1,4 @@
-import { state, getCurrentUser } from "./state";
+import { state, getCurrentUser } from "../state";
 export async function handleDateClick(info) {
 
   // Reset the state for the new event and get current user

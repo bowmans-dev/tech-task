@@ -44,8 +44,10 @@ export default function internal(ws, wss, eventScopedConnections, notifyTeamMemb
             });
 
             notifyTeamMembers(eventId, senderId, "message_broadcast", {
+                message_id: data.message_id,
                 eventName: data.event_name,
                 message: data.message,
+                created_at: data.created_at,
                 user: data.user
             }, wss);
 

@@ -47,6 +47,7 @@ Route::group([], function () {
     // Calendar Event Messages
     Route::post('/messages', [MessageController::class, 'store'])->name('messages.store'); 
     Route::get('/events/{eventId}/messages', [MessageController::class, 'fetchMessages'])->name('messages.fetch');
+    Route::post('/message/react', [MessageController::class, 'react']);
 });
 
 

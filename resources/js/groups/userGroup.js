@@ -1,4 +1,4 @@
-// resources/js/userGroup.js
+// resources/js/groups/userGroup.js
 
 // Get CSRF token from a meta tag in the document head.
 const csrfToken = document

@@ -12,7 +12,7 @@ class NotifyTeamMembersOnMessageSent
     {
         $message = $event->message;
         $eventName = $event->eventName;
-        Log::info("Sending message update", ['message' => $message->toArray()]);
+        Log::info("Sending message update", ['message' => $message->toArray()]); 
 
         $teamMembers = User::whereHas('calendarEvents', function ($query) use ($message) {
             $query->where('calendar_event_id', $message->event_id);
@@ -45,28 +45,43 @@ class NotifyTeamMembersOnMessageSent
 
         $sender = $message->sender;
         $senderType = class_basename(get_class($sender));
+        $profilePicture = $sender->profile_picture 
+                ? "/storage/{$sender->profile_picture}" 
+                : "/storage/default_profile_image.png";
 
         $userPayload = [
-            'id'         => $sender->id,
-            'type'       => $senderType,
-            'profile_picture' => $sender->profile_picture 
-                ? "/storage/{$sender->profile_picture}" 
-                : "/storage/default_profile_image.png"
+            'id' => $sender->id,
+            'type' => $senderType,
+            'profile_picture' => $profilePicture,
         ];
 
         if ($senderType === 'Admin') {
             $userPayload['name'] = $sender->name;
+            $displayName = $sender->name;
         } else {
             $userPayload['first_name'] = $sender->first_name;
-            $userPayload['last_name']  = $sender->last_name;
+            $userPayload['last_name'] = $sender->last_name;
+            $displayName = $sender->first_name . " " . $sender->last_name;
         }
 
+        // Render the full Blade message component to HTML
+        $html = view('Components.messages._message', [
+            'message' => $message, 
+            'profilePicture' => $profilePicture, 
+            'displayName' => $displayName, 
+            'isSender' => $sender->id === auth()->id()
+        ])->render();
+
+        // Final payload with both user info and Blade-rendered HTML
         $data = json_encode([
-            'action'   => 'message_broadcast',
-            'event_id' => $message->event_id,
-            'event_name' => $eventName,
-            'message'  => $message->content,
-            'user'     => $userPayload,
+            'action'      => 'message_broadcast',
+            'message_id'  => $message->id,
+            'message' => $message->content,
+            'created_at'  => $message->created_at,
+            'event_id'    => $message->event_id,
+            'event_name'  => $eventName,
+            'user'        => $userPayload,
+            'html'        => $html,
         ]);
 
 

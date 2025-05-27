@@ -14,6 +14,7 @@ export default function messageBroadcast(data, eventScopedConnections, wss) {
             if (client.readyState === 1) {
                 client.send(JSON.stringify({
                     action: "message_broadcast",
+                    message_id: data.message_id,
                     message: data.message,
                     event_id: eventId,
                     userId: senderId,

@@ -1,5 +1,5 @@
-import { renderFiles } from "./dropZone/files/renderFiles";
-import { renderTeamMembers } from "./dropZone/teamMembers/renderTeamMembers";
+import { renderFiles } from "../dropZone/files/renderFiles";
+import { renderTeamMembers } from "../dropZone/teamMembers/renderTeamMembers";
 
 export const showEventModal = (modalSelector = '#event-modal') => {
   const modal = document.querySelector(modalSelector);

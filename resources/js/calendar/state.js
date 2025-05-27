@@ -49,6 +49,11 @@ export const currentUser = getCurrentUser();
 // 3. WebSocket Connection
 // ─────────────────────────────────────────────
 
+function formatTime(createdAt) {
+    const date = new Date(createdAt);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+}
+
 let retryInterval;
 let retryCount = 0;
 const retryDelays = [10000, 30000, 60000];
@@ -114,41 +119,52 @@ export function connectToEventWebSocket() {
             }
 
             if (data.action === "message_broadcast") {
+
                 const dropZone = document.getElementById("drop-zone");
                 const dropZoneEventId = dropZone?.getAttribute("data-event-id");
 
                 if (dropZoneEventId === data.event_id) {
+
                     const messagesContainer = document.getElementById("messages");
+                    const temp = document.createElement("div");
+                    temp.innerHTML = data.html.trim();
 
-                    const isSender = parseInt(data.user.id) === parseInt(user.userId);
-                    const alignmentClass = isSender ? "justify-end" : "justify-start";
-                    const backgroundClass = isSender ? "bg-[#d9fdd3]" : "bg-[#ffffff]";
+                    const messageEl = temp.firstElementChild;
+                    if (messageEl) {
+                        messagesContainer.appendChild(messageEl);
+                    }
 
-                    const displayName = data.user.type === "Admin"
-                        ? `(Admin) ${data.user.name}`
-                        : `${data.user.first_name} ${data.user.last_name}`;
-
-                    const wrapper = document.createElement("div");
-                    wrapper.className = `w-full flex ${alignmentClass}`;
-
-                    const messageElement = document.createElement("div");
-                    messageElement.className = `message mb-4 mt-4 text-left w-[200px] p-2 rounded-2xl shadow-md ${backgroundClass}`;
-
-                    messageElement.innerHTML = `
-                        <div class="flex flex-row align-center">
-                          <img 
-                            class="rounded-full bg-gray-50 h-8 w-8 left-1 mr-2 flex-shrink-0 object-cover" 
-                            src="${data.user.profile_picture}" 
-                            alt="${displayName}'s profile picture" />
-                          <div class="flex items-center">${displayName}:</div>
-                        </div>
-                        <p class="mt-2 mb-4">${data.message}</p>
-                    `;
-
-                    wrapper.appendChild(messageElement);
-                    messagesContainer.appendChild(wrapper);
                 }
             }
+
+
+            if (data.action === 'reaction_broadcast') {
+                console.log("Reaction broadcast received:", data);
+                const messageEl = document.getElementById(`message-${data.message_id}`);
+                console.log("Found message element:", messageEl);
+                if (!messageEl) return;
+
+                const bubble = messageEl.querySelector('.bubble');
+                if (!bubble) return;
+
+                // Remove existing reactions if present
+                const existingReactions = bubble.querySelector('.reaction-block');
+                if (existingReactions) {
+                    existingReactions.remove();
+                }
+
+                // Inject new HTML
+                const temp = document.createElement('div');
+                temp.innerHTML = data.html.trim();
+
+                const newReactions = temp.firstElementChild;
+                if (newReactions) {
+                    bubble.appendChild(newReactions);
+                }
+            }
+
+
+
         } catch (err) {
             console.error("WebSocket message parsing failed:", err);
         }

@@ -193,7 +193,7 @@ function openEventModal(eventId) {
 
         setTimeout(() => {
             const messageContainer = document.getElementById("messages");
-            const messages = messageContainer.querySelectorAll(".message");
+            const messages = messageContainer.querySelectorAll(".bubble");
             const lastMessage = messages[messages.length - 1] || null;
             const messageText = lastMessage.querySelector("p");
 

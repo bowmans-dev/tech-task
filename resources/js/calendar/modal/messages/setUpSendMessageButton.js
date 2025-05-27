@@ -25,6 +25,23 @@ export async function setUpSendMessageButton(e) {
     if (result.success) {
       // Clear out the textarea after a successful send
       textarea.value = '';
+      const dropZone = document.getElementById("drop-zone");
+      if (dropZone) {
+          dropZone.scrollTo({ top: dropZone.scrollHeight, behavior: "smooth" });
+      }
+      const messageContainer = document.getElementById("messages");
+      const messages = messageContainer.querySelectorAll(".message");
+      const lastMessage = messages[messages.length - 1] || null;
+      const messageText = lastMessage.querySelector("p");
+
+      if (lastMessage) {
+          lastMessage.classList.add("highlight-message");
+          setTimeout(() => lastMessage.classList.remove("highlight-message"), 4000);
+      }
+      if (messageText) {
+          messageText.classList.add("message-text-color");
+          setTimeout(() => messageText.classList.remove("message-text-color"), 4500);
+      }
     }
   } catch (error) {
     console.error("Error sending message via AJAX:", error);

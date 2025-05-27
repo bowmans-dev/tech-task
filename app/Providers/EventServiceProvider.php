@@ -27,6 +27,9 @@ use App\Domains\Shared\Events\Listeners\Calendar\HandleCalendarEventDeleted;
 
 use App\Domains\Shared\Events\DomainEvents\Messages\MessageSent;
 use App\Domains\Shared\Events\Listeners\Messages\NotifyTeamMembersOnMessageSent;
+use App\Domains\Shared\Events\DomainEvents\Messages\MessageReacted;
+use App\Domains\Shared\Events\Listeners\Messages\NotifyTeamMembersOnReactionSent;
+
 
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -62,6 +65,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         MessageSent::class => [
             NotifyTeamMembersOnMessageSent::class,
+        ],
+        MessageReacted::class => [
+            NotifyTeamMembersOnReactionSent::class,
         ],
 
     ];

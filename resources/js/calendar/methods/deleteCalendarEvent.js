@@ -1,4 +1,4 @@
-import { state } from "./state";
+import { state } from "../state";
 export function deleteCalendarEvent() {
 
   const dropZone = document.getElementById('drop-zone');

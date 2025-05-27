@@ -8,6 +8,7 @@ use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use App\Models\Calendar;
 use App\Models\CalendarEventTeamMember;
+use App\Models\MessageReaction;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -55,5 +56,11 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->belongsToMany(Calendar::class, 'calendar_event_team_members', 'user_id', 'calendar_event_id');
     }
+
+    public function messageReactions()
+    {
+        return $this->hasMany(MessageReaction::class);
+    }
+
 
 }

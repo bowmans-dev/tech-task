@@ -16,9 +16,10 @@ import { handleEventClick } from './methods/handleEventClick.js';
 
 // Calendar Modal
 import { closeModal } from './modal/actions/closeModal.js';
+import { setupSearchModalInput } from '../navigation/searchModal.js';
 
 // Calendar Toolbar
-import {toggleToolbarHighlight, toggleSearch, toggleLabel } from './modal/toolbar/setupToolbar.js';
+import { handleToolbarClick } from './modal/toolbar/setupToolbar.js';
 
 // Calendar DropZone
 import { initializeUserListDragHandlers } from './modal/dropZone/initializeUserListDragHandlers.js'; 
@@ -26,7 +27,7 @@ import { handleDrop } from './modal/dropZone/handleDrop.js';
 import { clickAddUserToDropZone } from './modal/dropZone/teamMembers/clickAddUserToDropZone.js';
 
 // Calendar Messaging
-import { openReactionPicker,  } from './modal/messages/react.js';
+import { openReactionPicker } from './modal/messages/react.js';
 import { setUpSendMessageButton } from './modal/messages/setUpSendMessageButton.js';
 
 // Global Calendar WebSocket Notifications
@@ -43,9 +44,7 @@ window.handleEventClick = handleEventClick;
 window.closeModal = closeModal;
 
 // Global Variables: Calendar Toolbar
-window.toggleToolbarHighlight = toggleToolbarHighlight;
-window.toggleSearch = toggleSearch;
-window.toggleLabel = toggleLabel;
+window.handleToolbarClick = handleToolbarClick;
 
 // Global Variables: Calendar DropZone
 window.handleDrop = handleDrop;
@@ -171,6 +170,7 @@ document.addEventListener("turbo:render", renderCalendar);
 document.addEventListener('DOMContentLoaded', () => {
 
     globalCalendarEventsWS();
+    setupSearchModalInput();
 
     const sendButton = document.getElementById('send-message-button');
     sendButton.addEventListener('click', setUpSendMessageButton);

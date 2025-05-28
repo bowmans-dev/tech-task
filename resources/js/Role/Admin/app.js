@@ -14,7 +14,6 @@ window.removeUserFromGroup = removeUserFromGroup;
 import { setupAccordionToggles } from '../../navigation/accordion.js';
 import { toggleSidebar } from '../../navigation/sidebar.js';
 import { setupSearchInput } from '../../navigation/search.js';
-import { setupSearchModalInput } from '../../navigation/searchModal.js';
 import { setupContextMenu, toggleContextMenu, toggleSubMenu } from '../../navigation/contextMenu.js';
 
 document.addEventListener('turbo:load', () => {
@@ -22,8 +21,6 @@ document.addEventListener('turbo:load', () => {
   setupAccordionToggles();
 
   setupSearchInput();
-
-  setupSearchModalInput();
 
   setupContextMenu();
 

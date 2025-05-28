@@ -1,32 +1,33 @@
-var searchBox = document.getElementById('user-search-box');
-var modalSearchBox = document.getElementById('modal-user-search-box');
-var modalLabelBox = document.getElementById('modal-label-input-container');
+let currentActive = null;
 
-export function toggleToolbarHighlight(selectedIcon) {
+export function handleToolbarClick(event) {
+  const clickedIcon = event.currentTarget;
+  const target = clickedIcon.dataset.toolbarTarget;
+  const isSame = currentActive === target;
 
-    document.querySelectorAll('.toolbar').forEach(icon => {
-        icon.classList.remove('button-highlight');
-    });
+  // Clear all highlights
+  document.querySelectorAll('.toolbar-toggle').forEach(icon =>
+    icon.classList.remove('button-highlight')
+  );
 
-    selectedIcon.classList.toggle('button-highlight');
-}
+  // Hide all panels
+  document.querySelectorAll('[data-toolbar-panel]').forEach(panel =>
+    panel.classList.add('hidden')
+  );
 
-export function toggleSearch(event) {
-    
-    searchBox.classList.remove('hidden');
-    modalSearchBox.classList.remove('hidden');
-    
-    modalLabelBox.classList.add('hidden');
+  if (isSame) {
+    // Deselect if same button clicked again
+    currentActive = null;
+    return;
+  }
 
-    toggleToolbarHighlight(event.currentTarget);
-}
+  // Highlight new icon
+  clickedIcon.classList.add('button-highlight');
 
-export function toggleLabel(event) {
-    
-    searchBox.classList.add('hidden');
-    modalSearchBox.classList.add('hidden');
+  // Show corresponding panels
+  document.querySelectorAll(`[data-toolbar-panel="${target}"]`).forEach(panel =>
+    panel.classList.remove('hidden')
+  );
 
-    modalLabelBox.classList.remove('hidden');
-
-    toggleToolbarHighlight(event.currentTarget);
+  currentActive = target;
 }

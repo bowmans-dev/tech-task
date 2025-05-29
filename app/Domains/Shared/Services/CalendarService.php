@@ -105,7 +105,7 @@ class CalendarService
                     'team_members' => $event->teamMembers->map(function ($user) {
                         return [
                             'userId' => $user->id,
-                            'profilePicture' => $user->profile_picture ?? '/storage/default_profile_image.png',
+                            'profilePicture' => $user->profile_picture ?? '/storage/default_profile_image.webp',
                             'firstName' => $user->first_name,
                             'lastName' => $user->last_name,
                         ];
@@ -146,7 +146,7 @@ class CalendarService
                         'team_members' => $event->teamMembers->map(function ($user) {
                             return [
                                 'userId' => $user->id,
-                                'profilePicture' => $user->profile_picture ?? '/storage/default_profile_image.png',
+                                'profilePicture' => $user->profile_picture ?? '/storage/default_profile_image.webp',
                                 'firstName' => $user->first_name,
                                 'lastName' => $user->last_name,
                             ];

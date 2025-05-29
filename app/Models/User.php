@@ -62,5 +62,9 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(MessageReaction::class);
     }
 
+    public function pollVotes()
+    {
+        return $this->morphMany(PollVote::class, 'voter');
+    }
 
 }

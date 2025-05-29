@@ -3,8 +3,8 @@
 /public/build
 /public/hot
 /public/storage
-!/public/storage/default_profile_image.png
-!/storage/app/public/default_profile_image.png
+!/public/storage/default_profile_image.webp
+!/storage/app/public/default_profile_image.webp
 !/public/storage/default_profile_image.webp
 !/storage/app/public/default_profile_image.webp
 /storage/*.key

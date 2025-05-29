@@ -17,7 +17,7 @@
         
         <img 
           class="rounded-full bg-gray-50 h-8 w-8 left-1 flex-shrink-0 object-cover" 
-          src="{{ $user->profile_picture ? asset('storage/' . $user->profile_picture) : asset('storage/default_profile_image.png') }}" 
+          src="{{ $user->profile_picture ? asset('storage/' . $user->profile_picture) : asset('storage/default_profile_image.webp') }}" 
           alt="{{ $user->first_name }} {{ $user->last_name }}'s profile picture" />
       
         <!-- Left Block -->

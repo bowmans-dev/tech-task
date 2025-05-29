@@ -29,6 +29,10 @@ use App\Domains\Shared\Events\DomainEvents\Messages\MessageSent;
 use App\Domains\Shared\Events\Listeners\Messages\NotifyTeamMembersOnMessageSent;
 use App\Domains\Shared\Events\DomainEvents\Messages\MessageReacted;
 use App\Domains\Shared\Events\Listeners\Messages\NotifyTeamMembersOnReactionSent;
+use App\Domains\Shared\Events\DomainEvents\Messages\PollVoted;
+use App\Domains\Shared\Events\Listeners\Messages\NotifyTeamMembersOnPollVote;
+
+
 
 
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -68,6 +72,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         MessageReacted::class => [
             NotifyTeamMembersOnReactionSent::class,
+        ],
+        PollVoted::class => [
+            NotifyTeamMembersOnPollVote::class,
         ],
 
     ];

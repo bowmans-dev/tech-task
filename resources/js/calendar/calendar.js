@@ -29,6 +29,8 @@ import { clickAddUserToDropZone } from './modal/dropZone/teamMembers/clickAddUse
 // Calendar Messaging
 import { openReactionPicker } from './modal/messages/react.js';
 import { setUpSendMessageButton } from './modal/messages/setUpSendMessageButton.js';
+import { submitPoll } from './modal/messages/submitPollForEvent.js';
+import { submitPollVote } from './modal/messages/submitPollVote.js';
 
 // Global Calendar WebSocket Notifications
 import { globalCalendarEventsWS } from './global/globalCalendarEventsWS.js';
@@ -45,6 +47,8 @@ window.closeModal = closeModal;
 
 // Global Variables: Calendar Toolbar
 window.handleToolbarClick = handleToolbarClick;
+window.submitPoll = submitPoll;
+window.submitPollVote = submitPollVote;
 
 // Global Variables: Calendar DropZone
 window.handleDrop = handleDrop;

@@ -18,7 +18,7 @@
                 <div class="w-full grid place-items-center mb-2">
                     <img 
                         class="rounded-full bg-gray-50 h-36 w-36 flex-shrink-0 object-cover"
-                        src="{{ Auth::user()->profile_picture ? asset('storage/' . Auth::user()->profile_picture) : asset('storage/default_profile_image.png') }}" 
+                        src="{{ Auth::user()->profile_picture ? asset('storage/' . Auth::user()->profile_picture) : asset('storage/default_profile_image.webp') }}" 
                         alt="{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}'s profile picture" />
                 </div>
 

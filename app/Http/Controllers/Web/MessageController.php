@@ -9,7 +9,10 @@ use Hotwired\TurboLaravel\Turbo;
 use App\Domains\Shared\Events\DomainEventPublisher;
 use App\Domains\Shared\Events\DomainEvents\Messages\MessageSent;
 use App\Domains\Shared\Events\DomainEvents\Messages\MessageReacted;
+use App\Domains\Shared\Events\DomainEvents\Messages\PollVoted;
 use App\Models\Admin;
+use App\Models\PollOption;
+use App\Models\PollVote;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use App\Models\MessageReaction;
@@ -49,28 +52,48 @@ class MessageController extends Controller
 
         $eventName = $request->input('event_name');
 
+        $isPoll = $request->boolean('is_poll', false);
+
         $message = Message::create([
             'sender_id' => $sender->id,
-            'sender_type' => get_class($sender), // App\Models\User or App\Models\Admin
+            'sender_type' => get_class($sender),
             'content' => $request->input('content'),
             'event_id' => $request->input('event_id'),
+            'is_poll' => $isPoll,
         ]);
 
-        // Dispatch domain event via the publisher
-        DomainEventPublisher::publish(new MessageSent($message, $eventName));
+        // If this is a poll, create the poll options here
+        $pollOptions = collect();
+        if ($message->is_poll && $request->has('options')) {
+            foreach ($request->input('options') as $optionText) {
+                $pollOptions->push(PollOption::create([
+                    'message_id' => $message->id,
+                    'option_text' => $optionText,
+                ]));
+            }
+        }
 
-        // Eager-load sender for the view
+        $selectedOptionId = null;
+
+        if ($message->is_poll && $pollOptions->isNotEmpty()) {
+            $selectedOptionId = $pollOptions->first()->id; // assume user just submitted the first option
+        }
+
+        // Dispatch domain event with poll options (if any)
+        DomainEventPublisher::publish(new MessageSent($message, $eventName, $pollOptions));
+
+        // Eager-load sender for frontend rendering
         $message->load(['sender', 'reactions.user']);
 
         $isAdmin = $sender instanceof \App\Models\Admin;
 
-        $displayName = $isAdmin 
-            ? '(Admin) ' . $sender->name 
+        $displayName = $isAdmin
+            ? '(Admin) ' . $sender->name
             : $sender->first_name . ' ' . $sender->last_name;
 
         $profilePicture = $sender->profile_picture
             ? asset('storage/' . $sender->profile_picture)
-            : asset('storage/default_profile_image.png');
+            : asset('storage/default_profile_image.webp');
 
         $isSender = true;
 
@@ -80,8 +103,12 @@ class MessageController extends Controller
                 'displayName' => $displayName,
                 'profilePicture' => $profilePicture,
                 'isSender' => $isSender,
+                'isPoll' => $message->is_poll,
+                'options' => $message->is_poll ? $pollOptions : [],
+                'selectedOptionId' => $selectedOptionId,
             ]));
     }
+
 
 
     public function react(Request $request)
@@ -117,11 +144,53 @@ class MessageController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function vote(Request $request)
+    {
+        $auth = auth('admin')->check() ? auth('admin') : auth('web');
+
+        if (!$auth->check()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $voter = $auth->user();
+
+        $validated = $request->validate([
+            'message_id' => 'required|exists:messages,id',
+            'option_id' => 'required|exists:poll_options,id',
+        ]);
+
+        $alreadyVoted = PollVote::where([
+            'message_id' => $validated['message_id'],
+            'voter_type' => get_class($voter),
+            'voter_id' => $voter->id,
+        ])->exists();
+
+        if ($alreadyVoted) {
+            return response()->json(['error' => 'You have already voted.'], 409);
+        }
+
+        $vote = PollVote::create([
+            'poll_option_id' => $validated['option_id'],
+            'message_id' => $validated['message_id'],
+            'voter_type' => get_class($voter),
+            'voter_id' => $voter->id,
+        ]);
+
+        DomainEventPublisher::publish(new PollVoted($vote));
+
+        return response()->json(['success' => true, 'vote' => $vote]);
+    }
+
+
 
     public function fetchMessages(Request $request, $eventId)
     {
+        $currentUser = auth('admin')->check() ? auth('admin')->user() : auth('web')->user();
+        $currentUserClass = get_class($currentUser);
+        $currentUserId = $currentUser->id;
+
         $messages = Message::where('event_id', $eventId)
-            ->with(['sender', 'reactions.user'])
+            ->with(['sender', 'reactions.user', 'pollOptions.votes.voter'])
             ->orderBy('created_at', 'asc')
             ->get();
 
@@ -157,9 +226,24 @@ class MessageController extends Controller
 
                 $profilePicture = $sender->profile_picture
                     ? asset('storage/' . $sender->profile_picture)
-                    : asset('storage/default_profile_image.png');
+                    : asset('storage/default_profile_image.webp');
 
                 $isSender = $message->sender_id === $currentSenderId && $message->sender_type === $currentSenderType;
+
+                $selectedOptionId = null;
+                if ($message->is_poll) {
+                    foreach ($message->pollOptions as $option) {
+                        foreach ($option->votes as $vote) {
+                            if (
+                                $vote->voter_id === $currentUserId &&
+                                $vote->voter_type === $currentUserClass
+                            ) {
+                                $selectedOptionId = $option->id;
+                                break 2;
+                            }
+                        }
+                    }
+                }
 
                 $streams .= turbo_stream()->append(
                     'messages',
@@ -168,6 +252,9 @@ class MessageController extends Controller
                         'displayName' => $displayName,
                         'profilePicture' => $profilePicture,
                         'isSender' => $isSender,
+                        'isPoll' => $message->is_poll,
+                        'options' => $message->is_poll ? $message->pollOptions : [],
+                        'selectedOptionId' => $selectedOptionId,
                     ])
                 );
             }

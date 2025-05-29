@@ -3,7 +3,7 @@
     <div class="w-full text-left flex flex-row align-center">
         <img 
           class="rounded-full bg-gray-50 h-8 w-8 left-1 mr-2 flex-shrink-0 object-cover" 
-          src="{{ $message->sender->profile_picture ? asset('storage/' . $message->sender->profile_picture) : asset('storage/default_profile_image.png') }}" 
+          src="{{ $message->sender->profile_picture ? asset('storage/' . $message->sender->profile_picture) : asset('storage/default_profile_image.webp') }}" 
           alt="{{ $message->sender->first_name }} {{ $message->sender->last_name }}'s profile picture" />
         <div class="flex items-center">{{ $message->sender->first_name }} {{ $message->sender->last_name }}:</div>
     </div>

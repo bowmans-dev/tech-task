@@ -25,7 +25,7 @@ class NotifyTeamMembersOnReactionSent
             'type' => $userType,
             'profile_picture' => $user->profile_picture 
                 ? "/storage/{$user->profile_picture}" 
-                : "/storage/default_profile_image.png", 
+                : "/storage/default_profile_image.webp", 
         ];
 
         if ($userType === 'Admin') {

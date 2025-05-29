@@ -198,14 +198,16 @@ function updatePollPreview() {
             messageText.classList.add("message-text-color");
             setTimeout(() => messageText.classList.remove("message-text-color"), 4500);
         }
-
-        event.setProp("backgroundColor", null);
+        if (event) {
+            event.setProp("backgroundColor", null);
+        }
     }, 1000);
   }
 
   // Update content inside the clone
   const previewQuestion = livePreviewClone.querySelector('#poll-preview-question');
   const previewOptions = livePreviewClone.querySelector('#poll-preview-options');
+  const submitContainer = livePreviewClone.querySelector('.poll-submit-container');
 
   previewQuestion.textContent = question || 'Your question will appear here';
   previewOptions.innerHTML = '';
@@ -213,9 +215,17 @@ function updatePollPreview() {
   options.forEach(optionText => {
     const li = document.createElement('li');
     li.textContent = optionText;
-    li.className = 'cursor-pointer px-2 py-1 rounded-md bg-gray-100 hover:bg-gray-200';
+    li.className = 'cursor-pointer px-2 py-1 rounded-md bg-white hover:bg-gray-200 hover:text-blue-600';
     previewOptions.appendChild(li);
   });
+
+  // Fade in Submit button when 2+ options
+  if (options.length >= 2) {
+    submitContainer.style.opacity = '1';
+    submitContainer.style.transition = 'opacity 0.5s ease';
+  } else {
+    submitContainer.style.opacity = '0';
+  }
 }
 
 // Initialize inputs on page load

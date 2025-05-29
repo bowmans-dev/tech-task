@@ -10,6 +10,7 @@ import updateEvent from "./websocket/actions/updateEvent.js";
 import teamMemberAdded from "./websocket/actions/teamMemberAdded.js";
 import messageBroadcast from "./websocket/actions/messageBroadcast.js";
 import reactionBroadcast from "./websocket/actions/reactionBroadcast.js";
+import voteBroadcast from "./websocket/actions/voteBroadcast.js";
 
 
 const server = http.createServer();
@@ -41,6 +42,7 @@ wss.on("connection", (ws, req) => {
         update_event:          (ws, data) => updateEvent(data, eventScopedConnections, wss),
         message_broadcast:     (ws, data) => messageBroadcast(data, eventScopedConnections, wss),
         reaction_broadcast:    (ws, data) => reactionBroadcast(data, eventScopedConnections, wss),
+        vote_broadcast:        (ws, data) => voteBroadcast(data, eventScopedConnections, wss),
     };
 
     ws.on("message", (message) => {

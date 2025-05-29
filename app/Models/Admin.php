@@ -34,4 +34,15 @@ class Admin extends Authenticatable implements JWTSubject
     protected $hidden = [
         'password',
     ];
+
+    public function messageReactions()
+    {
+        return $this->hasMany(MessageReaction::class);
+    }
+
+    public function pollVotes()
+    {
+        return $this->morphMany(PollVote::class, 'voter');
+    }
+
 }

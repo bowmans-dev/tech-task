@@ -3,7 +3,7 @@ export function initializeUserListDragHandlers() {
         item.addEventListener('dragstart', function (event) {
             let profilePicture = item.dataset.profilePicture;
             if (profilePicture === './storage/') {
-                profilePicture = '/storage/default_profile_image.png';
+                profilePicture = '/storage/default_profile_image.webp';
             }
             const dragData = JSON.stringify({
                 userId: item.dataset.userId,

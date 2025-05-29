@@ -12,6 +12,7 @@ class NotifyTeamMembersOnMessageSent
     {
         $message = $event->message;
         $eventName = $event->eventName;
+        $options = $event->options;
         Log::info("Sending message update", ['message' => $message->toArray()]); 
 
         $teamMembers = User::whereHas('calendarEvents', function ($query) use ($message) {
@@ -47,7 +48,7 @@ class NotifyTeamMembersOnMessageSent
         $senderType = class_basename(get_class($sender));
         $profilePicture = $sender->profile_picture 
                 ? "/storage/{$sender->profile_picture}" 
-                : "/storage/default_profile_image.png";
+                : "/storage/default_profile_image.webp";
 
         $userPayload = [
             'id' => $sender->id,
@@ -69,7 +70,10 @@ class NotifyTeamMembersOnMessageSent
             'message' => $message, 
             'profilePicture' => $profilePicture, 
             'displayName' => $displayName, 
-            'isSender' => $sender->id === auth()->id()
+            'isSender' => $sender->id === auth()->id(),
+            'isPoll' => $message->is_poll,
+            'options' => $message->is_poll ? $options : [],
+            'selectedOptionId' => null
         ])->render();
 
         // Final payload with both user info and Blade-rendered HTML

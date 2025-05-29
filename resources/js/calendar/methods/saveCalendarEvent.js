@@ -29,8 +29,14 @@ export async function saveCalendarEvent() {
   const profilePicture = calendarWrapper?.getAttribute('data-profile-picture') ?? event.extendedProps.eventOwnerDetails.profilePicture;
   const firstName = calendarWrapper?.getAttribute('data-first-name') ?? event.extendedProps.eventOwnerDetails.firstName;
   const lastName = calendarWrapper?.getAttribute('data-last-name') ?? event.extendedProps.eventOwnerDetails.lastName;
-
-  const date = event.start.toISOString().split("T")[0];
+  
+  let date;
+  
+  if (event) {
+    date = event.start.toISOString().split("T")[0];
+  } else {
+    date = state.currentEvent.date;
+  }
 
   const time = document.getElementById('modal-event-time').value.trim();
   const allDay = time === '';

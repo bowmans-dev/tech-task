@@ -27,7 +27,7 @@ class ProfilePicture
     {
         return $this->path
             ? asset('storage/'.$this->path)
-            : asset('storage/default_profile_image.png');
+            : asset('storage/default_profile_image.webp');
     }
 
 

@@ -3,7 +3,7 @@
         <li class="flex items-center gap-x-4 py-2 px-2.5">
             <a onclick="clickAddUserToDropZone({{ json_encode([
                     'userId' => $user->id,
-                    'profilePicture' => $user->profile_picture ? '/storage/' . $user->profile_picture : '/storage/default_profile_image.png',
+                    'profilePicture' => $user->profile_picture ? '/storage/' . $user->profile_picture : '/storage/default_profile_image.webp',
                     'firstName' => $user->first_name,
                     'lastName' => $user->last_name
                 ]) }})" 
@@ -13,7 +13,7 @@
                 data-profile-picture="./storage/{{ $user->profile_picture }}" 
                 data-first-name="{{ $user->first_name }}" 
                 data-last-name="{{ $user->last_name }}">
-                <img src="{{ $user->profile_picture ? '/storage/' . $user->profile_picture : '/storage/default_profile_image.png' }}" 
+                <img src="{{ $user->profile_picture ? '/storage/' . $user->profile_picture : '/storage/default_profile_image.webp' }}" 
                     alt="{{ $user->first_name ?? $user->email }}" 
                     class="w-8 h-8 rounded-full flex-shrink-0 object-cover" loading="lazy">
                 <span 

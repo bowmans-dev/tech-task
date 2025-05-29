@@ -11,7 +11,12 @@ class Message extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['sender_id', 'sender_type', 'event_id', 'content'];
+    protected $fillable = ['sender_id', 'sender_type', 'event_id', 'content', 'is_poll'];
+
+    protected $casts = [
+        'is_poll' => 'boolean',
+    ];
+
 
     public function sender()
     {
@@ -26,6 +31,16 @@ class Message extends Model
     public function reactions()
     {
         return $this->hasMany(MessageReaction::class);
+    }
+
+    public function pollOptions()
+    {
+        return $this->hasMany(PollOption::class)->with('votes');
+    }
+
+    public function pollVotes()
+    {
+        return $this->hasMany(PollVote::class);
     }
 
 }

@@ -19,7 +19,7 @@ export function setupSearchModalInput() {
                 userLink.addEventListener('dragstart', function (event) {
                     const userId = this.dataset.userId;
                     let profilePicture = this.dataset.profilePicture;
-                    if (profilePicture == './storage/') { profilePicture = '/storage/default_profile_image.png' }
+                    if (profilePicture == './storage/') { profilePicture = '/storage/default_profile_image.webp' }
                     const firstName = this.dataset.firstName;
                     const lastName = this.dataset.lastName;
 

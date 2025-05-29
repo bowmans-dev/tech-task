@@ -96,7 +96,7 @@
                     last_name: user?.last_name ?? uid,
                     profilePicture: user?.profile_picture?.startsWith("profile_pictures/")
                     ? `storage/${user.profile_picture}`
-                    : "/storage/default_profile_image.png"
+                    : "/storage/default_profile_image.webp"
                 };
 
                 return `

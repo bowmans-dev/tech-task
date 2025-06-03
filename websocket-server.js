@@ -11,6 +11,11 @@ import teamMemberAdded from "./websocket/actions/teamMemberAdded.js";
 import messageBroadcast from "./websocket/actions/messageBroadcast.js";
 import reactionBroadcast from "./websocket/actions/reactionBroadcast.js";
 import voteBroadcast from "./websocket/actions/voteBroadcast.js";
+import startMediaBroadcast from "./websocket/actions/startMediaBroadcast.js";
+import sendOffer from "./websocket/actions/sendOffer.js";
+import sendAnswer from "./websocket/actions/sendAnswer.js";
+import forwardIceCandidate from "./websocket/actions/forwardIceCandidate.js";
+
 
 
 const server = http.createServer();
@@ -43,6 +48,10 @@ wss.on("connection", (ws, req) => {
         message_broadcast:     (ws, data) => messageBroadcast(data, eventScopedConnections, wss),
         reaction_broadcast:    (ws, data) => reactionBroadcast(data, eventScopedConnections, wss),
         vote_broadcast:        (ws, data) => voteBroadcast(data, eventScopedConnections, wss),
+        start_media_broadcast: (ws, data) => startMediaBroadcast(ws, data, eventScopedConnections, WebSocket, wss),
+        send_offer:            (ws, data) => sendOffer(ws, data, eventScopedConnections, WebSocket, wss),
+        send_answer:           (ws, data) => sendAnswer(ws, data, eventScopedConnections, WebSocket, wss),
+        ice_candidate:         (ws, data) => forwardIceCandidate(ws, data, eventScopedConnections, WebSocket, wss),
     };
 
     ws.on("message", (message) => {

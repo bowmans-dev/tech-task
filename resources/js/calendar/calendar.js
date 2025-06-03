@@ -20,6 +20,9 @@ import { setupSearchModalInput } from '../navigation/searchModal.js';
 
 // Calendar Toolbar
 import { handleToolbarClick } from './modal/toolbar/setupToolbar.js';
+import { toggleGroupAudioRoomWithVisualizer } from './modal/toolbar/toggleGroupAudioRoomWithVisualizer.js';
+import { toggleGroupVideoCall } from './modal/toolbar/toggleGroupVideoCall.js';
+import { toggleGroupScreenShare } from './modal/toolbar/toggleGroupScreenShare.js';
 
 // Calendar DropZone
 import { initializeUserListDragHandlers } from './modal/dropZone/initializeUserListDragHandlers.js'; 
@@ -29,6 +32,7 @@ import { clickAddUserToDropZone } from './modal/dropZone/teamMembers/clickAddUse
 // Calendar Messaging
 import { openReactionPicker } from './modal/messages/react.js';
 import { setUpSendMessageButton } from './modal/messages/setUpSendMessageButton.js';
+import { initializePollFeature } from './modal/messages/setUpPollForEvent.js';
 import { submitPoll } from './modal/messages/submitPollForEvent.js';
 import { submitPollVote } from './modal/messages/submitPollVote.js';
 
@@ -47,6 +51,11 @@ window.closeModal = closeModal;
 
 // Global Variables: Calendar Toolbar
 window.handleToolbarClick = handleToolbarClick;
+
+window.toggleGroupAudioRoomWithVisualizer = toggleGroupAudioRoomWithVisualizer;
+window.toggleGroupVideoCall = toggleGroupVideoCall;
+window.toggleGroupScreenShare = toggleGroupScreenShare;
+window.initializePollFeature = initializePollFeature;
 window.submitPoll = submitPoll;
 window.submitPollVote = submitPollVote;
 
@@ -179,3 +188,4 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendButton = document.getElementById('send-message-button');
     sendButton.addEventListener('click', setUpSendMessageButton);
 }); 
+initializePollFeature();

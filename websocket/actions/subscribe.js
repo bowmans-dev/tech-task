@@ -1,11 +1,15 @@
 export default function subscribe(ws, jsonData, eventScopedConnections) {
+    
     const userId = String(jsonData.userId);
     const eventId = String(jsonData.event_id);
-
+    
     if (!userId || !eventId) {
         console.warn("Invalid subscribe request — missing userId or eventId");
         return;
     }
+    
+    ws.connectionType = 'event';
+    ws.userId = userId;
 
     if (!ws.allEventIds) ws.allEventIds = [];
     if (!ws.allEventIds.includes(eventId)) {

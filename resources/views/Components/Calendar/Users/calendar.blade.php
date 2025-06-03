@@ -17,7 +17,7 @@
 </main>
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("turbo:load", () => {
     
   function openReactionPicker(event, el) {
     event.preventDefault(); // Prevent context menu

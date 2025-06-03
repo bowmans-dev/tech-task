@@ -5,22 +5,28 @@
 // ─────────────────────────────────────────────
 
 export let state = {
-  droppedFiles: [],
-  existingTeamMembers: [],
-  teamMembers: [],
-  currentWs: null,
-  currentEvent: {
-    id: null,
-    eventOwnerId: null,
-    eventOwnerDetails: null,
-    title: '',
-    date: '',
-    time: '',
-    allDay: false,
-    files: [],
-    teamMembers: [],
-    isNew: true,
-  },
+	droppedFiles: [],
+	existingTeamMembers: [],
+	teamMembers: [],
+	currentWs: null,
+	currentEvent: {
+		id: null,
+		eventOwnerId: null,
+		eventOwnerDetails: null,
+		title: '',
+		date: '',
+		time: '',
+		allDay: false,
+		files: [],
+		teamMembers: [],
+		isNew: true,
+	},
+	media: {
+		type: null,
+		localStream: null,
+		peerConnectionsByUserId: {},
+		pendingIceCandidates: {},
+	},
 };
 
 // ─────────────────────────────────────────────
@@ -31,16 +37,16 @@ const calendarWrapper = document.getElementById("calendar-wrapper");
 const currentUserId = calendarWrapper?.getAttribute("data-user-id") ?? "admin";
 
 export function getCurrentUser() {
-  const profilePicture = calendarWrapper?.getAttribute("data-profile-picture");
-  const firstName = calendarWrapper?.getAttribute("data-first-name");
-  const lastName = calendarWrapper?.getAttribute("data-last-name");
+	const profilePicture = calendarWrapper?.getAttribute("data-profile-picture");
+	const firstName = calendarWrapper?.getAttribute("data-first-name");
+	const lastName = calendarWrapper?.getAttribute("data-last-name");
 
-  return {
-    userId: currentUserId,
-    profilePicture: profilePicture,
-    firstName: firstName || "User",
-    lastName: lastName || "Name"
-  };
+	return {
+		userId: currentUserId,
+		profilePicture: profilePicture,
+		firstName: firstName || "User",
+		lastName: lastName || "Name"
+	};
 }
 
 export const currentUser = getCurrentUser();
@@ -48,11 +54,6 @@ export const currentUser = getCurrentUser();
 // ─────────────────────────────────────────────
 // 3. WebSocket Connection
 // ─────────────────────────────────────────────
-
-function formatTime(createdAt) {
-    const date = new Date(createdAt);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-}
 
 let retryInterval;
 let retryCount = 0;
@@ -94,7 +95,7 @@ export function connectToEventWebSocket() {
         clearInterval(retryInterval);
     };
 
-    socket.onmessage = (message) => {
+    socket.onmessage = async (message) => {
         try {
             const data = JSON.parse(message.data);
 
@@ -139,21 +140,18 @@ export function connectToEventWebSocket() {
 
 
             if (data.action === 'reaction_broadcast') {
-                console.log("Reaction broadcast received:", data);
+
                 const messageEl = document.getElementById(`message-${data.message_id}`);
-                console.log("Found message element:", messageEl);
                 if (!messageEl) return;
 
                 const bubble = messageEl.querySelector('.bubble');
                 if (!bubble) return;
 
-                // Remove existing reactions if present
                 const existingReactions = bubble.querySelector('.reaction-block');
                 if (existingReactions) {
                     existingReactions.remove();
                 }
 
-                // Inject new HTML
                 const temp = document.createElement('div');
                 temp.innerHTML = data.html.trim();
 
@@ -164,6 +162,7 @@ export function connectToEventWebSocket() {
             }
 
             if (data.action === 'vote_broadcast') {
+
                 const messageEl = document.getElementById(`message-${data.message_id}`);
                 if (!messageEl) return;
 
@@ -184,7 +183,208 @@ export function connectToEventWebSocket() {
                 }
             }
 
+			if (data.action === "send_offer") {
+				const { eventId, toUserId } = data.payload;
 
+				const stream = state.media.localStream;
+				if (!stream) {
+					console.warn("No local stream found");
+					return;
+				}
+
+				const peerConnection = new RTCPeerConnection({
+					iceServers: [
+						{ urls: "stun:stun.l.google.com:19302" },
+						{ urls: "stun:stun1.l.google.com:19302" }
+					]
+				});
+
+				if (!state.media.peerConnectionsByUserId) {
+					state.media.peerConnectionsByUserId = {};
+				}
+
+				state.media.peerConnectionsByUserId[toUserId] = peerConnection;
+
+				stream.getTracks().forEach(track => {
+					const transceiver = peerConnection.addTransceiver(track.kind, {direction: "sendrecv"});
+					transceiver.sender.replaceTrack(track);
+				});
+
+				peerConnection.onicecandidate = (event) => {
+					if (event.candidate) {
+						socket.send(JSON.stringify({
+							action: "ice_candidate",
+							payload: {
+								candidate: event.candidate,
+								toUserId,
+								fromUserId: currentUser.userId,
+								eventId
+							}
+						}));
+					}
+				};
+
+				const offer = await peerConnection.createOffer();
+				await peerConnection.setLocalDescription(offer);
+
+				socket.send(JSON.stringify({
+					action: "send_offer",
+					payload: {
+						offer: peerConnection.localDescription,
+						eventId,
+						toUserId,
+						userId: currentUser.userId
+					}
+				}));
+			}
+
+
+
+			if (data.action === "receive_offer") {
+
+				const { offer, fromUserId, toUserId, eventId } = data.payload;
+
+				const peerConnection = new RTCPeerConnection({
+					iceServers: [{ urls: "stun:stun.l.google.com:19302" },{ urls: "stun:stun1.l.google.com:19302" }]
+				});
+
+				state.media.peerConnectionsByUserId[fromUserId] = peerConnection;
+
+				const viewerStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+				viewerStream.getTracks().forEach(track => {
+					const transceiver = peerConnection.addTransceiver(track.kind, {direction: "sendrecv"});
+					transceiver.sender.replaceTrack(track);
+				});
+
+				peerConnection.ontrack = (event) => {
+
+					const container = document.getElementById('messages');
+
+					if (event.track.kind === "audio") {
+						const audio = new Audio();
+						audio.srcObject = new MediaStream([event.track]);
+						audio.muted = false;
+						audio.autoplay = true;
+						audio.play().catch(err => console.error("Audio playback error:", err));
+						return;
+					}
+
+					if (event.track.kind === "video" || event.track.kind === "screen") {
+						const video = document.createElement('video');
+						video.srcObject = new MediaStream([event.track]);
+						video.autoplay = true;
+						video.playsInline = true;
+						video.muted = false;
+						container.appendChild(video);
+						video.play().catch(err => console.error("Video playback error:", err));
+					}
+				};
+
+				peerConnection.onicecandidate = (event) => {
+					if (event.candidate) {
+						socket.send(JSON.stringify({
+							action: "ice_candidate",
+							payload: {
+							candidate: event.candidate,
+							toUserId: fromUserId,
+							fromUserId: toUserId,
+							eventId
+							}
+						}));
+					}
+				};
+
+				await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+
+				// Flush buffered ICE candidates
+				const pendingCandidates = state.media.pendingIceCandidates[fromUserId];
+
+				if (pendingCandidates && pendingCandidates.length > 0) {
+					for (const c of pendingCandidates) {
+						try {
+							await peerConnection.addIceCandidate(new RTCIceCandidate(c));
+						} catch (e) {
+							console.error("Failed to apply buffered ICE candidate:", e);
+						}
+					}
+					delete state.media.pendingIceCandidates[fromUserId];
+				}
+
+				const answer = await peerConnection.createAnswer();
+				await peerConnection.setLocalDescription(answer);
+
+				socket.send(JSON.stringify({
+					action: "send_answer",
+					payload: {
+					answer,
+					toUserId: fromUserId,
+					fromUserId: toUserId,
+					eventId
+					}
+				}));
+			}
+
+
+
+            if (data.action === "receive_answer") {
+
+                const { answer, fromUserId } = data.payload;
+                const peerConnection = state.media.peerConnectionsByUserId?.[fromUserId];
+
+                if (!peerConnection) {
+                    console.warn("No peer connection found for answer from", fromUserId);
+                    return;
+                }
+
+                try {
+
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+
+                    const pendingCandidates = state.media.pendingIceCandidates?.[fromUserId];
+                    if (pendingCandidates && pendingCandidates.length > 0) {
+                        for (const c of pendingCandidates) {
+                            try {
+                                await peerConnection.addIceCandidate(new RTCIceCandidate(c));
+                            } catch (e) {
+                                console.error("Failed to apply buffered ICE candidate:", e);
+                            }
+                        }
+                        delete state.media.pendingIceCandidates[fromUserId];
+                    }
+
+                } catch (err) {
+                    console.error("Failed to set remote description from answer:", err);
+                }
+            }
+
+            if (data.action === "ice_candidate") {
+
+                const { candidate, fromUserId } = data.payload;
+
+                const peerConnection = state.media.peerConnectionsByUserId[fromUserId];
+
+                if (peerConnection) {
+
+                    if (peerConnection.remoteDescription && peerConnection.remoteDescription.type) {
+                        await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+                    } else {
+
+                        if (!state.media.pendingIceCandidates[fromUserId]) {
+                            state.media.pendingIceCandidates[fromUserId] = [];
+                        }
+                        state.media.pendingIceCandidates[fromUserId].push(candidate);
+                    }
+
+                } else {
+
+                    if (!state.media.pendingIceCandidates[fromUserId]) {
+                        state.media.pendingIceCandidates[fromUserId] = [];
+                    }
+                    state.media.pendingIceCandidates[fromUserId].push(candidate);
+                }
+
+            }
 
         } catch (err) {
             console.error("WebSocket message parsing failed:", err);
@@ -267,38 +467,70 @@ export function sendEventUpdate() {
 }
 
 // ─────────────────────────────────────────────
+// 4. WebRTC Management
+// ─────────────────────────────────────────────
+
+
+export async function startMediaStream({ stream, type }) {
+	const eventId = state.currentEvent?.id;
+	const eventTitle = state.currentEvent?.title;
+
+	if (!eventId || !currentUser) {
+		console.warn("Missing event or user context");
+		return;
+	}
+
+	state.media.localStream = stream;
+	state.media.type = type;
+
+	// Notify server that broadcast is starting (include type)
+	state.currentWs.send(JSON.stringify({
+		action: "start_media_broadcast",
+		payload: {
+		type,
+		eventId,
+		eventTitle,
+		userId: currentUser.userId,
+		currentUser: currentUser,
+		},
+	}));
+}
+
+
+
+// ─────────────────────────────────────────────
 // 4. Team Member Management
 // ─────────────────────────────────────────────
 
 export function isUserInDatabase(userId) {
-  return state.existingTeamMembers.some(member => member.userId === userId);
+  	return state.existingTeamMembers.some(member => member.userId === userId);
 }
 
 export function isUserAlreadyInTeam(userId) {
-  return state.teamMembers.some(member => member.userId === userId);
+  	return state.teamMembers.some(member => member.userId === userId);
 }
 
 export function addTeamMember(user) {
-  const userId = user.userId;
+	const userId = user.userId;
 
-  if (!isUserInDatabase(userId)) {
-    state.existingTeamMembers.push(user);
-  }
+	if (!isUserInDatabase(userId)) {
+		state.existingTeamMembers.push(user);
+	}
 
-  if (!isUserAlreadyInTeam(userId)) {
-    state.teamMembers.push(user);
-  }
+	if (!isUserAlreadyInTeam(userId)) {
+		state.teamMembers.push(user);
+	}
 
-  if (!state.currentEvent.teamMembers.some(member => member.userId === userId)) {
-    state.currentEvent.teamMembers.push(user);
-  }
+	if (!state.currentEvent.teamMembers.some(member => member.userId === userId)) {
+		state.currentEvent.teamMembers.push(user);
+	}
 }
 
 export function removeTeamMember(userId) {
 
-  state.existingTeamMembers = state.existingTeamMembers.filter(member => member.userId !== userId);
-  state.teamMembers = state.teamMembers.filter(member => member.userId !== userId);
-  state.currentEvent.teamMembers = state.currentEvent.teamMembers.filter(member => member.userId !== userId);
+	state.existingTeamMembers = state.existingTeamMembers.filter(member => member.userId !== userId);
+	state.teamMembers = state.teamMembers.filter(member => member.userId !== userId);
+	state.currentEvent.teamMembers = state.currentEvent.teamMembers.filter(member => member.userId !== userId);
 
 }
 
@@ -332,51 +564,51 @@ export function notifyNewTeamMembers() {
 // ─────────────────────────────────────────────
 
 export function renderTeamMembers() {
-    const teamMembersDiv = document.getElementById('team-members');
-    if (!teamMembersDiv) return;
+	const teamMembersDiv = document.getElementById('team-members');
+	if (!teamMembersDiv) return;
 
-    teamMembersDiv.innerHTML = '';
+	teamMembersDiv.innerHTML = '';
 
-    state.existingTeamMembers.forEach(user => {
+	state.existingTeamMembers.forEach(user => {
 
-      let profilePicture = user.profilePicture;
+	let profilePicture = user.profilePicture;
 
-      if (!profilePicture.startsWith('/storage/')) {
-        profilePicture = `storage/${profilePicture}`;
-      }
+	if (!profilePicture.startsWith('/storage/')) {
+		profilePicture = `storage/${profilePicture}`;
+	}
 
-      const userDiv = document.createElement('div');
-      userDiv.className = 'team-members relative flex items-center mb-2 mt-2 border border-gray-900/25 rounded-full p-1';
-      userDiv.setAttribute('data-user-id', user.userId);
-      userDiv.innerHTML = `
-          <a href="/users/${user.userId}" class="cursor-pointer flex items-center">
-              <img src="${profilePicture}" 
-                  alt="${user.firstName} ${user.lastName}" 
-                  class="w-8 h-8 rounded-full object-cover mr-2">
-              <span class="text-sm font-medium text-gray-700">${user.firstName} ${user.lastName}</span>
-          </a>
-          <button
-              class="absolute cursor-pointer top-2 right-4 text-gray-500 hover:text-gray-700 z-50" aria-label="Close Modal">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 z-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-          </button>
-      `;
+	const userDiv = document.createElement('div');
+	userDiv.className = 'team-members relative flex items-center mb-2 mt-2 border border-gray-900/25 rounded-full p-1';
+	userDiv.setAttribute('data-user-id', user.userId);
+	userDiv.innerHTML = `
+		<a href="/users/${user.userId}" class="cursor-pointer flex items-center">
+			<img src="${profilePicture}" 
+				alt="${user.firstName} ${user.lastName}" 
+				class="w-8 h-8 rounded-full object-cover mr-2">
+			<span class="text-sm font-medium text-gray-700">${user.firstName} ${user.lastName}</span>
+		</a>
+		<button
+			class="absolute cursor-pointer top-2 right-4 text-gray-500 hover:text-gray-700 z-50" aria-label="Close Modal">
+			<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 z-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+			<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+			</svg>
+		</button>
+	`;
 
-      const removeButton = userDiv.querySelector('button');
-      const handleRemoveClick = () => {
-          userDiv.remove();
-          removeTeamMember(user.userId);
-          removeTeamMemberFromCalendarEvent(state.currentEvent.id, user.userId);
-      };
+	const removeButton = userDiv.querySelector('button');
+	const handleRemoveClick = () => {
+		userDiv.remove();
+		removeTeamMember(user.userId);
+		removeTeamMemberFromCalendarEvent(state.currentEvent.id, user.userId);
+	};
 
-      removeButton.removeEventListener('click', handleRemoveClick);
-      removeButton.addEventListener('click', handleRemoveClick);
+	removeButton.removeEventListener('click', handleRemoveClick);
+	removeButton.addEventListener('click', handleRemoveClick);
 
-      teamMembersDiv.appendChild(userDiv);
+	teamMembersDiv.appendChild(userDiv);
 
-    });
-    state.teamMembers = [];
+	});
+	state.teamMembers = [];
 }
 // ─────────────────────────────────────────────
 // 5. UI Rendering - File Drops

@@ -1,3 +1,12 @@
+<style>
+canvas {
+    width: 100%;
+    height: 38px;
+    padding-left: 40px;
+    max-width: 90vw;
+}
+</style>
+
 {{-- CALENDAR EVENT MODAL TOOLBAR--}}
 <div class="mt-6">
     <div class="flex flex-row flex-grow p-2 mb-6 border border-dashed border-gray-900/25 rounded-lg">
@@ -46,6 +55,53 @@
         fill="#6a7282"
         >
         <path d="M480-160v-80h120l180-240-180-240H160v200H80v-200q0-33 23.5-56.5T160-800h440q19 0 36 8.5t28 23.5l216 288-216 288q-11 15-28 23.5t-36 8.5H480Zm-10-320ZM200-120v-120H80v-80h120v-120h80v120h120v80H280v120h-80Z"/>
+        </svg>
+
+        <div class="h-[25px] w-0.5 bg-gray-200 ml-2 mr-2"></div>
+
+        <!-- AUDIO ICON -->
+        <svg 
+        class="toolbar-toggle cursor-pointer"
+        data-toolbar-target="audio"
+        onclick="handleToolbarClick(event); toggleGroupAudioRoomWithVisualizer();" 
+        xmlns="http://www.w3.org/2000/svg" 
+        height="24px" 
+        viewBox="0 -960 960 960" 
+        width="24px" 
+        fill="#6a7282"
+        >
+        <path d="M480-400q-50 0-85-35t-35-85v-240q0-50 35-85t85-35q50 0 85 35t35 85v240q0 50-35 85t-85 35Zm0-240Zm-40 520v-123q-104-14-172-93t-68-184h80q0 83 58.5 141.5T480-320q83 0 141.5-58.5T680-520h80q0 105-68 184t-172 93v123h-80Zm40-360q17 0 28.5-11.5T520-520v-240q0-17-11.5-28.5T480-800q-17 0-28.5 11.5T440-760v240q0 17 11.5 28.5T480-480Z"/>
+        </svg>
+
+        <div class="h-[25px] w-0.5 bg-gray-200 ml-2 mr-2"></div>
+
+        <!-- VIDEO CALL ICON -->
+        <svg 
+        class="toolbar-toggle cursor-pointer"
+        data-toolbar-target="video"
+        onclick="handleToolbarClick(event); toggleGroupVideoCall();" 
+        xmlns="http://www.w3.org/2000/svg" 
+        height="24px" 
+        viewBox="0 -960 960 960" 
+        width="24px" 
+        fill="#6a7282">
+        <path d="M360-320h80v-120h120v-80H440v-120h-80v120H240v80h120v120ZM160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h480q33 0 56.5 23.5T720-720v180l160-160v440L720-420v180q0 33-23.5 56.5T640-160H160Zm0-80h480v-480H160v480Zm0 0v-480 480Z"/>
+        </svg>
+
+        <div class="h-[25px] w-0.5 bg-gray-200 ml-2 mr-2"></div>
+
+        <!-- SCREEN SHARE ICON -->
+        <svg 
+        class="toolbar-toggle cursor-pointer"
+        data-toolbar-target="screen"
+        onclick="handleToolbarClick(event); toggleGroupScreenShare();" 
+        xmlns="http://www.w3.org/2000/svg" 
+        height="24px" 
+        viewBox="0 -960 960 960" 
+        width="24px" 
+        fill="#6a7282"
+        >
+        <path d="M320-400h80v-80q0-17 11.5-28.5T440-520h80v80l120-120-120-120v80h-80q-50 0-85 35t-35 85v80ZM160-240q-33 0-56.5-23.5T80-320v-440q0-33 23.5-56.5T160-840h640q33 0 56.5 23.5T880-760v440q0 33-23.5 56.5T800-240H160Zm0-80h640v-440H160v440Zm0 0v-440 440ZM40-120v-80h880v80H40Z"/>
         </svg>
 
 
@@ -106,136 +162,22 @@
     </div>
 </div>
 
-<script>
-let optionCount = 0;
-let livePreviewClone = null;
 
-// Create poll option input
-function createPollOptionInput(index) {
-  const wrapper = document.createElement('div');
-  wrapper.className = 'relative border border-dashed border-gray-300 rounded-lg p-2';
+<!-- GROUP AUDIO PANEL -->
+<div data-toolbar-panel="audio" id="modal-group-audio-input-container" class="hidden relative mb-6 border border-dashed border-[#2b7fff] rounded-lg">
+  <div style="outline: #2b7fff solid 1px; padding: 2px; height: 24px; width: 24px; top: 6px;" class="absolute rounded-full inset-y-0 start-[8px] flex items-center pointer-events-none z-20">
+    <svg class="text-gray-400" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#2b7fff"><path d="M711-480Zm209 80H737q-3-21-9.5-41T711-480h126q-4-7-9-12t-12-9q-26-15-59.5-22t-76.5-7h-3q-20-23-43.5-40T582-599q23-5 47.5-8t50.5-3q53 0 99 11t86 32q26 14 40.5 41.5T920-463v63ZM680-640q-50 0-85-35t-35-85q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35Zm0-80q17 0 28.5-11.5T720-760q0-17-11.5-28.5T680-800q-17 0-28.5 11.5T640-760q0 17 11.5 28.5T680-720Zm0-40ZM249-480ZM40-400v-63q0-35 14.5-62.5T95-567q40-21 86-32t99-11q26 0 50.5 3t47.5 8q-28 12-51.5 29T283-530h-3q-43 0-76.5 7T144-501q-7 4-12 9t-9 12h126q-10 19-16.5 39t-9.5 41H40Zm240-240q-50 0-85-35t-35-85q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35Zm0-80q17 0 28.5-11.5T320-760q0-17-11.5-28.5T280-800q-17 0-28.5 11.5T240-760q0 17 11.5 28.5T280-720Zm0-40Zm200 480q-33 0-56.5-23.5T400-360v-120q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480v120q0 33-23.5 56.5T480-280ZM450-80v-82q-72-11-121-67t-49-131h60q0 58 41 99t99 41q58 0 99-41t41-99h60q0 75-49 131t-121 67v82h-60Z"/></svg>
+  </div>
+  <canvas class="rounded-lg"></canvas>
+</div>
 
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.className = 'w-full text-sm py-2 px-3 border rounded-md focus:outline-none focus:ring-1 focus:ring-[#2b7fff] focus:shadow-[0_0_5px_#2b7fff]';
-  input.placeholder = "+ Add";
-  input.dataset.index = index;
 
-  input.addEventListener('input', handlePollOptionInput);
+<!-- GROUP VIDEO PANEL -->
+<div data-toolbar-panel="video" id="modal-group-video-input-container" class="hidden relative max-w-[300px] min-w-[300px] mb-6 border border-dashed border-[#2b7fff] rounded-lg">
+  
+</div>
 
-  wrapper.appendChild(input);
-  return wrapper;
-}
-
-// Handle input changes in poll options
-function handlePollOptionInput() {
-  const container = document.getElementById('poll-options-container');
-  let inputs = Array.from(container.querySelectorAll('input'));
-
-  // Remove empty inputs that are not the last
-  inputs.forEach((input, i) => {
-    if (input.value.trim() === '' && i < inputs.length - 1) {
-      input.parentElement.remove();
-    }
-  });
-
-  // Re-check inputs after removals
-  inputs = Array.from(container.querySelectorAll('input'));
-  const allFilled = inputs.every(input => input.value.trim() !== '');
-
-  if (allFilled) {
-    container.appendChild(createPollOptionInput(optionCount++));
-  }
-
-  updatePollPreview();
-}
-
-// Update poll preview and append to #messages
-function updatePollPreview() {
-  const questionInput = document.getElementById('modal-user-poll-input');
-  const container = document.getElementById('poll-options-container');
-  const question = questionInput.value.trim();
-
-  const options = Array.from(container.querySelectorAll('input'))
-    .map(input => input.value.trim())
-    .filter(value => value !== '');
-
-  // If nothing is filled, remove preview
-  if (!question && options.length === 0) {
-    if (livePreviewClone) {
-      livePreviewClone.remove();
-      livePreviewClone = null;
-    }
-    return;
-  }
-
-  // Create or update the preview clone
-  if (!livePreviewClone) {
-    const template = document.getElementById('poll-message-preview-template');
-    livePreviewClone = template.cloneNode(true);
-    livePreviewClone.id = 'poll-message-preview-live'; // avoid ID conflict
-    livePreviewClone.classList.remove('hidden');
-    livePreviewClone.classList.add('flex');
-    document.getElementById('messages').appendChild(livePreviewClone);
-    setTimeout(() => {
-        const dropZone = document.getElementById("drop-zone");
-        if (dropZone) {
-            dropZone.scrollTo({ top: dropZone.scrollHeight, behavior: "smooth" });
-        }
-    }, 1000);
-
-    setTimeout(() => {
-        const messageContainer = document.getElementById("messages");
-        const messages = messageContainer.querySelectorAll(".bubble");
-        const lastMessage = messages[messages.length - 1] || null;
-        const messageText = lastMessage.querySelector("p");
-
-        if (lastMessage) {
-            lastMessage.classList.add("highlight-message");
-            setTimeout(() => lastMessage.classList.remove("highlight-message"), 4000);
-        }
-        if (messageText) {
-            messageText.classList.add("message-text-color");
-            setTimeout(() => messageText.classList.remove("message-text-color"), 4500);
-        }
-        if (event) {
-            event.setProp("backgroundColor", null);
-        }
-    }, 1000);
-  }
-
-  // Update content inside the clone
-  const previewQuestion = livePreviewClone.querySelector('#poll-preview-question');
-  const previewOptions = livePreviewClone.querySelector('#poll-preview-options');
-  const submitContainer = livePreviewClone.querySelector('.poll-submit-container');
-
-  previewQuestion.textContent = question || 'Your question will appear here';
-  previewOptions.innerHTML = '';
-
-  options.forEach(optionText => {
-    const li = document.createElement('li');
-    li.textContent = optionText;
-    li.className = 'cursor-pointer px-2 py-1 rounded-md bg-white hover:bg-gray-200 hover:text-blue-600';
-    previewOptions.appendChild(li);
-  });
-
-  // Fade in Submit button when 2+ options
-  if (options.length >= 2) {
-    submitContainer.style.opacity = '1';
-    submitContainer.style.transition = 'opacity 0.5s ease';
-  } else {
-    submitContainer.style.opacity = '0';
-  }
-}
-
-// Initialize inputs on page load
-document.addEventListener('DOMContentLoaded', () => {
-  const container = document.getElementById('poll-options-container');
-  container.innerHTML = '';
-  container.appendChild(createPollOptionInput(optionCount++));
-  container.appendChild(createPollOptionInput(optionCount++));
-
-  document.getElementById('modal-user-poll-input')
-    .addEventListener('input', updatePollPreview);
-});
-</script>
+<!-- GROUP SCREEN SHARE PANEL -->
+<div data-toolbar-panel="screen" id="modal-group-screen-input-container" class="hidden relative max-w-[300px] min-w-[300px] mb-6 border border-dashed border-[#2b7fff] rounded-lg">
+  
+</div>

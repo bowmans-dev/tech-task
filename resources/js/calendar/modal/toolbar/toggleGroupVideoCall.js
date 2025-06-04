@@ -3,7 +3,7 @@ import { startMediaStream } from "../../state";
 const WIDTH = 1440;
 const HEIGHT = WIDTH * 2 / 3;
 
-const canvas = document.querySelector("canvas");
+const canvas = document.querySelector(".video-mic-canvas");
 canvas.width = WIDTH;
 canvas.height = HEIGHT;
 const canvasCtx = canvas.getContext("2d");
@@ -16,7 +16,7 @@ export async function toggleGroupVideoCall() {
   // If already initialized: stop the mic and reset
   if (isMicInitialized) {
     if (stream) {
-      stream.getTracks().forEach(track => track.stop()); // stop mic
+      stream.getTracks().forEach(track => track.stop()); // stop media
       stream = null;
     }
     if (audioCtx) {
@@ -25,8 +25,17 @@ export async function toggleGroupVideoCall() {
     }
     isMicInitialized = false;
     canvasCtx.clearRect(0, 0, WIDTH, HEIGHT); // clear canvas
+
+    // Remove local preview video element
+    const container = document.getElementById('modal-group-video-input-container');
+    const existingVideo = container.querySelector('video');
+    if (existingVideo) {
+      container.removeChild(existingVideo);
+    }
+
     return;
   }
+
 
   try {
     stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
@@ -76,7 +85,7 @@ export async function toggleGroupVideoCall() {
     localVideo.autoplay = true;
     localVideo.muted = true;
     localVideo.playsInline = true;
-    localVideo.style.width = '300px';
+    localVideo.style.width = '100%';
     localVideo.style.height = 'auto';
 
     const container = document.getElementById('modal-group-video-input-container');

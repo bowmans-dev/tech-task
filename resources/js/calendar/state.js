@@ -184,7 +184,7 @@ export function connectToEventWebSocket() {
             }
 
 			if (data.action === "send_offer") {
-				const { eventId, toUserId } = data.payload;
+				const { eventId, toUserId, broadcastingUserDetails } = data.payload;
 
 				const stream = state.media.localStream;
 				if (!stream) {
@@ -233,7 +233,8 @@ export function connectToEventWebSocket() {
 						offer: peerConnection.localDescription,
 						eventId,
 						toUserId,
-						userId: currentUser.userId
+						userId: currentUser.userId,
+                        broadcastingUserDetails: broadcastingUserDetails,
 					}
 				}));
 			}
@@ -242,7 +243,7 @@ export function connectToEventWebSocket() {
 
 			if (data.action === "receive_offer") {
 
-				const { offer, fromUserId, toUserId, eventId } = data.payload;
+				const { offer, fromUserId, toUserId, broadcastingUserDetails, eventId } = data.payload;
 
 				const peerConnection = new RTCPeerConnection({
 					iceServers: [{ urls: "stun:stun.l.google.com:19302" },{ urls: "stun:stun1.l.google.com:19302" }]
@@ -250,36 +251,48 @@ export function connectToEventWebSocket() {
 
 				state.media.peerConnectionsByUserId[fromUserId] = peerConnection;
 
-				const viewerStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
-				viewerStream.getTracks().forEach(track => {
-					const transceiver = peerConnection.addTransceiver(track.kind, {direction: "sendrecv"});
-					transceiver.sender.replaceTrack(track);
-				});
+                peerConnection.addTransceiver('audio', { direction: 'recvonly' });
+                peerConnection.addTransceiver('video', { direction: 'recvonly' });
 
 				peerConnection.ontrack = (event) => {
+                    const container = document.getElementById('messages');
 
-					const container = document.getElementById('messages');
+                    if (event.track.kind === "audio") {
+                        const audio = new Audio();
+                        audio.srcObject = new MediaStream([event.track]);
+                        audio.muted = false;
+                        audio.autoplay = true;
+                        audio.play().catch(err => console.error("Audio playback error:", err));
+                        return;
+                    }
 
-					if (event.track.kind === "audio") {
-						const audio = new Audio();
-						audio.srcObject = new MediaStream([event.track]);
-						audio.muted = false;
-						audio.autoplay = true;
-						audio.play().catch(err => console.error("Audio playback error:", err));
-						return;
-					}
+                    if (event.track.kind === "video" || event.track.kind === "screen") {
+                        const video = document.createElement('video');
+                        video.srcObject = new MediaStream([event.track]);
+                        video.autoplay = true;
+                        video.playsInline = true;
+                        video.muted = false;
+                        const videoMessage = createVideoMessageWrapper(broadcastingUserDetails, event.track);
+		                container.appendChild(videoMessage);
 
-					if (event.track.kind === "video" || event.track.kind === "screen") {
-						const video = document.createElement('video');
-						video.srcObject = new MediaStream([event.track]);
-						video.autoplay = true;
-						video.playsInline = true;
-						video.muted = false;
-						container.appendChild(video);
-						video.play().catch(err => console.error("Video playback error:", err));
-					}
-				};
+                        // Remove video element when the track ends
+                        event.track.onended = () => {
+                            container.removeChild(videoMessage);
+                            peerConnection.close();
+                        };
+                        event.track.oninactive = () => {
+                            container.removeChild(videoMessage);
+                            peerConnection.close();
+                        };
+                        event.track.onmute = () => {
+                            container.removeChild(videoMessage);
+                            peerConnection.close();
+                        };
+
+                        video.play().catch(err => console.error("Video playback error:", err));
+                    }
+                };
+
 
 				peerConnection.onicecandidate = (event) => {
 					if (event.candidate) {
@@ -495,6 +508,87 @@ export async function startMediaStream({ stream, type }) {
 		},
 	}));
 }
+
+function createVideoMessageWrapper(broadcastingUserDetails, track) {
+	const wrapper = document.createElement("div");
+	wrapper.className = "message-wrapper w-full flex relative justify-start";
+
+	const messageBubble = document.createElement("div");
+	messageBubble.className = "message bubble text-left min-w-[200px] p-2 mb-4 rounded-2xl relative shadow-md cursor-pointer transition-all duration-200 hover:mb-10 bg-[#ffffff]";
+
+	const header = document.createElement("div");
+	header.className = "flex flex-row align-center mb-2";
+
+	const profileImg = document.createElement("img");
+	profileImg.className = "rounded-full bg-gray-50 h-8 w-8 left-1 mr-2 flex-shrink-0 object-cover";
+	profileImg.src = `/storage/${broadcastingUserDetails?.profilePicture}` || "/storage/default_profile_image.webp";
+	profileImg.alt = `${broadcastingUserDetails?.firstName || "User"} ${broadcastingUserDetails?.lastName || ""}'s profile picture`;
+
+	const nameDiv = document.createElement("div");
+	nameDiv.className = "flex items-center text-sm font-medium text-gray-800";
+	nameDiv.textContent = `${broadcastingUserDetails?.firstName || "Unknown"} ${broadcastingUserDetails?.lastName || ""}`;
+
+	header.appendChild(profileImg);
+	header.appendChild(nameDiv);
+
+	const video = document.createElement("video");
+	video.srcObject = new MediaStream([track]);
+	video.autoplay = true;
+	video.playsInline = true;
+	video.muted = false;
+	video.className = "w-full rounded-xl mt-2";
+
+	// Remove when the track ends or goes inactive
+	track.onended = () => wrapper.remove();
+	track.oninactive = () => wrapper.remove();
+
+	messageBubble.appendChild(header);
+	messageBubble.appendChild(video);
+	wrapper.appendChild(messageBubble);
+
+	// Fullscreen toggle on click
+	messageBubble.addEventListener("click", async (e) => {
+		// Only trigger if the user clicked outside the header (to avoid fullscreen when clicking the name/image)
+		if (e.target.closest("video")) {
+			if (!document.fullscreenElement) {
+				await messageBubble.requestFullscreen().catch(err => {
+					console.error("Failed to enter fullscreen:", err);
+				});
+			} else {
+				await document.exitFullscreen().catch(err => {
+					console.error("Failed to exit fullscreen:", err);
+				});
+			}
+		}
+	});
+
+    setTimeout(() => {
+        const dropZone = document.getElementById("drop-zone");
+        if (dropZone) {
+            dropZone.scrollTo({ top: dropZone.scrollHeight, behavior: "smooth" });
+        }
+    }, 1000);
+
+    setTimeout(() => {
+        const messageContainer = document.getElementById("messages");
+        const messages = messageContainer.querySelectorAll(".bubble");
+        const lastMessage = messages[messages.length - 1] || null;
+        const messageText = lastMessage.querySelector("p");
+
+        if (lastMessage) {
+            lastMessage.classList.add("highlight-message");
+            setTimeout(() => lastMessage.classList.remove("highlight-message"), 4000);
+        }
+        if (messageText) {
+            messageText.classList.add("message-text-color");
+            setTimeout(() => messageText.classList.remove("message-text-color"), 4500);
+        }
+
+    }, 1000);
+
+	return wrapper;
+}
+
 
 
 

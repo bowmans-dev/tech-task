@@ -1,5 +1,5 @@
 export default function sendOffer(ws, data, eventScopedConnections, WebSocket, wss) {
-  const { offer, eventId, userId } = data.payload;
+  const { offer, eventId, userId, broadcastingUserDetails } = data.payload;
 
   const recipients = eventScopedConnections[eventId] || [];
 
@@ -18,6 +18,7 @@ export default function sendOffer(ws, data, eventScopedConnections, WebSocket, w
             offer,
             fromUserId: userId,
             toUserId: viewerId,
+            broadcastingUserDetails: broadcastingUserDetails,
             eventId
           }
         }));

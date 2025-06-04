@@ -13,18 +13,26 @@ let audioCtx = null;
 let mixedStream = null;
 
 export async function toggleGroupScreenShare() {
+
   if (isMicInitialized) {
-    // Stop all tracks and clean up
-    if (mixedStream) {
-      mixedStream.getTracks().forEach(track => track.stop());
-      mixedStream = null;
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop()); // stop media
+      stream = null;
     }
     if (audioCtx) {
       audioCtx.close();
       audioCtx = null;
     }
     isMicInitialized = false;
-    canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
+    canvasCtx.clearRect(0, 0, WIDTH, HEIGHT); // clear canvas
+
+    // Remove local preview video element
+    const container = document.getElementById('modal-group-video-input-container');
+    const existingVideo = container.querySelector('video');
+    if (existingVideo) {
+      container.removeChild(existingVideo);
+    }
+
     return;
   }
 

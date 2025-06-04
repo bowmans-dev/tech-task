@@ -1,5 +1,5 @@
 export default function startMediaBroadcast(ws, data, eventScopedConnections, WebSocket, wss) {
-  const { type, eventId, userId } = data.payload;
+  const { type, eventId, userId, currentUser } = data.payload;
 
   const allConnections = eventScopedConnections[eventId] || [];
 
@@ -13,6 +13,7 @@ export default function startMediaBroadcast(ws, data, eventScopedConnections, We
       payload: {
         toUserId: clientUserId,
         eventId,
+        broadcastingUserDetails: currentUser,
       }
     }));
   });

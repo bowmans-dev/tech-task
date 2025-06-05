@@ -9,6 +9,9 @@ canvas {
     canvas, video {
         max-width: 300px;
     }
+    video {
+        transform: scaleX(-1);
+    }
 }
 </style>
 

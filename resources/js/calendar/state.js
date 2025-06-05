@@ -276,14 +276,6 @@ export function connectToEventWebSocket() {
 		                container.appendChild(videoMessage);
 
                         // Remove video element when the track ends
-                        event.track.onended = () => {
-                            container.removeChild(videoMessage);
-                            peerConnection.close();
-                        };
-                        event.track.oninactive = () => {
-                            container.removeChild(videoMessage);
-                            peerConnection.close();
-                        };
                         event.track.onmute = () => {
                             container.removeChild(videoMessage);
                             peerConnection.close();

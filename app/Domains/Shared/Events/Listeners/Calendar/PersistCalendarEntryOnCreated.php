@@ -17,10 +17,6 @@ class PersistCalendarEntryOnCreated
         $event = $calendarEvent->event;
         $data = $calendarEvent->data;
 
-        Log::info('Event Data Received:', $data);
-
-        Log::info('Calendar Event Created:', $event->toArray());
-
         if (isset($data['team_members']) && is_string($data['team_members'])) {
             $data['team_members'] = json_decode($data['team_members'], true);
         }
@@ -30,7 +26,6 @@ class PersistCalendarEntryOnCreated
                 $userId = $teamMember['userId'] ?? null;
 
                 if ($userId) {
-                    Log::info('Adding user to calendar event:', ['event_id' => $event->id, 'user_id' => $userId]);
 
                     CalendarEventTeamMember::create([
                         'calendar_event_id' => $event->id,
@@ -52,12 +47,6 @@ class PersistCalendarEntryOnCreated
                     Log::error('Invalid file upload:', ['error' => $file->getError()]);
                     continue;
                 }
-        
-                Log::info('File received:', [
-                    'original_name' => $file->getClientOriginalName(),
-                    'mime_type' => $file->getMimeType(),
-                    'size' => $file->getSize(),
-                ]);
         
                 $filePath = 'events/' . $event->id . '/' . $data['user_id'] . '/' . $file->getClientOriginalName();
         

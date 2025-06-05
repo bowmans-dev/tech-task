@@ -11,7 +11,7 @@ export function removeTeamMemberFromCalendarEvent(eventId, userId) {
     })
         .then(response => {
             if (response.ok) {
-                // Remove the userDiv visually
+
                 const userDiv = document.querySelector(`.team-members[data-user-id="${userId}"]`); 
                 
                 if (userDiv) {

@@ -56,17 +56,14 @@ class NotifyTeamMembersOnReactionSent
 
 
         $json = json_encode($reactionData);
-        Log::info('[WS] Reaction JSON payload:', ['json' => $json]);
 
         $frame = createWebSocketFrame($json);
-        Log::info('[WS] WebSocket frame created.', ['frame_hex' => bin2hex($frame)]);
 
         $socket = stream_socket_client("tcp://localhost:8080", $errno, $errstr, 5);
         if (!$socket) {
             Log::error("[WS] Connection failed", compact('errno', 'errstr'));
             return;
         }
-        Log::info("[WS] Socket connection established to ws://localhost:8080");
 
         $key = base64_encode(random_bytes(16));
         $handshake  = "GET / HTTP/1.1\r\n";
@@ -76,12 +73,9 @@ class NotifyTeamMembersOnReactionSent
         $handshake .= "Sec-WebSocket-Key: $key\r\n";
         $handshake .= "Sec-WebSocket-Version: 13\r\n\r\n";
 
-        Log::info('[WS] Sending handshake:', ['handshake' => $handshake]);
-
         fwrite($socket, $handshake);
 
         $response = fread($socket, 1500);
-        Log::info('[WS] Handshake response:', ['response' => $response]);
 
         if (!str_contains($response, '101 Switching Protocols')) {
             Log::error('[WS] WebSocket handshake failed.');
@@ -89,12 +83,8 @@ class NotifyTeamMembersOnReactionSent
             return;
         }
 
-        Log::info('[WS] Handshake successful, sending frame...');
         fwrite($socket, $frame);
-        Log::info('[WS] Frame sent to server, closing socket.');
         fclose($socket);
-
-        Log::info("✅ Reaction sent via WebSocket", ['reaction' => $reactionData]);
     }
 }
 

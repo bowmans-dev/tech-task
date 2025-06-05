@@ -19,15 +19,6 @@ class HandleUserAccountDeletionOnUserDeleted
     {
         $userData = $event->userAggregate->getProcessedData();
 
-        Log::info('Domain Event Listener triggered for UserDeletedEvent.', [
-            'user_id' => $userData['id'],
-            'event' => UserDeletedEvent::class,
-            'user_data' => $userData,
-        ]);
-
-
         $this->userRepository->delete($userData['id']);
-
-        Log::info('User has been deleted successfully.');
     }
 }

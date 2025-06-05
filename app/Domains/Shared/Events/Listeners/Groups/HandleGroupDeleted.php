@@ -18,11 +18,6 @@ class HandleGroupDeleted
 
             $group->delete();
 
-            Log::info('Group deleted successfully.', [
-                'group_id' => $groupId,
-                'group' => $group->name,
-            ]);
-
         } catch (\Exception $e) {
             Log::error('Failed to delete group.', [
                 'group_id' => $groupId,

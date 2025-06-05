@@ -9,11 +9,13 @@ const clearContainer = (element) => {
   }
 };
 
-export const renderTeamMembers = (eventId, container, teamMembers) => {
+export const renderTeamMembers = (eventId, teamMembers) => {
+  
+  let container = document.getElementById('team-members');
+
   clearContainer(container);
   if (!container) return;
 
-  // Add a label above the team member list.
   const label = document.createElement('div');
   label.innerHTML = `<p>Team Members</p>`;
   container.appendChild(label);
@@ -44,7 +46,6 @@ export const renderTeamMembers = (eventId, container, teamMembers) => {
         </button>
       `;
 
-      // Attach listener for removal (assuming removeTeamMember and removeTeamMemberFromCalendarEvent are global or imported)
       const removeBtn = userDiv.querySelector('.remove-member-btn');
       if (removeBtn) {
         removeBtn.addEventListener('click', () => {

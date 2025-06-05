@@ -18,12 +18,6 @@ class PersistUserOnUserUpdated
     public function handle(UserUpdatedEvent $event): void
     {
         $userData = $event->userAggregate->getProcessedData();
-        
-        Log::info('Domain Event Listener triggered for UserUpdatedEvent.', [
-            'user_id' => $userData['id'],
-            'event' => UserCreatedEvent::class,
-            'user_data' => $userData,
-        ]);
 
         // Retrieve the aggregate and updated data from the event
         $userAggregate = $event->userAggregate;
@@ -34,10 +28,5 @@ class PersistUserOnUserUpdated
 
         // Persist the updated aggregate
         $this->userRepository->save($userAggregate);
-
-        Log::info('User has been saved updated.', [
-            'user_id' => $userData['id'],
-            'user_data' => $userData,
-        ]);
     }
 } 

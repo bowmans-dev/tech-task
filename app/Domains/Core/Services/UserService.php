@@ -89,10 +89,13 @@ class UserService
         return auth('web')->user();
     }
 
+
+
     public function editProfile(): User
     {
         return auth('web')->user();
     }
+
 
 
     public function listUsers(): LengthAwarePaginator
@@ -101,7 +104,7 @@ class UserService
     }
 
 
-
+    
     public function filterUsers(?string $search): LengthAwarePaginator
     {
         return $this->userRepository->filter($search, $this->paginationCount);

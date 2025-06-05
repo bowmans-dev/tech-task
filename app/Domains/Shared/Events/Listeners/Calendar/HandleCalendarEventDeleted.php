@@ -21,7 +21,6 @@ class HandleCalendarEventDeleted
         DB::beginTransaction();
 
         try {
-            Log::info("Deleting related records for Calendar Event ID: $eventId");
 
             CalendarEventTeamMember::where('calendar_event_id', $eventId)->delete();
             Message::where('event_id', $eventId)->delete();
@@ -36,8 +35,6 @@ class HandleCalendarEventDeleted
             $event->delete();
 
             DB::commit();
-
-            Log::info("Event ID $eventId and related data deleted successfully.");
 
             $this->triggerWebSocketCleanup($eventId);
 
@@ -60,7 +57,6 @@ class HandleCalendarEventDeleted
             $socket = stream_socket_client("tcp://localhost:8080", $errno, $errstr, 1);
 
             if (!$socket) {
-                Log::warning("Could not connect to WebSocket server: $errstr ($errno)");
                 return;
             }
 
@@ -68,7 +64,6 @@ class HandleCalendarEventDeleted
             fwrite($socket, $payload);
             fclose($socket);
 
-            Log::info("WebSocket cleanup triggered for event ID: $eventId");
         } catch (\Exception $e) {
             Log::error("WebSocket cleanup failed for event ID $eventId: " . $e->getMessage());
         }

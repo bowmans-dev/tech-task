@@ -76,6 +76,6 @@ class ProfilePictureTest extends TestCase
         $profilePicture = new ProfilePicture($nullablePath);
 
         // Then: The URL should point to the default profile picture
-        $this->assertEquals(asset('storage/default_profile_image.png'), $profilePicture->getUrl());
+        $this->assertEquals(asset('storage/default_profile_image.webp'), $profilePicture->getUrl());
     }
 }

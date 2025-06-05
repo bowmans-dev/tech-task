@@ -14,11 +14,6 @@ class PersistGroupOnGroupCreated
         $group = $event->group;
 
         $group->save();
-
-        Log::info('Group created and persisted successfully.', [
-            'group_id' => $group->id,
-            'group_name' => $group->name,
-        ]);
     }
 }
 

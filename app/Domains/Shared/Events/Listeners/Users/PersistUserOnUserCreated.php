@@ -19,17 +19,6 @@ class PersistUserOnUserCreated
     {
         $userData = $event->userAggregate->getProcessedData();
 
-        Log::info('Domain Event Listener triggered for UserCreatedEvent.', [
-            'user_id' => $userData['id'],
-            'event' => UserCreatedEvent::class,
-            'user_data' => $userData,
-        ]);
-
         $this->userRepository->save($event->userAggregate);
-
-        Log::info('User has been saved successfully.', [
-            'user_id' => $userData['id'],
-            'user_data' => $userData,
-        ]);
     }
 }

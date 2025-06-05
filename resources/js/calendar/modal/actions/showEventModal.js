@@ -65,7 +65,7 @@ export const showEventModal = (modalSelector = '#event-modal') => {
       }
       clearContainer(messagesContainer);
       renderFiles(filePreviewContainer, files);
-      renderTeamMembers(id, teamMembersContainer, teamMembers);
+      renderTeamMembers(id, teamMembers);
 
       if (modal) modal.classList.remove('hidden');
 

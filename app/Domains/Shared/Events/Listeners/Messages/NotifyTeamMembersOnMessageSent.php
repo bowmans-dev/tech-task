@@ -13,23 +13,16 @@ class NotifyTeamMembersOnMessageSent
         $message = $event->message;
         $eventName = $event->eventName;
         $options = $event->options;
-        Log::info("Sending message update", ['message' => $message->toArray()]); 
 
         $teamMembers = User::whereHas('calendarEvents', function ($query) use ($message) {
             $query->where('calendar_event_id', $message->event_id);
         })->get();
-        Log::info("Team members:", ['members' => $teamMembers]);
-
-        foreach ($teamMembers as $user) {
-            Log::info("Sending message update to user {$user->id}");
-        }
 
         $socket = stream_socket_client("tcp://localhost:8080", $errno, $errstr, 5, STREAM_CLIENT_CONNECT);
         if (!$socket) {
             Log::error("Websocket connection failed", ['error' => "{$errno}: {$errstr}"]);
             return;
         }
-        Log::info("Websocket connection established successfully.");
 
         // Websocket handshake
         $key = base64_encode(random_bytes(16));
@@ -90,14 +83,11 @@ class NotifyTeamMembersOnMessageSent
 
 
         $webSocketFrame = createWebSocketFrame($data);
-        Log::info("WebSocket Frame Being Sent:", ['frame' => bin2hex($webSocketFrame)]);
 
         fwrite($socket, $webSocketFrame);
         fflush($socket);
         usleep(500000);
         fclose($socket);
-
-        Log::info("WebSocket message sent successfully:", ['data' => $data]);
     }
 }
 

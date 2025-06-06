@@ -11,6 +11,7 @@ export default function startMediaBroadcast(ws, data, eventScopedConnections, We
     ws.send(JSON.stringify({
       action: "send_offer",
       payload: {
+        type: type,
         toUserId: clientUserId,
         eventId,
         broadcastingUserDetails: currentUser,

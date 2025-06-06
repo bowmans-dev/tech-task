@@ -1,4 +1,4 @@
-export function closeModal (modalSelector = '#event-modal') {
+export function closeModal (event, el, modalSelector = '#event-modal') {
     const modal = document.querySelector(modalSelector);
     modal.classList.add('hidden');
 };

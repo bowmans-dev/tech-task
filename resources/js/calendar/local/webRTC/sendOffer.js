@@ -1,7 +1,7 @@
 import { state, currentUser } from '../../state.js';
 
 export default async function sendOffer(data) {
-  const { eventId, toUserId, broadcastingUserDetails } = data.payload;
+  const { type, eventId, toUserId, broadcastingUserDetails } = data.payload;
 
   const stream = state.media.localStream;
   if (!stream) {
@@ -47,6 +47,7 @@ export default async function sendOffer(data) {
   state.currentWs?.send(JSON.stringify({
     action: "send_offer",
     payload: {
+      type: type,
       offer: peerConnection.localDescription,
       eventId,
       toUserId,

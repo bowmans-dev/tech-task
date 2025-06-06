@@ -17,7 +17,7 @@ export async function handleEventReceive(info) {
     filePreview.innerHTML = '';
     
     const eventOwner = {
-        userId: info.event.extendedProps.eventOwnerId,
+        eventOwnerId: info.event.extendedProps.eventOwnerDetails.eventOwnerId,
         profilePicture: info.event.extendedProps.eventOwnerDetails.profilePicture,
         firstName: info.event.extendedProps.eventOwnerDetails.firstName,
         lastName: info.event.extendedProps.eventOwnerDetails.lastName,
@@ -28,7 +28,6 @@ export async function handleEventReceive(info) {
     // Prepare state before saving event
     state.currentEvent = {
         id: null, 
-        eventOwnerId: eventOwner.userId,
         eventOwnerDetails: eventOwner,
         title: 'New Event',
         date: info.event.startStr,

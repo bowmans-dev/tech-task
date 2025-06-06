@@ -13,7 +13,6 @@ export async function handleDateClick(info) {
 
   state.currentEvent = {
     id: null, 
-    eventOwnerId: eventOwner.userId,
     eventOwnerDetails: eventOwner,
     title: 'New Event',
     date: info.dateStr,
@@ -35,7 +34,6 @@ export async function handleDateClick(info) {
     start: info.date,
     allDay: info.allDay,
     extendedProps: {
-        eventOwnerId: eventOwner.userId,
         eventOwnerDetails: eventOwner,
         team_members: [
             {

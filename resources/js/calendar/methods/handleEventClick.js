@@ -8,15 +8,14 @@ function updateCurrentEvent(event) {
   // Give admin global delete permissions
   if (currentUser.userId == "admin") {
     const deleteButton = document.querySelector('.delete-event-button');
-    deleteButton.setAttribute('data-user-id', event.extendedProps.eventOwnerId);
+    deleteButton.setAttribute('data-user-id', event.extendedProps.eventOwnerDetails.eventOwnerId);
   }
 
   // Set the event's background color to null if it was highlighted by notification
   event.setProp("backgroundColor", null);
   return {
     id: event.id,
-    eventOwnerId: event.extendedProps.eventOwnerId,
-    eventOwnerDetails: event.extendedProps.user || event.extendedProps.eventOwnerDetails || {},
+    eventOwnerDetails: event.extendedProps.eventOwnerDetails || {},
     title: event.title,
     date: event.startStr.split('T')[0],
     time: event.extendedProps.time,

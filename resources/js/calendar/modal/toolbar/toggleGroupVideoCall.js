@@ -87,6 +87,7 @@ export async function toggleGroupVideoCall() {
     localVideo.playsInline = true;
     localVideo.style.width = '100%';
     localVideo.style.height = 'auto';
+    localVideo.style.transform = "scaleX(-1)";
 
     const container = document.getElementById('modal-group-video-input-container');
 

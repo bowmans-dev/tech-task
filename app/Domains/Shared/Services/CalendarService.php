@@ -94,10 +94,10 @@ class CalendarService
                     : $event->event_date . 'T' . $event->event_time,
                 'allDay' => $event->all_day,
                 'extendedProps' => [
-                    'eventOwnerId' => $event->user_id,
                     'files' => $event->files,
                     'time' => $event->event_time,
                     'eventOwnerDetails' => [
+                        'eventOwnerId' => $event->user_id,
                         'firstName' => $event->user->first_name,
                         'lastName' => $event->user->last_name,
                         'profilePicture' => $event->user->profile_picture,
@@ -135,10 +135,10 @@ class CalendarService
                         : $event->event_date . 'T' . $event->event_time,
                     'allDay' => $event->all_day,
                     'extendedProps' => [
-                        'eventOwnerId' => $event->user_id,
                         'files' => $event->files,
                         'time' => $event->event_time,
                         'eventOwnerDetails' => [
+                            'eventOwnerId' => $event->user_id,
                             'firstName' => $event->user->first_name,
                             'lastName' => $event->user->last_name,
                             'profilePicture' => $event->user->profile_picture,

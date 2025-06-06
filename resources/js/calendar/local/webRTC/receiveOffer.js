@@ -2,7 +2,7 @@ import { state } from '../../state.js';
 import { createVideoMessageWrapper } from './utils/createVideoMessageWrapper.js';
 
 export default async function receiveOffer(data) {
-  const { offer, fromUserId, toUserId, broadcastingUserDetails, eventId } = data.payload;
+  const { type, offer, fromUserId, toUserId, broadcastingUserDetails, eventId } = data.payload;
 
   const peerConnection = new RTCPeerConnection({
     iceServers: [
@@ -28,22 +28,14 @@ export default async function receiveOffer(data) {
       return;
     }
 
-    if (event.track.kind === "video" || event.track.kind === "screen") {
-      const video = document.createElement('video');
-      video.srcObject = new MediaStream([event.track]);
-      video.autoplay = true;
-      video.playsInline = true;
-      video.muted = false;
-
-      const videoMessage = createVideoMessageWrapper(broadcastingUserDetails, event.track);
+    if (event.track.kind === "video") {
+      const videoMessage = createVideoMessageWrapper(broadcastingUserDetails, type, event.track);
       container.appendChild(videoMessage);
 
       event.track.onmute = () => {
         container.removeChild(videoMessage);
         peerConnection.close();
       };
-
-      video.play().catch(err => console.error("Video playback error:", err));
     }
   };
 

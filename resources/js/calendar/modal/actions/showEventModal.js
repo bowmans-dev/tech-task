@@ -1,5 +1,7 @@
 import { renderAllFiles } from "../dropZone/files/renderAllFiles";
 import { renderTeamMembers } from "../dropZone/teamMembers/renderTeamMembers";
+import { setUpMessagesBackground } from "../messages/setUpMessagesBackground";
+import { setUpEmojiPicker } from "../messages/setUpEmojiPicker";
 
 export const showEventModal = (modalSelector = '#event-modal') => {
   const modal = document.querySelector(modalSelector);
@@ -66,6 +68,8 @@ export const showEventModal = (modalSelector = '#event-modal') => {
       clearContainer(messagesContainer);
       renderAllFiles(filePreviewContainer, files);
       renderTeamMembers(id, teamMembers);
+      setUpMessagesBackground();
+      setUpEmojiPicker();
 
       if (modal) modal.classList.remove('hidden');
 

@@ -1,4 +1,4 @@
-export function createVideoMessageWrapper(broadcastingUserDetails, track) {
+export function createVideoMessageWrapper(broadcastingUserDetails, type, track) {
     const wrapper = document.createElement("div");
     wrapper.className = "message-wrapper w-full flex relative justify-start";
 
@@ -26,6 +26,10 @@ export function createVideoMessageWrapper(broadcastingUserDetails, track) {
     video.playsInline = true;
     video.muted = false;
     video.className = "w-full rounded-xl mt-2";
+    if (type === "video") {
+        console.log(track.kind);
+        video.style.transform = "scaleX(-1)";
+    }
 
     // Remove when the track ends or goes inactive
     track.onended = () => wrapper.remove();

@@ -1,4 +1,4 @@
-import { state } from "../../state";
+import { state, currentUser } from "../../state";
 import { isUserAlreadyInTeam } from "../../state";
 import { isUserInDatabase } from "../../state";
 import { addTeamMember } from "../../state";
@@ -66,13 +66,14 @@ export function handleDrop(event) { // Clear the dropped files array
                 // Append the file to the droppedFiles array
                 state.droppedFiles.push(file);
 
+
                 const fileData = {
                     eventId: eventId,
-                    userId: state.currentEvent.eventOwnerId,
+                    userId: currentUser.userId,
                     fileType: file.type,
                     fileSize: (file.size / 1024).toFixed(1), // Convert size to KB
                     file_name: file.name,
-                    file_path: `events/${eventId}/${state.currentEvent.eventOwnerId}/${file.name}`, 
+                    file_path: `events/${eventId}/currentUser.userId}/${file.name}`, 
                 };
 
                 calendarEvent.extendedProps.files.push(fileData);

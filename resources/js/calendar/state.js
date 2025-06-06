@@ -11,7 +11,6 @@ export let state = {
 	currentWs: null,
 	currentEvent: {
 		id: null,
-		eventOwnerId: null,
 		eventOwnerDetails: null,
 		title: '',
 		date: '',
@@ -42,6 +41,7 @@ export function getCurrentUser() {
 	const lastName = calendar?.getAttribute("data-last-name");
 
 	return {
+        eventOwnerId: currentUserId,
 		userId: currentUserId,
 		profilePicture: profilePicture,
 		firstName: firstName || "User",
@@ -179,8 +179,10 @@ export function sendEventUpdate() {
         fileType: file.type,
         fileSize: (file.size / 1024).toFixed(1),
         eventId: state.currentEvent.id,
-        userId: state.currentEvent.eventOwnerId
+        userId: state.currentEvent.eventOwnerDetails.eventOwnerId
     }));
+
+    console.log(sanitizedFiles);
 
     state.currentWs.send(JSON.stringify({
         action: "update_event",

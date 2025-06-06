@@ -86,9 +86,8 @@ function renderCalendar() {
                     id: null,
                     title: `${eventEl.dataset.firstName} ${eventEl.dataset.lastName}`,
                     extendedProps: {
-                        eventOwnerId: eventEl.dataset.userId,
                         eventOwnerDetails: {
-                            userId: eventEl.dataset.userId,
+                            eventOwnerId: eventEl.dataset.userId,
                             profilePicture: profilePicture,
                             firstName: eventEl.dataset.firstName,
                             lastName: eventEl.dataset.lastName,

@@ -1,5 +1,5 @@
 export default function sendOffer(ws, data, eventScopedConnections, WebSocket, wss) {
-  const { offer, eventId, userId, broadcastingUserDetails } = data.payload;
+  const { type, offer, eventId, userId, broadcastingUserDetails } = data.payload;
 
   const recipients = eventScopedConnections[eventId] || [];
 
@@ -15,6 +15,7 @@ export default function sendOffer(ws, data, eventScopedConnections, WebSocket, w
         client.send(JSON.stringify({
           action: "receive_offer",
           payload: {
+            type: type,
             offer,
             fromUserId: userId,
             toUserId: viewerId,

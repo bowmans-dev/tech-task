@@ -55,8 +55,8 @@ export const currentUser = getCurrentUser();
 // 3. WebSocket Connection
 // ─────────────────────────────────────────────
 
-import { websocketActionHandlers } from './handlers/websocketActionHandlers.js';
-import { webRtcActionHandlers } from './handlers/webRtcActionHandlers.js';
+import { websocketActionHandlers } from './local/websocketActionHandlers.js';
+import { webRtcActionHandlers } from './local/webRtcActionHandlers.js';
 
 let retryInterval;
 let retryCount = 0;

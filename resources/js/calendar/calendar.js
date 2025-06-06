@@ -14,7 +14,7 @@ import { handleEventReceive } from './methods/handleEventReceive.js';
 import { deleteCalendarEvent } from './methods/deleteCalendarEvent.js';
 
 // Calendar Modal
-import { closeModal } from './modal/actions/closeModal.js';
+import { closeModal } from './modal/actions/closeEventModal.js';
 import { setupSearchModalInput } from '../navigation/searchModal.js';
 
 // Calendar Toolbar

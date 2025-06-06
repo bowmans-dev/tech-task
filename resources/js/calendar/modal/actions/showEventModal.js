@@ -1,4 +1,4 @@
-import { renderFiles } from "../dropZone/files/renderFiles";
+import { renderAllFiles } from "../dropZone/files/renderAllFiles";
 import { renderTeamMembers } from "../dropZone/teamMembers/renderTeamMembers";
 
 export const showEventModal = (modalSelector = '#event-modal') => {
@@ -64,7 +64,7 @@ export const showEventModal = (modalSelector = '#event-modal') => {
         modal.dataset.date = date;
       }
       clearContainer(messagesContainer);
-      renderFiles(filePreviewContainer, files);
+      renderAllFiles(filePreviewContainer, files);
       renderTeamMembers(id, teamMembers);
 
       if (modal) modal.classList.remove('hidden');

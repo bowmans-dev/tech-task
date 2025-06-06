@@ -4,9 +4,9 @@
 /public/hot
 /public/storage
 !/public/storage/default_profile_image.webp
+!/public/storage/wallpaper.webp
 !/storage/app/public/default_profile_image.webp
-!/public/storage/default_profile_image.webp
-!/storage/app/public/default_profile_image.webp
+!/storage/app/public/wallpaper.webp
 /storage/*.key
 /storage/pail
 /vendor

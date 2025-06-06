@@ -1,4 +1,4 @@
-// ./dropZone/files/renderFiles.js
+// ./dropZone/files/renderAllFiles.js
 
 const clearContainer = (element) => {
   if (element) {
@@ -6,7 +6,7 @@ const clearContainer = (element) => {
   }
 };
 
-export const renderFiles = (container, files) => {
+export const renderAllFiles = (container, files) => {
   clearContainer(container);
   if (!container) return;
 

@@ -62,7 +62,7 @@ class ImageService
 
     public function deleteProfilePicture(?string $profilePicture): void
     {
-        if ($profilePicture && Storage::disk('public')->exists($profilePicture)) {
+        if ($profilePicture && Storage::disk('public')->exists($profilePicture) && $profilePicture !== "default_profile_image.webp") {
             $this->delete($profilePicture);
         }
     }

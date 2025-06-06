@@ -5,6 +5,7 @@ import { addTeamMember } from "../../state";
 import { removeTeamMember } from "../../state";
 import { removeTeamMemberFromCalendarEvent } from "./teamMembers/removeTeamMemberFromCalendarEvent";
 import { sendEventUpdate } from "../../state";
+import { saveCalendarEvent } from "../../methods/saveCalendarEvent";
 
 export function handleDrop(event) { // Clear the dropped files array
     event.preventDefault(); // Prevent default browser behavior

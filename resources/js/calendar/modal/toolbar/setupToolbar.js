@@ -1,8 +1,8 @@
 let currentActive = null;
 
-export function handleToolbarClick(event) {
-  const clickedIcon = event.currentTarget;
-  const target = clickedIcon.dataset.toolbarTarget;
+export function handleToolbarClick(event, button) {
+  const clickedIcon = button
+  const target = button.dataset.toolbarTarget;
   const isSame = currentActive === target;
 
   // Clear all highlights

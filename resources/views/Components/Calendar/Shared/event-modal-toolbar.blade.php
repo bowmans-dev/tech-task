@@ -23,7 +23,7 @@ canvas {
         <svg
         class="toolbar-toggle cursor-pointer"
         data-toolbar-target="search"
-        onclick="handleToolbarClick(event)"
+        data-action="handleToolbarClick"
         xmlns="http://www.w3.org/2000/svg"
         height="24px"
         viewBox="0 -960 960 960"
@@ -39,7 +39,7 @@ canvas {
         <svg 
         class="toolbar-toggle cursor-pointer"
         data-toolbar-target="poll"
-        onclick="handleToolbarClick(event)"
+        data-action="handleToolbarClick"
         xmlns="http://www.w3.org/2000/svg" 
         height="24px" 
         viewBox="0 -960 960 960" 
@@ -55,7 +55,7 @@ canvas {
         <svg
         class="toolbar-toggle cursor-pointer"
         data-toolbar-target="label"
-        onclick="handleToolbarClick(event)"
+        data-action="handleToolbarClick"
         xmlns="http://www.w3.org/2000/svg"
         height="24px"
         viewBox="0 -960 960 960"
@@ -71,7 +71,7 @@ canvas {
         <svg 
         class="toolbar-toggle cursor-pointer"
         data-toolbar-target="audio"
-        onclick="handleToolbarClick(event); toggleGroupAudioRoomWithVisualizer();" 
+        data-action="handleToolbarClick toggleGroupAudioRoomWithVisualizer" 
         xmlns="http://www.w3.org/2000/svg" 
         height="24px" 
         viewBox="0 -960 960 960" 
@@ -87,7 +87,7 @@ canvas {
         <svg 
         class="toolbar-toggle cursor-pointer"
         data-toolbar-target="video"
-        onclick="handleToolbarClick(event); toggleGroupVideoCall();" 
+        data-action="handleToolbarClick toggleGroupVideoCall" 
         xmlns="http://www.w3.org/2000/svg" 
         height="24px" 
         viewBox="0 -960 960 960" 
@@ -102,7 +102,7 @@ canvas {
         <svg 
         class="toolbar-toggle cursor-pointer"
         data-toolbar-target="screen"
-        onclick="handleToolbarClick(event); toggleGroupScreenShare();" 
+        data-action="handleToolbarClick toggleGroupScreenShare" 
         xmlns="http://www.w3.org/2000/svg" 
         height="24px" 
         viewBox="0 -960 960 960" 
@@ -133,7 +133,7 @@ canvas {
     <div class="absolute inset-y-0 start-0 flex items-center pointer-events-none z-20 ps-3.5">
         <svg class="shrink-0 size-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
     </div>
-    <input type="text" id="searchModal" class="py-2 ps-10 pe-16 block w-full bg-white border-gray-200 rounded-lg text-sm focus:outline-hidden focus:border-blue-500 focus:ring-blue-500" placeholder="Search by name or email" />
+    <input data-action="setupSearchModalInput" type="text" id="searchModal" class="py-2 ps-10 pe-16 block w-full bg-white border-gray-200 rounded-lg text-sm focus:outline-hidden focus:border-blue-500 focus:ring-blue-500" placeholder="Search by name or email" />
 </div>
 <!-- USER LIST BOX PANEL -->
 <div data-toolbar-panel="search" id="user-search-box" class="hidden mt-4 z-50 rounded-lg bg-white p-4 pr-0 border border-dashed border-gray-900/25">
@@ -157,7 +157,7 @@ canvas {
             <div class="absolute inset-y-0 start-0 flex items-center pointer-events-none z-20 ps-3.5">
                 <svg  class="shrink-0 size-6 text-gray-400" xmlns="http://www.w3.org/2000/svg"  height="24px"  viewBox="0 -960 960 960"  width="24px"  fill="#6a7282"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h360v80H200v560h560v-360h80v360q0 33-23.5 56.5T760-120H200Zm80-160h80v-280h-80v280Zm160 0h80v-400h-80v400Zm160 0h80v-160h-80v160Zm80-320v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80ZM480-480Z"/></svg>
             </div>
-            <input type="text" id="modal-user-poll-input" class="w-full text-sm py-2 px-3 pl-8 border rounded-md focus:outline-none focus:ring-1 focus:ring-[#2b7fff] shadow-[0_0_5px_#2b7fff]" placeholder="Ask a question" />
+            <input data-action="initializePollFeature" type="text" id="modal-user-poll-input" class="w-full text-sm py-2 px-3 pl-8 border rounded-md focus:outline-none focus:ring-1 focus:ring-[#2b7fff] shadow-[0_0_5px_#2b7fff]" placeholder="Ask a question" />
         </div>
 
         <!-- Options Label -->

@@ -1,10 +1,12 @@
 import { state } from "../../state";
 
-export function submitPoll(buttonElement) {
+export function submitPoll(event, button) {
+    event.preventDefault();
+    event.stopPropagation();
     const livePreviewClone = document.getElementById('poll-message-preview-live');
     livePreviewClone.remove();
     
-    const container = buttonElement.closest(".message");
+    const container = button.closest(".message");
     const eventName = document.getElementById('eventName')?.value;
     const question = container.querySelector("#poll-preview-question")?.textContent.trim();
     const optionsEls = container.querySelectorAll("#poll-preview-options li");

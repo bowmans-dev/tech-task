@@ -6,6 +6,7 @@ import { removeTeamMember } from "../../../state";
 import { removeTeamMemberFromCalendarEvent } from "./removeTeamMemberFromCalendarEvent";
 import { sendEventUpdate } from "../../../state";
 import { notifyNewTeamMembers } from "../../../state";
+import { saveCalendarEvent } from "../../../methods/saveCalendarEvent";
 
 export function clickAddUserToDropZone(user) {
 

@@ -2,7 +2,7 @@
 <div id="event-modal" class="relative w-full bg-white z-[99] hidden shadow-lg overflow-visible scale-90">
 
     <button
-        onclick="closeModal()" style="right: 1.25rem;" class="absolute cursor-pointer top-4 md:top-2 lg:top-2 right-4 text-gray-500 hover:text-gray-700 z-50" aria-label="Close Modal">
+        data-action="closeModal" style="right: 1.25rem;" class="absolute cursor-pointer top-4 md:top-2 lg:top-2 right-4 text-gray-500 hover:text-gray-700 z-50" aria-label="Close Modal">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 z-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
@@ -26,7 +26,7 @@
                 @include('Components.Calendar.Shared.event-modal-toolbar', ['users' => $users])
             </div>
             <div class="drop-zone-container flex-grow ml-4">
-                <div id="drop-zone" data-event-id="" 
+                <div id="drop-zone" data-action="handleDrop" data-event-id="" 
                     class="w-full mt-2 pt-10 flex-grow h-full justify-center rounded-lg border border-dashed border-gray-900/25 text-center text-[#cccccc]"
                     ondragover="event.preventDefault()" 
                     ondrop="handleDrop(event)">
@@ -47,7 +47,7 @@
 
                             <ul id="poll-preview-options" class="mt-2 space-y-1"></ul>
                             <div style="opacity: 0;" class="poll-submit-container flex flex-row align-center mt-2 justify-between space-between items-center">
-                                <button onclick="submitPoll(this)" class="bg-blue-500 flex flex-row align-center items-center px-2 py-1 cursor-pointer rounded-2xl text-white text-sm">
+                                <button data-action="submitPoll" class="bg-blue-500 flex flex-row align-center items-center px-2 py-1 cursor-pointer rounded-2xl text-white text-sm">
                                     Submit Poll
                                     <svg class="ml-2" xmlns="http://www.w3.org/2000/svg" height="14px" viewBox="0 -960 960 960" width="14px" fill="#fff"><path d="M120-160v-240l320-80-320-80v-240l760 320-760 320Z"/></svg>
                                 </button>
@@ -69,7 +69,7 @@
 
         </div>
         <div class="flex flex-row items-center">
-            <button data-user-id="{{ auth('web')->id() }}" onclick="deleteCalendarEvent()" 
+            <button data-action="deleteCalendarEvent" data-user-id="{{ auth('web')->id() }}"
                     class="delete-event-button w-full max-w-[300px] py-2 px-4 text-white bg-blue-500 hover:bg-blue-600 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2">
                 Delete Event
             </button>
@@ -87,6 +87,7 @@
                 
                 <!-- Send button -->
                 <div
+                    data-action="setUpSendMessageButton"
                     id="send-message-button"
                     class="cursor-pointer ml-3 bg-blue-500 hover:bg-blue-600 text-white font-medium px-4 py-2 rounded-lg shadow-md flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

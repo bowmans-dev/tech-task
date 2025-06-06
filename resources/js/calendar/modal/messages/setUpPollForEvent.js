@@ -86,13 +86,11 @@ export function updatePollPreview() {
 }
 
 export function initializePollFeature() {
-    document.addEventListener('DOMContentLoaded', () => {
-        const container = document.getElementById('poll-options-container');
-        container.innerHTML = '';
-        container.appendChild(createPollOptionInput(0));
-        container.appendChild(createPollOptionInput(1));
+    const container = document.getElementById('poll-options-container');
+    container.innerHTML = '';
+    container.appendChild(createPollOptionInput(0));
+    container.appendChild(createPollOptionInput(1));
 
-        document.getElementById('modal-user-poll-input')
-            .addEventListener('input', updatePollPreview);
-    });
+    document.getElementById('modal-user-poll-input')
+        .addEventListener('input', updatePollPreview);
 }

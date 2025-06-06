@@ -7,6 +7,7 @@
                     'firstName' => $user->first_name,
                     'lastName' => $user->last_name
                 ]) }})" 
+                data-action="clickAddUserToDropZone"
                 class="user-link cursor-pointer flex items-center w-full" 
                 draggable="true" 
                 data-user-id="{{ $user->id }}" 

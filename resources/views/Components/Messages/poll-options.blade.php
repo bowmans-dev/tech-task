@@ -11,10 +11,11 @@
             @endphp
             <li class="option-group">
             <button
+                data-action="submitPollVote"
                 class="poll-vote pl-[3px] flex flex-col align-center cursor-pointer w-full text-left px-2 py-1 rounded-md bg-white hover:bg-gray-200 hover:text-blue-600"
                 data-message-id="{{ $message->id }}"
                 data-option-id="{{ $option->id }}"
-                onclick="submitPollVote(event, this)">
+                >
                 <div class="flex flex-row justify-between w-full">
                 <div class="flex flex-row">
                     <!-- dynamically determin whether to display a check mark for the users selected option-->

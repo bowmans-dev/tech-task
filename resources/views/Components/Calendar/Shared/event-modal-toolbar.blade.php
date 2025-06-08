@@ -14,7 +14,7 @@ canvas {
 
 {{-- CALENDAR EVENT MODAL TOOLBAR--}}
 <div class="mt-6">
-    <div class="flex flex-row flex-grow p-2 mb-6 border border-dashed border-gray-900/25 rounded-lg">
+    <div class="flex flex-row flex-grow justify-evenly p-2 mb-6 border border-dashed border-gray-900/25 rounded-lg">
 
         <!-- SEARCH ICON -->
         <svg
@@ -44,6 +44,22 @@ canvas {
         fill="#6a7282"
         >
         <path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h360v80H200v560h560v-360h80v360q0 33-23.5 56.5T760-120H200Zm80-160h80v-280h-80v280Zm160 0h80v-400h-80v400Zm160 0h80v-160h-80v160Zm80-320v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80ZM480-480Z"/>
+        </svg>
+
+        <div class="h-[25px] w-0.5 bg-gray-200 ml-2 mr-2"></div>
+
+        <!-- TASK LIST ICON -->
+        <svg 
+        class="toolbar-toggle cursor-pointer"
+        data-toolbar-target="task"
+        data-action="handleToolbarClick" 
+        xmlns="http://www.w3.org/2000/svg" 
+        height="24px" 
+        viewBox="0 -960 960 960" 
+        width="24px" 
+        fill="#6a7282"
+        >
+        <path d="M680-40v-120H560v-80h120v-120h80v120h120v80H760v120h-80ZM200-200v-560 560Zm0 80q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v353q-18-11-38-18t-42-11v-324H200v560h280q0 21 3 41t10 39H200Zm120-160q17 0 28.5-11.5T360-320q0-17-11.5-28.5T320-360q-17 0-28.5 11.5T280-320q0 17 11.5 28.5T320-280Zm0-160q17 0 28.5-11.5T360-480q0-17-11.5-28.5T320-520q-17 0-28.5 11.5T280-480q0 17 11.5 28.5T320-440Zm0-160q17 0 28.5-11.5T360-640q0-17-11.5-28.5T320-680q-17 0-28.5 11.5T280-640q0 17 11.5 28.5T320-600Zm120 160h240v-80H440v80Zm0-160h240v-80H440v80Zm0 320h54q8-23 20-43t28-37H440v80Z"/>
         </svg>
 
         <div class="h-[25px] w-0.5 bg-gray-200 ml-2 mr-2"></div>
@@ -109,7 +125,6 @@ canvas {
         <path d="M320-400h80v-80q0-17 11.5-28.5T440-520h80v80l120-120-120-120v80h-80q-50 0-85 35t-35 85v80ZM160-240q-33 0-56.5-23.5T80-320v-440q0-33 23.5-56.5T160-840h640q33 0 56.5 23.5T880-760v440q0 33-23.5 56.5T800-240H160Zm0-80h640v-440H160v440Zm0 0v-440 440ZM40-120v-80h880v80H40Z"/>
         </svg>
 
-
     </div>
 </div>
 
@@ -162,6 +177,32 @@ canvas {
         
         <!-- Options Container -->
         <div id="poll-options-container" class="space-y-2">
+            <!-- Options will be added here -->
+        </div>
+    </div>
+</div>
+
+<!-- TASK BOX PANEL -->
+<div data-toolbar-panel="task" id="user-task-box" class="hidden mt-4 z-50 rounded-lg bg-white p-4 pr-0 border border-dashed border-gray-900/25">
+    
+    <div class="h-[240px] min-h[240px] max-h-[240px] contain-content overflow-y-scroll">
+
+        <!-- Question Label -->
+        <label style="font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'; font-size: 14px; color: #cccccc;">Task List Topic</label>
+        
+        <!-- Question Container -->
+        <div class="relative border border-dashed border-gray-300 rounded-lg p-2 mb-2">
+            <div class="absolute inset-y-0 start-0 flex items-center pointer-events-none z-20 ps-3.5">
+                <svg class="shrink-0 size-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6a7282"><path d="M680-40v-120H560v-80h120v-120h80v120h120v80H760v120h-80ZM200-200v-560 560Zm0 80q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v353q-18-11-38-18t-42-11v-324H200v560h280q0 21 3 41t10 39H200Zm120-160q17 0 28.5-11.5T360-320q0-17-11.5-28.5T320-360q-17 0-28.5 11.5T280-320q0 17 11.5 28.5T320-280Zm0-160q17 0 28.5-11.5T360-480q0-17-11.5-28.5T320-520q-17 0-28.5 11.5T280-480q0 17 11.5 28.5T320-440Zm0-160q17 0 28.5-11.5T360-640q0-17-11.5-28.5T320-680q-17 0-28.5 11.5T280-640q0 17 11.5 28.5T320-600Zm120 160h240v-80H440v80Zm0-160h240v-80H440v80Zm0 320h54q8-23 20-43t28-37H440v80Z"/></svg>
+            </div>
+            <input data-action="initializeTasksFeature" type="text" id="modal-user-task-input" class="w-full text-sm py-2 px-3 pl-8 border rounded-md focus:outline-none focus:ring-1 focus:ring-[#2b7fff] shadow-[0_0_5px_#2b7fff]" placeholder="Add a task-list topic.." />
+        </div>
+
+        <!-- Options Label -->
+        <label style="font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'; font-size: 14px; color: #cccccc;">Tasks</label>
+        
+        <!-- Options Container -->
+        <div id="task-options-container" class="space-y-2">
             <!-- Options will be added here -->
         </div>
     </div>

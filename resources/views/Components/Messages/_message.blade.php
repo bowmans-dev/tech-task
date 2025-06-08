@@ -19,6 +19,15 @@
     <!-- POLL OPTIONS -->
     @include('Components.messages.poll-options', ['message' => $message, 'options' => $options, 'selectedOptionId' => $selectedOptionId])
 
+    <!-- TASK LIST TASKS -->
+    @include('Components.messages.task-list-tasks', ['message' => $message, 'tasks' => $tasks ?? [], 'completedTaskIds' => $completedTaskIds ?? [], 'taskCompletions' => $taskCompletions ?? []])
+
     @include('Components.messages._reactions', ['message' => $message])
+
+    @if (!$isPoll && !$isTaskList) 
+        <div class="text-right text-xs text-gray-500 pr-2 mt-1">
+            {{ $message->created_at->format('H:i') }}
+        </div>
+    @endif
   </div>
 </div>

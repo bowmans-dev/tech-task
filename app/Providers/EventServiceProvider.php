@@ -31,7 +31,8 @@ use App\Domains\Shared\Events\DomainEvents\Messages\MessageReacted;
 use App\Domains\Shared\Events\Listeners\Messages\NotifyTeamMembersOnReactionSent;
 use App\Domains\Shared\Events\DomainEvents\Messages\PollVoted;
 use App\Domains\Shared\Events\Listeners\Messages\NotifyTeamMembersOnPollVote;
-
+use App\Domains\Shared\Events\DomainEvents\Messages\TaskCompleted;
+use App\Domains\Shared\Events\Listeners\Messages\NotifyTeamMembersOnTaskCompleted;
 
 
 
@@ -76,6 +77,8 @@ class EventServiceProvider extends ServiceProvider
         PollVoted::class => [
             NotifyTeamMembersOnPollVote::class,
         ],
-
+        TaskCompleted::class => [
+            NotifyTeamMembersOnTaskCompleted::class,
+        ]
     ];
 }

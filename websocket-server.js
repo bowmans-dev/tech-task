@@ -11,6 +11,7 @@ import teamMemberAdded from "./websocket/actions/teamMemberAdded.js";
 import messageBroadcast from "./websocket/actions/messageBroadcast.js";
 import reactionBroadcast from "./websocket/actions/reactionBroadcast.js";
 import voteBroadcast from "./websocket/actions/voteBroadcast.js";
+import taskCompletedBroadcast from "./websocket/actions/taskCompletedBroadcast.js";
 import startMediaBroadcast from "./websocket/actions/startMediaBroadcast.js";
 import sendOffer from "./websocket/actions/sendOffer.js";
 import sendAnswer from "./websocket/actions/sendAnswer.js";
@@ -40,18 +41,19 @@ wss.on("connection", (ws, req) => {
     }
 
     const actionHandlers = {
-        online:                (ws, data) => online(ws, data, globalConnectedUsers),
-        team_member_added:     (ws, data) => teamMemberAdded(ws, data, globalConnectedUsers, wss, notifyTeamMembers, WebSocket),
-        connect_to_event:      (ws, data) => subscribe(ws, data, eventScopedConnections),
-        disconnect_from_event: (ws, data) => unsubscribe(ws, data, eventScopedConnections, wss),
-        update_event:          (ws, data) => updateEvent(data, eventScopedConnections, wss),
-        message_broadcast:     (ws, data) => messageBroadcast(data, eventScopedConnections, wss),
-        reaction_broadcast:    (ws, data) => reactionBroadcast(data, eventScopedConnections, wss),
-        vote_broadcast:        (ws, data) => voteBroadcast(data, eventScopedConnections, wss),
-        start_media_broadcast: (ws, data) => startMediaBroadcast(ws, data, eventScopedConnections, WebSocket, wss),
-        send_offer:            (ws, data) => sendOffer(ws, data, eventScopedConnections, WebSocket, wss),
-        send_answer:           (ws, data) => sendAnswer(ws, data, eventScopedConnections, WebSocket, wss),
-        ice_candidate:         (ws, data) => forwardIceCandidate(ws, data, eventScopedConnections, WebSocket, wss),
+        online:                     (ws, data) => online(ws, data, globalConnectedUsers),
+        team_member_added:          (ws, data) => teamMemberAdded(ws, data, globalConnectedUsers, wss, notifyTeamMembers, WebSocket),
+        connect_to_event:           (ws, data) => subscribe(ws, data, eventScopedConnections),
+        disconnect_from_event:      (ws, data) => unsubscribe(ws, data, eventScopedConnections, wss),
+        update_event:               (ws, data) => updateEvent(data, eventScopedConnections, wss),
+        message_broadcast:          (ws, data) => messageBroadcast(data, eventScopedConnections, wss),
+        reaction_broadcast:         (ws, data) => reactionBroadcast(data, eventScopedConnections, wss),
+        vote_broadcast:             (ws, data) => voteBroadcast(data, eventScopedConnections, wss),
+        task_completed_broadcast:   (ws, data) => taskCompletedBroadcast(data, eventScopedConnections, wss),
+        start_media_broadcast:      (ws, data) => startMediaBroadcast(ws, data, eventScopedConnections, WebSocket, wss),
+        send_offer:                 (ws, data) => sendOffer(ws, data, eventScopedConnections, WebSocket, wss),
+        send_answer:                (ws, data) => sendAnswer(ws, data, eventScopedConnections, WebSocket, wss),
+        ice_candidate:              (ws, data) => forwardIceCandidate(ws, data, eventScopedConnections, WebSocket, wss),
     };
 
     ws.on("message", (message) => {

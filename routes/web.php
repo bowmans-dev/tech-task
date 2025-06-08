@@ -49,6 +49,7 @@ Route::group([], function () {
     Route::get('/events/{eventId}/messages', [MessageController::class, 'fetchMessages'])->name('messages.fetch');
     Route::post('/message/react', [MessageController::class, 'react']);
     Route::post('/poll-vote', [MessageController::class, 'vote']);
+    Route::post('/tasks/complete', [MessageController::class, 'complete']);
 });
 
 

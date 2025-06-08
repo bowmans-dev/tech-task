@@ -10,9 +10,13 @@ use App\Domains\Shared\Events\DomainEventPublisher;
 use App\Domains\Shared\Events\DomainEvents\Messages\MessageSent;
 use App\Domains\Shared\Events\DomainEvents\Messages\MessageReacted;
 use App\Domains\Shared\Events\DomainEvents\Messages\PollVoted;
+use App\Domains\Shared\Events\DomainEvents\Messages\TaskCompleted;
 use App\Models\Admin;
 use App\Models\PollOption;
 use App\Models\PollVote;
+use App\Models\TaskList;
+use App\Models\Task;
+use App\Models\TaskCompletion;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use App\Models\MessageReaction;
@@ -53,6 +57,7 @@ class MessageController extends Controller
         $eventName = $request->input('event_name');
 
         $isPoll = $request->boolean('is_poll', false);
+        $isTaskList = $request->boolean('is_task_list', false);
 
         $message = Message::create([
             'sender_id' => $sender->id,
@@ -60,6 +65,7 @@ class MessageController extends Controller
             'content' => $request->input('content'),
             'event_id' => $request->input('event_id'),
             'is_poll' => $isPoll,
+            'is_task_list' => $isTaskList,
         ]);
 
         // If this is a poll, create the poll options here
@@ -73,6 +79,24 @@ class MessageController extends Controller
             }
         }
 
+        // Handle Task List Logic
+        $taskList = null;
+        $tasks = collect();
+        if ($message->is_task_list && $request->has('tasks') && !empty($request->input('tasks'))) {
+            $taskList = TaskList::create([
+                'message_id' => $message->id,
+                'topic' => $request->input('content'),
+            ]);
+
+            foreach ($request->input('tasks') as $taskText) {
+                $tasks->push(Task::create([
+                    'task_list_id' => $taskList->id,
+                    'task_text' => $taskText,
+                ]));
+            }
+        }
+
+
         $selectedOptionId = null;
 
         if ($message->is_poll && $pollOptions->isNotEmpty()) {
@@ -80,7 +104,7 @@ class MessageController extends Controller
         }
 
         // Dispatch domain event with poll options (if any)
-        DomainEventPublisher::publish(new MessageSent($message, $eventName, $pollOptions));
+        DomainEventPublisher::publish(new MessageSent($message, $eventName, $pollOptions, $tasks));
 
         // Eager-load sender for frontend rendering
         $message->load(['sender', 'reactions.user']);
@@ -106,6 +130,8 @@ class MessageController extends Controller
                 'isPoll' => $message->is_poll,
                 'options' => $message->is_poll ? $pollOptions : [],
                 'selectedOptionId' => $selectedOptionId,
+                'isTaskList' => $message->is_task_list,
+                'taskList' => $message->is_task_list ? $taskList : null,
             ]));
     }
 
@@ -181,6 +207,37 @@ class MessageController extends Controller
         return response()->json(['success' => true, 'vote' => $vote]);
     }
 
+    public function complete(Request $request)
+    {
+        $auth = auth('admin')->check() ? auth('admin') : auth('web');
+
+        if (!$auth->check()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $worker = $auth->user();
+        $taskId = $request->input('task_id');
+
+        $existingCompletion = TaskCompletion::where([
+            'task_id' => $taskId,
+            'worker_id' => $worker->id,
+            'worker_type' => get_class($worker),
+        ])->first();
+
+        if ($existingCompletion) {
+            return response()->json(['message' => 'Task already completed.'], 200);
+        }
+
+        $completion = TaskCompletion::create([
+            'task_id' => $taskId,
+            'worker_id' => $worker->id,
+            'worker_type' => get_class($worker),
+        ]);
+
+        DomainEventPublisher::publish(new TaskCompleted($completion));
+
+        return response()->json(['message' => 'Task marked as completed.']);
+    }
 
 
     public function fetchMessages(Request $request, $eventId)
@@ -190,7 +247,7 @@ class MessageController extends Controller
         $currentUserId = $currentUser->id;
 
         $messages = Message::where('event_id', $eventId)
-            ->with(['sender', 'reactions.user', 'pollOptions.votes.voter'])
+            ->with(['sender', 'reactions.user', 'pollOptions.votes.voter','taskList.tasks.taskCompletions.worker'])
             ->orderBy('created_at', 'asc')
             ->get();
 
@@ -245,6 +302,43 @@ class MessageController extends Controller
                     }
                 }
 
+                // Task Handling
+                $tasks = [];
+                $taskCompletions = [];
+                $completedTaskIds = [];
+
+                if ($message->is_task_list && $message->taskList) {
+                    foreach ($message->taskList->tasks as $task) {
+                        // Store task details
+                        $tasks[] = [
+                            'id' => $task->id,
+                            'text' => $task->task_text,
+                        ];
+
+                        // Store task completions
+                        $taskCompletions[$task->id] = [];
+                        foreach ($task->taskCompletions as $completion) {
+                            $worker = $completion->worker;
+                            $taskCompletions[$task->id][] = [
+                                'worker_id' => $worker->id,
+                                'worker_type' => class_basename(get_class($worker)),
+                                'profile_picture' => $worker->profile_picture
+                                    ? asset('storage/' . $worker->profile_picture)
+                                    : asset('storage/default_profile_image.webp'),
+                                'name' => $worker instanceof \App\Models\Admin
+                                    ? '(Admin) ' . $worker->name
+                                    : $worker->first_name . ' ' . $worker->last_name,
+                            ];
+
+                            // Track completed tasks for the current user
+                            if ($completion->worker_id === $currentUserId && $completion->worker_type === $currentUserClass) {
+                                $completedTaskIds[] = $task->id;
+                            }
+                        }
+                    }
+                }
+
+
                 $streams .= turbo_stream()->append(
                     'messages',
                     view('Components.messages._message', [
@@ -255,6 +349,11 @@ class MessageController extends Controller
                         'isPoll' => $message->is_poll,
                         'options' => $message->is_poll ? $message->pollOptions : [],
                         'selectedOptionId' => $selectedOptionId,
+                        'isTaskList' => $message->is_task_list,
+                        'taskList' => $message->is_task_list ? $message->taskList : null,
+                        'tasks' => $tasks,
+                        'taskCompletions' => $taskCompletions,
+                        'completedTaskIds' => $completedTaskIds,
                     ])
                 );
             }

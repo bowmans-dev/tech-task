@@ -9,6 +9,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 use App\Models\Calendar;
 use App\Models\CalendarEventTeamMember;
 use App\Models\MessageReaction;
+use App\Models\TaskCompletion;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -65,6 +66,11 @@ class User extends Authenticatable implements JWTSubject
     public function pollVotes()
     {
         return $this->morphMany(PollVote::class, 'voter');
+    }
+
+    public function completedTasks()
+    {
+        return $this->morphMany(TaskCompletion::class, 'worker');
     }
 
 }

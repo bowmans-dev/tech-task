@@ -33,6 +33,9 @@ import { setUpSendMessageButton } from './modal/messages/setUpSendMessageButton.
 import { initializePollFeature } from './modal/messages/setUpPollForEvent.js';
 import { submitPoll } from './modal/messages/submitPollForEvent.js';
 import { submitPollVote } from './modal/messages/submitPollVote.js';
+import { initializeTasksFeature } from './modal/messages/setUpTasksForEvent.js';
+import { submitTasks } from './modal/messages/submitTasksForEvent.js';
+import { submitTaskCompletion } from './modal/messages/submitTaskCompletion.js';
 
 // Global Calendar WebSocket Notifications
 import { globalCalendarEventsWS } from './global/globalCalendarEventsWS.js';
@@ -49,10 +52,13 @@ const actionMap = {
   toggleGroupVideoCall,
   toggleGroupScreenShare,
   setupSearchModalInput,
+  setUpSendMessageButton,
   initializePollFeature,
   submitPoll,
   submitPollVote,
-  setUpSendMessageButton
+  initializeTasksFeature,
+  submitTasks,
+  submitTaskCompletion,
 };
 
 document.addEventListener('click', (e) => {

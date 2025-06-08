@@ -40,7 +40,6 @@
                         <div class="message bubble text-left w-[200px] p-2 mb-4 rounded-2xl relative shadow-md bg-[#d9fdd3]">
                             <div class="flex flex-row align-center justify-between mb-2">
                                 <div class="flex items-center">You:</div>
-                                {{-- <svg  class="shrink-0 size-6 text-gray-400" xmlns="http://www.w3.org/2000/svg"  height="24px"  viewBox="0 -960 960 960"  width="24px"  fill="#2b7fff"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h360v80H200v560h560v-360h80v360q0 33-23.5 56.5T760-120H200Zm80-160h80v-280h-80v280Zm160 0h80v-400h-80v400Zm160 0h80v-160h-80v160Zm80-320v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80ZM480-480Z"/></svg> --}}
                             </div>
 
                             <p class="" id="poll-preview-question"></p>
@@ -49,6 +48,28 @@
                             <div style="opacity: 0;" class="poll-submit-container flex flex-row align-center mt-2 justify-between space-between items-center">
                                 <button data-action="submitPoll" class="bg-blue-500 flex flex-row align-center items-center px-2 py-1 cursor-pointer rounded-2xl text-white text-sm">
                                     Submit Poll
+                                    <svg class="ml-2" xmlns="http://www.w3.org/2000/svg" height="14px" viewBox="0 -960 960 960" width="14px" fill="#fff"><path d="M120-160v-240l320-80-320-80v-240l760 320-760 320Z"/></svg>
+                                </button>
+                                <div class="text-right text-xs justify-end text-gray-500 pr-2">
+                                {{ now()->format('H:i') }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LIVE TASK LIST PREVIEW (JS will control visibility and content) -->
+                    <div id="task-list-preview-template" class="message-wrapper w-full justify-end hidden">
+                        <div class="message bubble text-left w-[200px] p-2 mb-4 rounded-2xl relative shadow-md bg-[#d9fdd3]">
+                            <div class="flex flex-row align-center justify-between mb-2">
+                                <div class="flex items-center">You:</div>
+                            </div>
+
+                            <p class="" id="task-list-preview-topic"></p>
+
+                            <ul id="task-list-preview-task" class="mt-2 space-y-1"></ul>
+                            <div style="opacity: 0;" class="task-list-submit-container flex flex-row align-center mt-2 justify-between space-between items-center">
+                                <button data-action="submitTasks" class="bg-blue-500 flex flex-row align-center items-center px-2 py-1 cursor-pointer rounded-2xl text-white text-sm">
+                                    Submit Tasks
                                     <svg class="ml-2" xmlns="http://www.w3.org/2000/svg" height="14px" viewBox="0 -960 960 960" width="14px" fill="#fff"><path d="M120-160v-240l320-80-320-80v-240l760 320-760 320Z"/></svg>
                                 </button>
                                 <div class="text-right text-xs justify-end text-gray-500 pr-2">

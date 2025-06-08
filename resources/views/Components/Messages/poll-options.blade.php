@@ -92,13 +92,11 @@
             </li>
         @endforeach
         </ul>
-@endif
 
-<div class="text-right text-xs text-gray-500 pr-2 mt-1">
-    {{ $message->created_at->format('H:i') }}
-</div>
+    <div class="text-right text-xs text-gray-500 pr-2 mt-1">
+        {{ $message->created_at->format('H:i') }}
+    </div>
 
-@if ($message->is_poll && isset($options) && count($options))
 
     @php
         $totalVotes = $options->flatMap->votes->count();

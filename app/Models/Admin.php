@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use App\Models\TaskCompletion;
 
 class Admin extends Authenticatable implements JWTSubject
 {
@@ -43,6 +44,11 @@ class Admin extends Authenticatable implements JWTSubject
     public function pollVotes()
     {
         return $this->morphMany(PollVote::class, 'voter');
+    }
+
+    public function completedTasks()
+    {
+        return $this->morphMany(TaskCompletion::class, 'worker');
     }
 
 }

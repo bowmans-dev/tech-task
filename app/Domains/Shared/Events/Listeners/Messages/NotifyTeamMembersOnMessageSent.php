@@ -13,6 +13,7 @@ class NotifyTeamMembersOnMessageSent
         $message = $event->message;
         $eventName = $event->eventName;
         $options = $event->options;
+        $tasks = $event->tasks;
 
         $teamMembers = User::whereHas('calendarEvents', function ($query) use ($message) {
             $query->where('calendar_event_id', $message->event_id);
@@ -58,6 +59,17 @@ class NotifyTeamMembersOnMessageSent
             $displayName = $sender->first_name . " " . $sender->last_name;
         }
 
+        $taskData = [];
+        if ($message->is_task_list && $tasks->isNotEmpty()) {
+            foreach ($tasks as $task) {
+                $taskData[] = [
+                    'id' => $task->id,
+                    'text' => $task->task_text,
+                ];
+            }
+        }
+
+
         // Render the full Blade message component to HTML
         $html = view('Components.messages._message', [
             'message' => $message, 
@@ -66,7 +78,9 @@ class NotifyTeamMembersOnMessageSent
             'isSender' => $sender->id === auth()->id(),
             'isPoll' => $message->is_poll,
             'options' => $message->is_poll ? $options : [],
-            'selectedOptionId' => null
+            'selectedOptionId' => null,
+            'isTaskList' => $message->is_task_list,
+            'tasks' => $message->is_task_list ? $taskData : [],
         ])->render();
 
         // Final payload with both user info and Blade-rendered HTML
@@ -78,6 +92,8 @@ class NotifyTeamMembersOnMessageSent
             'event_id'    => $message->event_id,
             'event_name'  => $eventName,
             'user'        => $userPayload,
+            'is_task_list' => $message->is_task_list,
+            'tasks'       => $message->is_task_list ? $taskData : [],
             'html'        => $html,
         ]);
 

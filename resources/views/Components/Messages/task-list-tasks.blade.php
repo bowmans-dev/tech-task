@@ -1,9 +1,10 @@
 @if ($message->is_task_list && isset($tasks) && count($tasks))
     @php
         $totalTasks = count($tasks);
-        $completedTaskIds = $completedTaskIds ?? [];
-        $taskCompletions = $taskCompletions ?? [];
-        $completedTasks = count($completedTaskIds);
+        // Ensure completedTaskIds tracks all globally completed tasks
+        $completedTaskIdsGlobal = collect($taskCompletions)->keys()->toArray();
+        // Calculate completed tasks and percentage based on all users' completions
+        $completedTasks = count($completedTaskIdsGlobal);
         $completionPercentage = $totalTasks > 0 ? min(100, round(($completedTasks / $totalTasks) * 100)) : 0;
     @endphp
     <!-- Completion Progress Bar -->
@@ -83,7 +84,7 @@
                     </button>
 
                     <!-- Completed Users Section (Hidden Initially) -->
-                    <div class="completed-users bg-white px-1 rounded-md max-h-[0px] contain-content transition-all duration-2000">
+                    <div class="completed-users bg-white px-[5px] rounded-md max-h-[0px] contain-content transition-all duration-2000">
                         @foreach($taskCompletionsList as $completion)
                             <div class="flex flex-row align-center text-sm text-black pt-1 pb-1">
                                 @php
@@ -93,7 +94,7 @@
                                         ? '(Admin) ' . ($worker['name'] ?? 'Unknown')
                                         : ($worker['name'] ?? 'Unknown');
                                 @endphp
-                                <img class="rounded-full object-cover mr-2" src="{{ $profilePic }}" alt="{{ $workerName }}" width="22" height="22">
+                                <img class="rounded-full object-cover mr-2 w-[21px] h-[21px]" src="{{ $profilePic }}" alt="{{ $workerName }}" width="21" height="21">
                                 {{ $workerName }}
                             </div>
                         @endforeach

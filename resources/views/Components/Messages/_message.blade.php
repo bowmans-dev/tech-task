@@ -1,5 +1,6 @@
 @php
   $reactions = $message->reactions->groupBy('emoji');
+  $isSender = $message->sender_id === auth('web')->id();
 @endphp
 
 <div class="message-wrapper w-full flex relative {{ $isSender ? 'justify-end' : 'justify-start' }}" id="message-{{ $message->id }}" data-message-id="{{ $message->id }}">
@@ -15,6 +16,7 @@
 
     <!-- Question content -->
     <p class="text-black mt-2 pr-2">{{ $message->content }}</p>
+    
 
     <!-- POLL OPTIONS -->
     @include('Components.messages.poll-options', ['message' => $message, 'options' => $options, 'selectedOptionId' => $selectedOptionId])

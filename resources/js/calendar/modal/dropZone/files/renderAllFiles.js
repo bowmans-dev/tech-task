@@ -34,7 +34,7 @@ export const renderAllFiles = (container, files) => {
     a.innerHTML += `
       <div class="file-text">
         <p class="text-sm font-medium text-gray-700 max-w-[200px] truncate">${file.file_name}</p>
-        <p class="text-xs text-gray-500">${fileType}</p>
+        <p class="text-xs text-left text-gray-500">${fileType}</p>
       </div>`;
 
     container.appendChild(a);

@@ -9,6 +9,14 @@ export default function messageBroadcast(data) {
 
     const messageEl = temp.firstElementChild;
     if (messageEl) {
+      if (data.isSender) {
+        messageEl.classList.add("justify-end");
+        messageEl.querySelector(".message").classList.add("bg-[#d9fdd3]");
+      } else {
+        messageEl.classList.add("justify-start");
+        messageEl.querySelector(".message").classList.add("bg-[#ffffff]");
+      }
+
       messagesContainer.appendChild(messageEl);
     }
   }

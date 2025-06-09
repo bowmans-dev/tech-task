@@ -39,7 +39,9 @@ export default function internal(ws, wss, eventScopedConnections, notifyTeamMemb
             wss.clients.forEach((client) => {
                 const isSubscribed = client.connectedEvent?.some(sub => sub.eventId === eventId);
                 if (!client.isInternal && isSubscribed) {
-                    client.send(JSON.stringify(data));
+                    const isSender = client.userId === senderId;
+                    const updatedData = { ...data, isSender };
+                    client.send(JSON.stringify(updatedData));
                 }
             });
 

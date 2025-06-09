@@ -71,7 +71,7 @@
                 @endif
             </button>
 
-            <div class="voters bg-white px-2 py-1 rounded-md max-h-[0px] contain-content transition-all duration-2000">
+            <div class="voters bg-white px-[5px] rounded-md max-h-[0px] contain-content transition-all duration-2000">
                 @foreach($option->votes as $vote)
                 <div class="flex flex-row align-center text-sm text-black pt-1 pb-1">
                     @php
@@ -83,7 +83,7 @@
                             ? '(Admin) ' . $voter->name
                             : $voter->first_name . ' ' . $voter->last_name;
                     @endphp
-                    <img class="rounded-full object-cover mr-2 w-6 h-6" src="{{ $profilePic }}" alt="{{ $voterName }}" width="24" height="24">
+                    <img class="rounded-full object-cover mr-2 w-[21px] h-[21px]" src="{{ $profilePic }}" alt="{{ $voterName }}" width="21" height="21">
                     {{ $voterName }}
                 </div>
                 @endforeach

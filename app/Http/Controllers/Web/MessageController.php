@@ -106,33 +106,6 @@ class MessageController extends Controller
         // Dispatch domain event with poll options (if any)
         DomainEventPublisher::publish(new MessageSent($message, $eventName, $pollOptions, $tasks));
 
-        // Eager-load sender for frontend rendering
-        $message->load(['sender', 'reactions.user']);
-
-        $isAdmin = $sender instanceof \App\Models\Admin;
-
-        $displayName = $isAdmin
-            ? '(Admin) ' . $sender->name
-            : $sender->first_name . ' ' . $sender->last_name;
-
-        $profilePicture = $sender->profile_picture
-            ? asset('storage/' . $sender->profile_picture)
-            : asset('storage/default_profile_image.webp');
-
-        $isSender = true;
-
-        return response()->turboStream()
-            ->append('messages', view('Components.messages._message', [
-                'message' => $message,
-                'displayName' => $displayName,
-                'profilePicture' => $profilePicture,
-                'isSender' => $isSender,
-                'isPoll' => $message->is_poll,
-                'options' => $message->is_poll ? $pollOptions : [],
-                'selectedOptionId' => $selectedOptionId,
-                'isTaskList' => $message->is_task_list,
-                'taskList' => $message->is_task_list ? $taskList : null,
-            ]));
     }
 
 

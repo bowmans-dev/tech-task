@@ -36,7 +36,7 @@ export function renderDroppedFiles() {
         const info = document.createElement("div");
         info.innerHTML = `
             <p class="text-sm font-medium text-gray-700 max-w-[200px] truncate">${fileName}</p>
-            <p class="text-xs text-gray-500">${fileType} · ${fileSize}</p>
+            <p class="text-xs text-left text-gray-500">${fileType} · ${fileSize}</p>
         `;
 
         fileDiv.appendChild(info);

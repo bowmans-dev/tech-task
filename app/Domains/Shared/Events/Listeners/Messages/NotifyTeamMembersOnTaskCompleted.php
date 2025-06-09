@@ -50,7 +50,7 @@ class NotifyTeamMembersOnTaskCompleted
             : [];
 
         $completedTaskIds = $message->is_task_list 
-            ? $message->taskList->tasks->flatMap(fn ($task) => $task->taskCompletions->pluck('worker_id'))->toArray() 
+            ? $message->taskList->tasks->filter(fn ($task) => $task->taskCompletions->count() > 0)->pluck('id')->toArray() 
             : [];
 
         $taskHtml = View::make('Components.messages.task-list-tasks', [

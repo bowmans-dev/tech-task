@@ -14,6 +14,7 @@ export function submitTasks(event, button) {
     const container = button.closest(".message");
     const eventName = document.getElementById('eventName')?.value;
     const topic = container.querySelector("#task-list-preview-topic")?.textContent.trim();
+    console.log("SUBMIT TASK: TOPIC: ", topic);
     const taskEls = container.querySelectorAll("#task-list-preview-task li");
     const tasks = Array.from(taskEls).map(el => el.textContent.trim()).filter(Boolean);
 
@@ -27,6 +28,8 @@ export function submitTasks(event, button) {
     formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute("content"));
     formData.append('content', topic);
     formData.append('event_id', state.currentEvent.id);
+    console.log("SUBMIT TASK: state.currentEvent: ", state.currentEvent);
+    console.log("SUBMIT TASK: state.currentEvent.id: ", state.currentEvent.id);
     formData.append('event_name', eventName);
     formData.append('is_task_list', 1);
 

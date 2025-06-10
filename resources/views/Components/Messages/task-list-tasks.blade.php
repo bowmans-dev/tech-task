@@ -1,10 +1,9 @@
 @if ($message->is_task_list && isset($tasks) && count($tasks))
     @php
         $totalTasks = count($tasks);
-        // Ensure completedTaskIds tracks all globally completed tasks
-        $completedTaskIdsGlobal = collect($taskCompletions)->keys()->toArray();
-        // Calculate completed tasks and percentage based on all users' completions
-        $completedTasks = count($completedTaskIdsGlobal);
+        $completedTaskIds = $completedTaskIds ?? [];
+        $taskCompletions = $taskCompletions ?? [];
+        $completedTasks = count($completedTaskIds);
         $completionPercentage = $totalTasks > 0 ? min(100, round(($completedTasks / $totalTasks) * 100)) : 0;
     @endphp
     <!-- Completion Progress Bar -->

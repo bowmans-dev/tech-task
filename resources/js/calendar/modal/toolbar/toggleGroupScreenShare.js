@@ -15,9 +15,9 @@ let mixedStream = null;
 export async function toggleGroupScreenShare() {
 
   if (isMicInitialized) {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop()); // stop media
-      stream = null;
+    if (mixedStream) {
+      mixedStream.getTracks().forEach(track => track.stop()); // stop media
+      mixedStream = null;
     }
     if (audioCtx) {
       audioCtx.close();

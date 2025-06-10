@@ -30,6 +30,12 @@ export function createVideoMessageWrapper(broadcastingUserDetails, type, track) 
         console.log(track.kind);
         video.style.transform = "scaleX(-1)";
     }
+    if (type === "screen") {
+        console.log(track.kind);
+        video.style.width = "100%";
+        video.style.maxWidth = "100vw";
+        video.style.height = "auto";
+    }
 
     // Remove when the track ends or goes inactive
     track.onended = () => wrapper.remove();

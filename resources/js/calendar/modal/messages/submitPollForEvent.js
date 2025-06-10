@@ -28,8 +28,6 @@ export function submitPoll(event, button) {
         formData.append('options[]', option);
     });
 
-    console.log("FORM DATA: ", formData);
-
     fetch("/messages", {
         method: "POST",
         body: formData,

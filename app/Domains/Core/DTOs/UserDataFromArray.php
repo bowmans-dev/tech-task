@@ -3,7 +3,7 @@
 namespace App\Domains\Core\DTOs;
 
 use App\Domains\Core\DTOs\UserData;
-use App\Domains\Core\Factories\UserDataFactory; // Import the factory
+use App\Domains\Core\Factories\UserDataFactory;
 
 class UserDataFromArray
 {

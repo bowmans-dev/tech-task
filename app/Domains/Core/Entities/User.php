@@ -16,10 +16,6 @@ class User
 
     public function update(array $data): void
     {
-        if (empty($data['password'])) {
-            unset($data['password']);
-        }
-
         $this->data = UserDataFromArray::transform($data, $this->data);
     }
 

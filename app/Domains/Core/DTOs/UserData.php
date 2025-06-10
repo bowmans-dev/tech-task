@@ -53,4 +53,14 @@ class UserData extends BaseDTO
     {
         return UserDataFromModel::transform($model);
     }
+
+    public function getId(): string { return $this->id; }
+    public function getFirstName(): string { return $this->firstName; }
+    public function getLastName(): string { return $this->lastName; }
+    public function getGender(): string { return $this->gender; }
+    public function getEmail(): Email { return $this->email; }
+    public function getPassword(): Password { return $this->password; }
+    public function getPhone(): ?Phone { return $this->phone; }
+    public function getCountry(): ?Country { return $this->country; }
+    public function getProfilePicture(): ?ProfilePicture { return $this->profilePicture; }
 }

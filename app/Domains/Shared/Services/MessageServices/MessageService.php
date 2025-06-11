@@ -3,19 +3,11 @@
 namespace App\Domains\Shared\Services\MessageServices;
 
 use Illuminate\Http\Request;
-use App\Models\Message;
-use App\Models\User;
-use App\Models\Admin;
-use App\Domains\Shared\Services\MessageServices\PollService;
-use App\Domains\Shared\Services\MessageServices\TaskListService;
-use App\Domains\Shared\Services\MessageServices\MessageReactionService;
-use App\Domains\Shared\Services\MessageServices\MessageFormattingService;
-use App\Domains\Shared\Services\MessageServices\MessageRenderingService;
+use App\Models\{Message, User, Admin};
+use App\Domains\Shared\Services\MessageServices\{PollService, TaskListService, MessageReactionService, MessageFormattingService, MessageRenderingService};
 use App\Domains\Shared\Repositories\MessageRepository;
 use App\Domains\Shared\Events\DomainEventPublisher;
 use App\Domains\Shared\Events\DomainEvents\Messages\MessageSent;
-use Hotwired\TurboLaravel\Turbo;
-use Illuminate\Support\Facades\Log;
 
 class MessageService {
 
@@ -36,6 +28,7 @@ class MessageService {
         $this->messageRepository = $messageRepository;
     }
 
+
     public function store(Request $request)
     {
         $message = $this->messageRepository->createMessage($request);
@@ -47,21 +40,25 @@ class MessageService {
         DomainEventPublisher::publish(new MessageSent($message, $eventName, $pollOptions, $tasks));
     }
 
+
     public function react(Request $request)
     {
        return $this->messageReactionService->react($request);
     }
+
 
     public function vote(Request $request)
     {
         return $this->pollService->vote($request);
     }
 
+
     public function complete(Request $request)
     {
         return $this->taskListService->complete($request);
     }
 
+    
     public function fetchMessages(Request $request, $eventId)
     {
         $currentUser = auth('admin')->check() ? auth('admin')->user() : auth('web')->user();

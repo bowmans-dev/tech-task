@@ -20,8 +20,7 @@ class PasswordResetService
         $user->notify(new ResetPasswordNotification($token));
     }
 
-
-    
+ 
     public function resetPassword(array $credentials, \Closure $callback): string
     {
         return Password::broker()->reset($credentials, $callback);

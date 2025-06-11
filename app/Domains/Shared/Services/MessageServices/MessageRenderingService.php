@@ -2,9 +2,7 @@
 
 namespace App\Domains\Shared\Services\MessageServices;
 
-use App\Domains\Shared\Services\MessageServices\PollService;
-use App\Domains\Shared\Services\MessageServices\TaskListService;
-use App\Domains\Shared\Services\MessageServices\MessageFormattingService;
+use App\Domains\Shared\Services\MessageServices\{PollService, TaskListService, MessageFormattingService};
 use Hotwired\TurboLaravel\Turbo;
 
 class MessageRenderingService {
@@ -21,6 +19,7 @@ class MessageRenderingService {
         $this->messageFormattingService = $messageFormattingService;
     }
 
+    
     public function renderMessageStream($groupMessages, $currentUser)
     {
         $streams = '';

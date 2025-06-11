@@ -29,15 +29,6 @@ class AdminController extends Controller
     }
 
 
-
-    /**
-     * Create a new user (admin action).
-     *
-     * Validates incoming data and handles user creation via service layer.
-     *
-     * @param \App\Http\Requests\UserStoreRequest $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function store(UserStoreRequest $request)
     {
         try {
@@ -60,14 +51,6 @@ class AdminController extends Controller
     }
 
 
-
-    /**
-     * Update a user's details (admin action).
-     *
-     * @param \App\Http\Requests\UserUpdateRequest $request
-     * @param \App\Models\User $user
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function update(UserUpdateRequest $request, User $user)
     {
         try {
@@ -89,12 +72,6 @@ class AdminController extends Controller
     }
     
 
-
-    /**
-     * Show the details of a specific user.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function show(Request $request, User $user)
     {
         try {
@@ -114,12 +91,6 @@ class AdminController extends Controller
     }
 
 
-
-    /**
-     * Display a paginated list of all users.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function index(Request $request)
     {
 
@@ -142,13 +113,6 @@ class AdminController extends Controller
     }
 
 
-
-    /**
-     * Filter users based on a search query.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function filter(Request $request)
     {
         try {
@@ -169,13 +133,6 @@ class AdminController extends Controller
     }
     
 
-    
-    /**
-     * Delete a user (admin action).
-     *
-     * @param \App\Models\User $user
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function destroy(Request $request, User $user)
     {
         try {

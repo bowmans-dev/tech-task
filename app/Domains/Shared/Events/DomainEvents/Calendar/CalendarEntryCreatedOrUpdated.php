@@ -3,7 +3,7 @@
 namespace App\Domains\Shared\Events\DomainEvents\Calendar;
 use App\Models\Calendar;
 
-class CalendarEntryCreatedEvent
+class CalendarEntryCreatedOrUpdated
 {
     public $event;
     public $data;

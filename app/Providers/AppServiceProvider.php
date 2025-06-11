@@ -27,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(UserRepositoryInterface::class, EloquentUserRepository::class);
     }
 
+    
     public function boot(): void
     {
         

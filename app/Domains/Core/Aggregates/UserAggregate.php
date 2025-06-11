@@ -25,7 +25,7 @@ class UserAggregate
         $this->user->update($data);
     }
 
-
+    
     public function getProcessedData(): array
     {
         return $this->user->toArray();

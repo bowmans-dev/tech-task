@@ -17,6 +17,7 @@ class UserPayloadHelper
         ];
     }
 
+    
     private static function getProfilePicture($user): string
     {
         return $user->profile_picture
@@ -24,12 +25,14 @@ class UserPayloadHelper
             : "/storage/default_profile_image.webp";
     }
 
+
     private static function getNameFields($user): array
     {
         return $user instanceof Admin
             ? ['name' => $user->name]
             : ['first_name' => $user->first_name, 'last_name' => $user->last_name];
     }
+
 
     private static function getDisplayName($user): string
     {

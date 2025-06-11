@@ -6,9 +6,7 @@ use App\Models\User;
 use App\Domains\Core\Aggregates\UserAggregate;
 use App\Domains\Core\Repositories\UserRepositoryInterface;
 use App\Domains\Shared\Events\DomainEventPublisher;
-use App\Domains\Shared\Events\DomainEvents\Users\UserCreatedEvent;
-use App\Domains\Shared\Events\DomainEvents\Users\UserUpdatedEvent;
-use App\Domains\Shared\Events\DomainEvents\Users\UserDeletedEvent;
+use App\Domains\Shared\Events\DomainEvents\Users\{UserCreatedEvent, UserUpdatedEvent, UserDeletedEvent};
 use App\Domains\Supporting\ImageUpload\ImageService;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -26,8 +24,7 @@ class UserService
         $this->userRepository = $userRepository;
     }
 
-
-
+    
     public function createUser(array $data)
     {
 
@@ -40,8 +37,6 @@ class UserService
         return $userAggregate->getProcessedData();
     }
  
-
-
 
     public function updateUser(User $user, array $data)
     {
@@ -56,7 +51,6 @@ class UserService
     }
 
 
-
     public function deleteUser(User $user): void
     {
 
@@ -66,7 +60,6 @@ class UserService
 
         DomainEventPublisher::publish(new UserDeletedEvent($userAggregate));
     }
-
 
 
     public function deleteProfile($user): void
@@ -83,12 +76,10 @@ class UserService
     }
 
 
-
     public function showProfile(): User
     {
         return auth('web')->user();
     }
-
 
 
     public function editProfile(): User
@@ -97,18 +88,15 @@ class UserService
     }
 
 
-
     public function listUsers(): LengthAwarePaginator
     {
         return $this->userRepository->list($this->paginationCount);
     }
 
 
-    
     public function filterUsers(?string $search): LengthAwarePaginator
     {
         return $this->userRepository->filter($search, $this->paginationCount);
     }
     
-
 }

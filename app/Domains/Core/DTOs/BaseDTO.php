@@ -9,6 +9,7 @@ abstract class BaseDTO
         $this->validate();
     }
 
+
     protected function validate(): void
     {
         $reflection = new \ReflectionClass($this);
@@ -29,6 +30,7 @@ abstract class BaseDTO
             }
         }
     }
+
 
     protected function validateType(mixed $value, \ReflectionType $type): bool
     {

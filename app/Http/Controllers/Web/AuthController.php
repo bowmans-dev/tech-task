@@ -27,6 +27,7 @@ class AuthController extends Controller
         $this->userService = $userService;
     }
 
+
     public function store(UserStoreRequest $request)
     {
 
@@ -84,7 +85,6 @@ class AuthController extends Controller
     }
 
 
-
     public function logout(Request $request)
     {
         $guard = Auth::guard('admin')->check() ? 'admin' : 'web';
@@ -97,12 +97,10 @@ class AuthController extends Controller
     }
 
 
-
     protected function broker()
     {
         return Password::broker();
     }
-
 
 
     public function sendResetLink(Request $request)
@@ -117,7 +115,6 @@ class AuthController extends Controller
             return back()->withErrors(['email' => $e->getMessage()]);
         }
     }
-
 
 
     public function resetPassword(Request $request)
@@ -143,7 +140,6 @@ class AuthController extends Controller
     }
 
 
-    
     public function showResetForm($token)
     {
         return view('shared.pages.auth.passwords.reset', ['token' => $token]);

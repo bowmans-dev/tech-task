@@ -19,12 +19,6 @@ class UserController extends Controller
     }
 
 
-
-    /**
-     * Show the authenticated user's profile.
-     *
-     * @return \Illuminate\View\View
-     */
     public function showProfile()
     {
         $users = User::all();
@@ -34,11 +28,7 @@ class UserController extends Controller
         return view('role.users.pages.profile', compact('profile', 'users'));
     }
 
-    /**
-     * Show the authenticated user's profile.
-     *
-     * @return \Illuminate\View\View
-     */
+
     public function editProfile()
     {
         $profile = $this->userService->editProfile();
@@ -47,13 +37,6 @@ class UserController extends Controller
     }
 
 
-
-    /**
-     * Update the authenticated user's profile.
-     *
-     * @param \App\Http\Requests\UserUpdateRequest $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function updateProfile(UserUpdateRequest $request)
     {
         $data = $request->validated();
@@ -67,12 +50,6 @@ class UserController extends Controller
     }
 
    
-    
-    /**
-     * Delete the authenticated user's profile.
-     *
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function deleteProfile(Request $request)
     {
         $user = $request->user();

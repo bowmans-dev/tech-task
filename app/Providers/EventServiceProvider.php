@@ -10,19 +10,19 @@ use App\Domains\Shared\Events\Listeners\Users\PersistUserOnUserCreated;
 use App\Domains\Shared\Events\Listeners\Users\PersistUserOnUserUpdated;
 use App\Domains\Shared\Events\Listeners\Users\HandleUserAccountDeletionOnUserDeleted;
 
-use App\Domains\Shared\Events\DomainEvents\Groups\GroupCreatedEvent;
-use App\Domains\Shared\Events\DomainEvents\Groups\GroupDeletedEvent;
-use App\Domains\Shared\Events\DomainEvents\Groups\UserAddedToGroupEvent;
-use App\Domains\Shared\Events\DomainEvents\Groups\UserRemovedFromGroupEvent;
+use App\Domains\Shared\Events\DomainEvents\Groups\GroupCreated;
+use App\Domains\Shared\Events\DomainEvents\Groups\GroupDeleted;
+use App\Domains\Shared\Events\DomainEvents\Groups\UserAddedToGroup;
+use App\Domains\Shared\Events\DomainEvents\Groups\UserRemovedFromGroup;
 
 use App\Domains\Shared\Events\Listeners\Groups\PersistGroupOnGroupCreated;
 use App\Domains\Shared\Events\Listeners\Groups\HandleGroupDeleted;
 use App\Domains\Shared\Events\Listeners\Groups\PersistUserOnUserAddedToGroup;
 use App\Domains\Shared\Events\Listeners\Groups\HandleUserRemovedFromGroup;
 
-use App\Domains\Shared\Events\DomainEvents\Calendar\CalendarEntryCreatedEvent;
-use App\Domains\Shared\Events\Listeners\Calendar\PersistCalendarEntryOnCreated;
-use App\Domains\Shared\Events\DomainEvents\Calendar\CalendarEntryDeletedEvent;
+use App\Domains\Shared\Events\DomainEvents\Calendar\CalendarEntryCreatedOrUpdated;
+use App\Domains\Shared\Events\Listeners\Calendar\PersistCalendarEntryOnCreatedOrUpdated;
+use App\Domains\Shared\Events\DomainEvents\Calendar\CalendarEntryDeleted;
 use App\Domains\Shared\Events\Listeners\Calendar\HandleCalendarEventDeleted;
 
 use App\Domains\Shared\Events\DomainEvents\Messages\MessageSent;
@@ -50,22 +50,22 @@ class EventServiceProvider extends ServiceProvider
         UserDeletedEvent::class => [
             HandleUserAccountDeletionOnUserDeleted::class,
         ],
-        GroupCreatedEvent::class => [
+        GroupCreated::class => [
             PersistGroupOnGroupCreated::class,
         ],
-        GroupDeletedEvent::class => [
+        GroupDeleted::class => [
             HandleGroupDeleted::class,
         ],
-        UserAddedToGroupEvent::class => [
+        UserAddedToGroup::class => [
             PersistUserOnUserAddedToGroup::class,
         ],
-        UserRemovedFromGroupEvent::class => [
+        UserRemovedFromGroup::class => [
             HandleUserRemovedFromGroup::class,
         ],
-        CalendarEntryCreatedEvent::class => [
-            PersistCalendarEntryOnCreated::class,
+        CalendarEntryCreatedOrUpdated::class => [
+            PersistCalendarEntryOnCreatedOrUpdated::class,
         ],
-        CalendarEntryDeletedEvent::class => [
+        CalendarEntryDeleted::class => [
             HandleCalendarEventDeleted::class,
         ],
         MessageSent::class => [

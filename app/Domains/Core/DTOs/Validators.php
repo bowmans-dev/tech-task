@@ -11,6 +11,7 @@ class Validators
         }
     }
 
+    
     public static function instanceOf(object|null $value, string $className, string $fieldName): void
     {
         if ($value !== null && !($value instanceof $className)) {

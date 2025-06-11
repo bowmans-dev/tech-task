@@ -2,12 +2,10 @@
 
 namespace App\Domains\Shared\Events\Listeners\Messages;
 
-use App\Domains\Shared\Events\DomainEvents\Messages\MessageReacted;
-use App\Domains\Supporting\Websocket\WebsocketClient;
-use App\Domains\Supporting\Websocket\UserPayloadHelper;
-use Illuminate\Support\Facades\View;
 use App\Models\User;
-use Illuminate\Support\Facades\Log;
+use App\Domains\Shared\Events\DomainEvents\Messages\MessageReacted;
+use App\Domains\Supporting\Websocket\{UserPayloadHelper, WebsocketClient};
+use Illuminate\Support\Facades\View;
 
 class NotifyTeamMembersOnReactionSent
 {

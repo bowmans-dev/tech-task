@@ -26,12 +26,7 @@ class AdminController extends Controller
         return view('role.admin.pages.create');
     }
 
-    /**
-     * Create a new user (admin action).
-     *
-     * @param \App\Http\Requests\UserStoreRequest $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
+
     public function store(UserStoreRequest $request)
     {
         $data = $request->validated();
@@ -42,14 +37,6 @@ class AdminController extends Controller
     }
 
 
-
-    /**
-     * Update a user's details.
-     *
-     * @param \App\Http\Requests\UserUpdateRequest $request
-     * @param \App\Models\User $user
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function update(UserUpdateRequest $request, User $user)
     {
         $data = $request->validated();
@@ -60,23 +47,12 @@ class AdminController extends Controller
     }
 
 
-
-    /**
-     * Show the details of a specific user.
-     *
-     * @return \Illuminate\View\View
-     */
     public function show(User $user)
     {
         return view('role.admin.pages.manage', compact('user'));
     }
 
 
-    /**
-     * Display a paginated list of all users.
-     *
-     * @return \Illuminate\View\View
-     */
     public function index()
     {
         $users = $this->userService->listUsers(); // Fetch paginated users
@@ -92,12 +68,6 @@ class AdminController extends Controller
     }
 
 
-
-    /**
-     * Filter users.
-     *
-     * @return \Illuminate\View\View
-     */
     public function filter(Request $request)
     {
         $users = $this->userService->filterUsers($request->query('search'));
@@ -112,11 +82,7 @@ class AdminController extends Controller
         return view('Components.List.user-list', compact('users', 'groups'));
     }
 
-    /**
-     * Filter users modal.
-     *
-     * @return \Illuminate\View\View
-     */
+
     public function filterModal(Request $request)
     {
         $users = $this->userService->filterUsers($request->query('search'));
@@ -132,12 +98,6 @@ class AdminController extends Controller
     }
 
     
-
-    /**
-     * Delete a user.
-     *
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function destroy(User $user)
     {
         $this->userService->deleteUser($user);

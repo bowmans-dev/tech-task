@@ -15,6 +15,7 @@ class GroupAccordion extends Component
         $this->groups = $groups;
     }
 
+    
     public function render()
     {
         return view('Components.Navigation.group-accordion');

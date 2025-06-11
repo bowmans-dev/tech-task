@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\Domains\Shared\Events\DomainEvents\Groups\GroupCreatedEvent;
+use App\Domains\Shared\Events\DomainEvents\Groups\GroupCreated;
 use App\Models\Group;
 use Tests\TestCase;
 
@@ -15,7 +15,7 @@ class GroupCreatedEventTest extends TestCase
             'name' => 'Test Group',
         ]);
 
-        $event = new GroupCreatedEvent($group);
+        $event = new GroupCreated($group);
 
         $this->assertInstanceOf(Group::class, $event->group);
         $this->assertSame($group, $event->group);

@@ -14,11 +14,13 @@ class User
         $this->data = is_array($data) ? UserDataFromArray::transform($data) : $data;
     }
 
+
     public function update(array $data): void
     {
         $this->data = UserDataFromArray::transform($data, $this->data);
     }
 
+    
     public function toArray(): array
     {
         return $this->data->toArray();

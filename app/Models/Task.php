@@ -16,6 +16,7 @@ class Task extends Model
         return $this->belongsTo(TaskList::class);
     }
 
+    
     public function taskCompletions()
     {
         return $this->hasMany(TaskCompletion::class);

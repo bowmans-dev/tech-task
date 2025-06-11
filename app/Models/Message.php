@@ -18,31 +18,37 @@ class Message extends Model
         'is_task_list' => 'boolean',
     ];
 
+
     public function sender()
     {
         return $this->morphTo();
     }
+
 
     public function event()
     {
         return $this->belongsTo(Calendar::class, 'event_id');
     }
 
+
     public function reactions()
     {
         return $this->hasMany(MessageReaction::class);
     }
+
 
     public function pollOptions()
     {
         return $this->hasMany(PollOption::class)->with('votes');
     }
 
+
     public function pollVotes()
     {
         return $this->hasMany(PollVote::class);
     }
 
+    
     public function taskList()
     {
         return $this->hasOne(TaskList::class);

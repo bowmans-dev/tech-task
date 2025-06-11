@@ -19,11 +19,6 @@ class AuthController extends Controller
 {
     use ApiResponseTrait;
 
-    /**
-     * Handle login requests for admins and users.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function login(Request $request)
     {
         try {
@@ -67,12 +62,6 @@ class AuthController extends Controller
     }
 
 
-
-    /**
-     * Handle logout for both admin and user guards.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function logout(Request $request)
     {
         try {
@@ -117,12 +106,6 @@ class AuthController extends Controller
     }
   
     
-
-    /**
-     * Send reset password link.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function sendResetLink(Request $request)
     {
         try {
@@ -157,12 +140,6 @@ class AuthController extends Controller
     }
 
 
- 
-    /**
-     * Handle password reset requests.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function resetPassword(Request $request)
     {
         try {
@@ -197,13 +174,6 @@ class AuthController extends Controller
     }
 
 
-
-    /**
-     * Display the password reset form.
-     *
-     * @param  string  $token
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function showResetForm($token)
     {
         Log::info('Displaying reset form with token:', ['token' => $token]);
@@ -212,12 +182,6 @@ class AuthController extends Controller
     }
 
 
-
-    /**
-     * Use the default broker (users).
-     *
-     * @return \Illuminate\Contracts\Auth\PasswordBroker
-     */
     protected function broker()
     {
         Log::info('Using default password broker');

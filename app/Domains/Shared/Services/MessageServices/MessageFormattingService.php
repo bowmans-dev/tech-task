@@ -12,10 +12,12 @@ class MessageFormattingService
         return $sender instanceof Admin ? '(Admin) ' . $sender->name : $sender->first_name . ' ' . $sender->last_name;
     }
 
+
     public function getProfilePicture($sender)
     {
         return $sender->profile_picture ? asset('storage/' . $sender->profile_picture) : asset('storage/default_profile_image.webp');
     }
+
 
     public function groupMessagesByDate($messages)
     {
@@ -29,6 +31,7 @@ class MessageFormattingService
         return $groupedMessages;
     }
 
+    
     public function formatMessageDate($createdAt)
     {
         $date = Carbon::parse($createdAt);

@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\Domains\Shared\Events\DomainEvents\Groups\UserRemovedFromGroupEvent;
+use App\Domains\Shared\Events\DomainEvents\Groups\UserRemovedFromGroup;
 use App\Models\User;
 use App\Models\Group;
 use Tests\TestCase;
@@ -21,7 +21,7 @@ class UserRemovedFromGroupEventTest extends TestCase
             'name' => 'Test Group',
         ]);
 
-        $event = new UserRemovedFromGroupEvent($user, $group);
+        $event = new UserRemovedFromGroup($user, $group);
 
         $this->assertInstanceOf(User::class, $event->user);
         $this->assertInstanceOf(Group::class, $event->group);

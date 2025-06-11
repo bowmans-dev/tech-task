@@ -3,12 +3,13 @@
 namespace App\Domains\Core\DTOs;
 
 use App\Models\User as EloquentUserModel;
-use App\Domains\Core\Factories\UserDataFactory;
+use App\Domains\Core\DTOs\UserData;
+use App\Domains\Core\Factories\UserModelFactory;
 
 class UserDataFromModel
 {
     public static function transform(EloquentUserModel $model): UserData
     {
-        return UserDataFactory::createFromModel($model);
+        return UserModelFactory::createFromModel($model);
     }
 }

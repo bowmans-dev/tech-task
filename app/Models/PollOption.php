@@ -13,6 +13,7 @@ class PollOption extends Model
         return $this->belongsTo(Message::class);
     }
 
+    
     public function votes()
     {
         return $this->hasMany(PollVote::class);

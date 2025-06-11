@@ -12,12 +12,10 @@ class AuthenticationService
     }
 
 
-
     public function logout(string $guard): void
     {
         Auth::guard($guard)->logout();
     }
-
 
 
     public function regenerateSession(): void

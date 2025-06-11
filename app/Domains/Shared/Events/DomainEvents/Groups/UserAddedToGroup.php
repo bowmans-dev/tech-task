@@ -1,10 +1,11 @@
 <?php
+
 namespace App\Domains\Shared\Events\DomainEvents\Groups;
 
 use App\Models\User;
 use App\Models\Group;
 
-class UserRemovedFromGroupEvent
+class UserAddedToGroup
 {
     public User $user;
     public Group $group;

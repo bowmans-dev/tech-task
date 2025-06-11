@@ -15,14 +15,12 @@ class Email
     }
 
 
-
     public function getValue(): string
     {
         return $this->email;
     }
 
 
-    
     public function isEqual(Email $otherEmail): bool
     {
         return $this->email === $otherEmail->getValue();

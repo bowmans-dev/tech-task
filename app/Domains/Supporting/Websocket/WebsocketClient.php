@@ -20,6 +20,7 @@ class WebsocketClient
         $this->handshake($host, $port);
     }
 
+
     private function handshake(string $host, int $port): void
     {
         $key = base64_encode(random_bytes(16));
@@ -34,6 +35,7 @@ class WebsocketClient
         fread($this->socket, 1500); // Read handshake response
     }
 
+
     public function send(array $payload): void
     {
         if (!$this->socket) return;
@@ -42,6 +44,7 @@ class WebsocketClient
         fwrite($this->socket, $this->createFrame($data));
         fclose($this->socket);
     }
+
 
     private function createFrame(string $data): string
     {
@@ -67,6 +70,7 @@ class WebsocketClient
         return pack("C*", ...$frameHead) . $this->maskPayload($data, $mask);
     }
 
+    
     private function maskPayload(string $data, string $mask): string
     {
         $maskedData = '';

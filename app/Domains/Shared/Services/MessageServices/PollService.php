@@ -2,8 +2,7 @@
 
 namespace App\Domains\Shared\Services\MessageServices;
 
-use App\Models\PollOption;
-use App\Models\PollVote;
+use App\Models\{PollOption, PollVote};
 use App\Domains\Shared\Events\DomainEventPublisher;
 use App\Domains\Shared\Events\DomainEvents\Messages\PollVoted;
 use Illuminate\Http\Request;
@@ -22,6 +21,7 @@ class PollService
         return $pollOptions;
     }
 
+
     public function getSelectedPollOption($message, $currentUser)
     {
         foreach ($message->pollOptions as $option) {
@@ -34,6 +34,7 @@ class PollService
         return null;
     }
 
+    
     public function vote(Request $request)
     {
         $auth = auth('admin')->check() ? auth('admin') : auth('web');

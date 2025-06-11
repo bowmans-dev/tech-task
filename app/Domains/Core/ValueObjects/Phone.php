@@ -17,7 +17,6 @@ class Phone
     }
 
 
-
     private static function validatePhone(string $phone): bool
     {
 
@@ -32,7 +31,6 @@ class Phone
     }
 
     
-
     public function getValue(): string
     {
         return $this->phone;

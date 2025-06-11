@@ -26,6 +26,7 @@ class MessageRepository
         ]);
     }
 
+    
     public function getMessagesByEvent($eventId)
     {
         return Message::where('event_id', $eventId)

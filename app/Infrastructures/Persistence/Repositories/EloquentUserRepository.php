@@ -11,6 +11,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class EloquentUserRepository implements UserRepositoryInterface
 {
+    
     /**
      * Save a UserAggregate to the database.
      */
@@ -22,7 +23,6 @@ class EloquentUserRepository implements UserRepositoryInterface
         // Save or update the user in the database
         EloquentUserModel::updateOrCreate(['id' => $userData['id']], $userData);
     }
-
 
 
     /**
@@ -43,7 +43,6 @@ class EloquentUserRepository implements UserRepositoryInterface
     }
 
 
-
     /**
      * Delete a UserAggregate by its unique identifier.
      */
@@ -53,7 +52,6 @@ class EloquentUserRepository implements UserRepositoryInterface
     }
 
 
-
     /**
      * List all UserAggregates with optional pagination.
      */
@@ -61,6 +59,7 @@ class EloquentUserRepository implements UserRepositoryInterface
     {
         return EloquentUserModel::paginate($perPage);
     }
+
 
     public function filter(?string $search, int $perPage): LengthAwarePaginator
     {

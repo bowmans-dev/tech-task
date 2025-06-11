@@ -11,16 +11,6 @@ class Admin extends Authenticatable implements JWTSubject
 {
     use HasFactory;
 
-    public function getJWTIdentifier()
-    {
-        return $this->getKey();
-    }
-
-    public function getJWTCustomClaims()
-    {
-        return [];
-    }
-
     protected $fillable = [
         'name',
         'email',
@@ -36,15 +26,30 @@ class Admin extends Authenticatable implements JWTSubject
         'password',
     ];
 
+    
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
+
+
     public function messageReactions()
     {
         return $this->hasMany(MessageReaction::class);
     }
 
+
     public function pollVotes()
     {
         return $this->morphMany(PollVote::class, 'voter');
     }
+
 
     public function completedTasks()
     {

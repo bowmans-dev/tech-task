@@ -4,7 +4,7 @@ namespace App\Domains\Shared\Events\DomainEvents\Calendar;
 
 use App\Models\Calendar;
 
-class CalendarEntryDeletedEvent
+class CalendarEntryDeleted
 {
     public $event;
     public $eventId;

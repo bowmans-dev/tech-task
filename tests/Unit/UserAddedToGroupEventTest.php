@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\Domains\Shared\Events\DomainEvents\Groups\UserAddedToGroupEvent;
+use App\Domains\Shared\Events\DomainEvents\Groups\UserAddedToGroup;
 use App\Models\User;
 use App\Models\Group;
 use Tests\TestCase;
@@ -16,7 +16,7 @@ class UserAddedToGroupEventTest extends TestCase
         $user = User::factory()->create(['first_name' => 'John', 'last_name' => 'Doe', 'email' => 'johndoe@example.com']);
         $group = Group::factory()->create(['name' => 'Test Group']);
 
-        $event = new UserAddedToGroupEvent($user, $group);
+        $event = new UserAddedToGroup($user, $group);
 
         $this->assertInstanceOf(User::class, $event->user);
         $this->assertInstanceOf(Group::class, $event->group);

@@ -3,11 +3,8 @@
 namespace App\Domains\Shared\Events\Listeners\Messages;
 
 use App\Domains\Shared\Events\DomainEvents\Messages\PollVoted;
-use App\Domains\Supporting\Websocket\WebsocketClient;
-use App\Domains\Supporting\Websocket\UserPayloadHelper;
+use App\Domains\Supporting\Websocket\{UserPayloadHelper, WebsocketClient};
 use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Log;
-use App\Models\User;
 
 class NotifyTeamMembersOnPollVote
 {

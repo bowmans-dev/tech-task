@@ -4,9 +4,7 @@ namespace App\Domains\Shared\Events\Listeners\Messages;
 
 use App\Models\User;
 use App\Domains\Shared\Events\DomainEvents\Messages\MessageSent;
-use App\Domains\Supporting\Websocket\InternalWebsocketClient;
-use App\Domains\Supporting\Websocket\UserPayloadHelper;
-use Illuminate\Support\Facades\Log;
+use App\Domains\Supporting\Websocket\{UserPayloadHelper, InternalWebsocketClient};
 
 class NotifyTeamMembersOnMessageSent
 {

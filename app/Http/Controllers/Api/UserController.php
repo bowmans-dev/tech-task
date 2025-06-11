@@ -22,12 +22,6 @@ class UserController extends Controller
     }
 
 
-
-    /**
-     * Show the authenticated user's profile.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function showProfile(Request $request)
     {
         try {
@@ -46,13 +40,6 @@ class UserController extends Controller
     }
 
 
-
-    /**
-     * Update the authenticated user's profile.
-     *
-     * @param \App\Http\Requests\UserUpdateRequest $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function updateProfile(UserUpdateRequest $request)
     {
         try {
@@ -78,12 +65,6 @@ class UserController extends Controller
     }
 
 
-
-    /**
-     * Delete the authenticated user's profile.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function deleteProfile(Request $request)
     {
 

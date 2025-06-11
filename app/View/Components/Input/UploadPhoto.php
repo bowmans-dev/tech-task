@@ -8,9 +8,6 @@ use Illuminate\View\Component;
 
 class UploadPhoto extends Component
 {
-    /**
-     * Properties for the component.
-     */
     public $label;
 
     public $id;
@@ -23,11 +20,9 @@ class UploadPhoto extends Component
 
     public $filePreviewId;
 
-    public $currentImageUrl; // Add this property
+    public $currentImageUrl;
 
-    /**
-     * Create a new component instance.
-     */
+
     public function __construct(
         $label = null,
         $id = null,
@@ -46,9 +41,7 @@ class UploadPhoto extends Component
         $this->currentImageUrl = $currentImageUrl; // Assign the current image URL
     }
 
-    /**
-     * Get the view / contents that represent the component.
-     */
+
     public function render(): View|Closure|string
     {
         return view('components.input.upload-photo');

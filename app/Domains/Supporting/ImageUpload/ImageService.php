@@ -31,12 +31,10 @@ class ImageService
     }
 
 
-
     public function delete($profilePicturePath): void
     {
         Storage::disk('public')->delete($profilePicturePath);
     }
-
 
 
     public function uploadProfilePicture(array &$data): void
@@ -45,7 +43,6 @@ class ImageService
             $data['profile_picture'] = $this->upload($data['profile_picture']);
         }
     }
-
 
 
     public function replaceProfilePicture(array &$data, ?string $currentPicture): void
@@ -57,7 +54,6 @@ class ImageService
             $data['profile_picture'] = $this->upload($data['profile_picture']);
         }
     }
-
 
 
     public function deleteProfilePicture(?string $profilePicture): void

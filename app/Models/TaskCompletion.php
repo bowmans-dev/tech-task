@@ -16,6 +16,7 @@ class TaskCompletion extends Model
         return $this->belongsTo(Task::class);
     }
 
+    
     public function worker()
     {
         return $this->morphTo();

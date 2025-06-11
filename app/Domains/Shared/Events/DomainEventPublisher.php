@@ -2,8 +2,7 @@
 
 namespace App\Domains\Shared\Events;
 
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\{Log, Event};
 
 class DomainEventPublisher
 {
@@ -15,7 +14,6 @@ class DomainEventPublisher
     }
 
 
-    
     public static function publish(object $event): void
     {
         $eventClass = get_class($event);

@@ -22,14 +22,12 @@ class ProfilePicture
     }
 
 
-
     public function getUrl(): string
     {
         return $this->path
             ? asset('storage/'.$this->path)
             : asset('storage/default_profile_image.webp');
     }
-
 
 
     public function getPath(): ?string

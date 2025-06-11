@@ -31,6 +31,7 @@ trait ApiResponseTrait
         return response()->json($response, $statusCode);
     }
 
+    
     public function errorResponse($message = 'Error', $statusCode = 500, $errorDetails = null)
     {
         return response()->json([

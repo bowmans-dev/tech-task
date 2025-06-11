@@ -4,7 +4,6 @@ namespace App\Domains\Shared\Events\Listeners\Users;
 
 use App\Domains\Core\Repositories\UserRepositoryInterface;
 use App\Domains\Shared\Events\DomainEvents\Users\UserUpdatedEvent;
-use Illuminate\Support\Facades\Log;
 
 class PersistUserOnUserUpdated
 {
@@ -15,6 +14,7 @@ class PersistUserOnUserUpdated
         $this->userRepository = $userRepository;
     }
 
+    
     public function handle(UserUpdatedEvent $event): void
     {
         $userData = $event->userAggregate->getProcessedData();

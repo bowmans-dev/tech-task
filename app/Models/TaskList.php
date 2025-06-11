@@ -16,6 +16,7 @@ class TaskList extends Model
         return $this->hasMany(Task::class);
     }
 
+    
     public function message()
     {
         return $this->belongsTo(Message::class);

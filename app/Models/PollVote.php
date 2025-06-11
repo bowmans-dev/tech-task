@@ -13,11 +13,13 @@ class PollVote extends Model
         return $this->belongsTo(Message::class);
     }
 
+
     public function option()
     {
         return $this->belongsTo(PollOption::class, 'poll_option_id');
     }
 
+    
     public function voter()
     {
         return $this->morphTo();

@@ -16,26 +16,31 @@ class MessageController extends Controller
         $this->messageService = $messageService;
     }
 
+
     public function store(Request $request)
     {
         return $this->messageService->store($request);
     }
+
 
     public function react(Request $request)
     {
         return $this->messageService->react($request);
     }
 
+
     public function vote(Request $request)
     {
         return $this->messageService->vote($request);
     }
+
 
     public function complete(Request $request)
     {
         return $this->messageService->complete($request);
     }
 
+    
     public function fetchMessages(Request $request, $eventId)
     {
         return $this->messageService->fetchMessages($request, $eventId);

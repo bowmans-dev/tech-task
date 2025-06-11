@@ -2,17 +2,13 @@
 namespace App\Domains\Shared\Events\Listeners\Groups;
 
 use App\Models\Group;
-use App\Models\User;
-use App\Domains\Shared\Events\DomainEvents\Groups\GroupCreatedEvent;
-use HotwiredLaravel\TurboLaravel\Facades\TurboStream;
-use Illuminate\Support\Facades\Log;
+use App\Domains\Shared\Events\DomainEvents\Groups\GroupCreated;
 
 class PersistGroupOnGroupCreated
 {
-    public function handle(GroupCreatedEvent $event)
+    public function handle(GroupCreated $event)
     {
         $group = $event->group;
-
         $group->save();
     }
 }

@@ -2,13 +2,14 @@ import { state, currentUser } from "../../state";
 import { isUserAlreadyInTeam } from "../../state";
 import { isUserInDatabase } from "../../state";
 import { addTeamMember } from "../../state";
+import { notifyNewTeamMembers } from "../../state";
 import { sendEventUpdate } from "../../state";
 import { saveCalendarEvent } from "../../methods/saveCalendarEvent";
 import { renderTeamMembers } from "./teamMembers/renderTeamMembers";
 
-export function handleDrop(event) { // Clear the dropped files array
-    event.preventDefault(); // Prevent default browser behavior
-    event.stopPropagation(); // Stop the event from bubbling up
+export function handleDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
     
     const eventId = state.currentEvent.id; 
     const rawData = event.dataTransfer.getData('text/plain'); // Dragged user data
@@ -37,6 +38,11 @@ export function handleDrop(event) { // Clear the dropped files array
             addTeamMember(data);
             
             saveCalendarEvent();
+
+            if (state.teamMembers.length > 0) {
+                notifyNewTeamMembers();
+            }
+            state.teamMembers = [];
 
             sendEventUpdate();
             

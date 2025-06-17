@@ -182,8 +182,6 @@ export function sendEventUpdate() {
         userId: state.currentEvent.eventOwnerDetails.eventOwnerId
     }));
 
-    console.log(sanitizedFiles);
-
     state.currentWs.send(JSON.stringify({
         action: "update_event",
         event_id: state.currentEvent.id,
@@ -245,7 +243,7 @@ export function addTeamMember(user) {
 		state.teamMembers.push(user);
 	}
 
-	if (!state.currentEvent.teamMembers.some(member => member.userId === userId)) {
+	if (state.currentEvent.teamMembers && !state.currentEvent.teamMembers.some(member => member.userId === userId)) {
 		state.currentEvent.teamMembers.push(user);
 	}
 }

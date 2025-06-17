@@ -50,13 +50,13 @@ function setupNotificationBehavior(notification, eventId) {
 }
 
 function openEventModal(eventId) {
-  const event = window.calendar.getEventById(eventId);
-  if (!event) return console.warn(`Event ID ${eventId} not found.`);
-
-  event.setProp("backgroundColor", "#2D89EF");
-  window.calendar.trigger("eventClick", { event, el: event._def.ui.classNames });
-
   setTimeout(() => {
+    const event = window.calendar.getEventById(eventId);
+    if (!event) return console.warn(`Event ID ${eventId} not found.`);
+
+    event.setProp("backgroundColor", "#2D89EF");
+    window.calendar.trigger("eventClick", { event, el: event._def.ui.classNames });
+
     const dropZone = document.getElementById("drop-zone");
     if (dropZone) dropZone.scrollTo({ top: dropZone.scrollHeight, behavior: "smooth" });
   }, 1000);

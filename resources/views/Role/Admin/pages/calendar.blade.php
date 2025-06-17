@@ -18,8 +18,6 @@
 
         <br><br>
         <x-Calendar.Shared.event-modal :users="$users" />
-      </div>
-      <br><br>
-      <div id="notification-container"></div>
-
-<script>
+    </div>
+    <br><br>
+    <div id="notification-container"></div>

@@ -15,6 +15,7 @@ import { deleteCalendarEvent } from './methods/deleteCalendarEvent.js';
 
 // Calendar Modal
 import { closeModal } from './modal/actions/closeEventModal.js';
+import { maximiseModal } from './modal/actions/maximiseEventModal.js';
 import { setupSearchModalInput } from '../navigation/searchModal.js';
 
 // Calendar Toolbar
@@ -47,6 +48,7 @@ window.clickAddUserToDropZone = clickAddUserToDropZone;
 const actionMap = {
   deleteCalendarEvent,
   closeModal,
+  maximiseModal,
   handleToolbarClick,
   toggleGroupAudioRoomWithVisualizer,
   toggleGroupVideoCall,

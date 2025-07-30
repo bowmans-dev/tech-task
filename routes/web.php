@@ -75,5 +75,11 @@ Route::middleware(AdminMiddleware::class)->group(function () {
     Route::patch('/users/{user}', [AdminController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [AdminController::class, 'destroy'])->name('users.destroy');
     
-    Route::get('/active', function () { return view('Role.Admin.pages.monitor.websockets');});
+    Route::get('/active', function () {
+        $admin = auth()->guard('admin')->user();
+
+        abort_unless(Gate::forUser($admin)->allows('access-monitoring'), 403);
+
+        return view('Role.Admin.pages.monitor.websockets');
+    });
 });

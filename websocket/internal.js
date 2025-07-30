@@ -1,4 +1,6 @@
-export default function internal(ws, wss, eventScopedConnections, notifyTeamMembers, globalConnectedUsers) {
+import notifyTeamMembers from "./actions/notifyTeamMembers.js";
+
+export default function internal(ws, wss, eventScopedConnections, globalConnectedUsers) {
     ws.isInternal = true;
 
     ws.on("message", (message) => {
@@ -21,14 +23,15 @@ export default function internal(ws, wss, eventScopedConnections, notifyTeamMemb
                     senderClient.allEventIds.push(eventId);
                 }
 
-                if (!eventScopedConnections[eventId]) eventScopedConnections[eventId] = [];
-                if (!eventScopedConnections[eventId].includes(senderId)) {
-                    eventScopedConnections[eventId].push(senderId);
+                if (!eventScopedConnections.has(eventId)) {
+                    eventScopedConnections.set(eventId, new Set());
                 }
+                eventScopedConnections.get(eventId).add(senderId);
 
-                if (globalConnectedUsers[senderId]) {
-                    if (!globalConnectedUsers[senderId].allEventIds.includes(eventId)) {
-                        globalConnectedUsers[senderId].allEventIds.push(eventId);
+                const sendersSocket = globalConnectedUsers.get(senderId);
+                if (sendersSocket) {
+                    if (!sendersSocket.allEventIds.includes(eventId)) {
+                        sendersSocket.allEventIds.push(eventId);
                     }
                 }
             } else {

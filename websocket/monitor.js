@@ -1,6 +1,15 @@
 export default function monitor(ws, wss, eventScopedConnections) {
     ws.isMonitor = true;
 
+    // serialize eventScopedConnections Map<eventId, Set<userId>> to Object<eventId, Array<userId>>
+    function serializeEventScopedConnections(map) {
+        const obj = {};
+        for (const [eventId, userSet] of map.entries()) {
+            obj[eventId] = Array.from(userSet);
+        }
+        return obj;
+    }
+
     const sendUpdate = () => {
         const allUserDetails = {};
         const allEventDetails = {};
@@ -19,7 +28,7 @@ export default function monitor(ws, wss, eventScopedConnections) {
 
         ws.send(JSON.stringify({
             type: "monitor_update",
-            eventScopedConnections,
+            eventScopedConnections: serializeEventScopedConnections(eventScopedConnections),
             eventDetails: allEventDetails,
             userDetails: allUserDetails,
             clients: [...wss.clients]

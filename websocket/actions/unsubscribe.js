@@ -2,8 +2,13 @@ export default function unsubscribe(ws, jsonData, eventScopedConnections, wss) {
     const userId = String(jsonData.userId);
     const eventId = String(jsonData.event_id);
 
-    if (eventScopedConnections[eventId]) {
-        eventScopedConnections[eventId] = eventScopedConnections[eventId].filter(id => id !== userId);
+    const usersSet = eventScopedConnections.get(eventId);
+    if (usersSet) {
+        usersSet.delete(userId);
+        // if set becomes empty, remove the key from the Map:
+        if (usersSet.size === 0) {
+            eventScopedConnections.delete(eventId);
+        }
     }
 
     [...wss.clients].forEach(client => {

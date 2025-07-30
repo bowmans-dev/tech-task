@@ -2,28 +2,21 @@ import http from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import monitor from "./websocket/monitor.js";
 import internal from "./websocket/internal.js";
-
-import online from "./websocket/actions/online.js";
-import subscribe from "./websocket/actions/subscribe.js";
-import unsubscribe from "./websocket/actions/unsubscribe.js";
-import updateEvent from "./websocket/actions/updateEvent.js";
-import teamMemberAdded from "./websocket/actions/teamMemberAdded.js";
-import messageBroadcast from "./websocket/actions/messageBroadcast.js";
-import reactionBroadcast from "./websocket/actions/reactionBroadcast.js";
-import voteBroadcast from "./websocket/actions/voteBroadcast.js";
-import taskCompletedBroadcast from "./websocket/actions/taskCompletedBroadcast.js";
-import startMediaBroadcast from "./websocket/actions/startMediaBroadcast.js";
-import sendOffer from "./websocket/actions/sendOffer.js";
-import sendAnswer from "./websocket/actions/sendAnswer.js";
-import forwardIceCandidate from "./websocket/actions/forwardIceCandidate.js";
-
-
+import WebSocketDispatcher from "./websocket/dispatcher.js";
 
 const server = http.createServer();
 const wss = new WebSocketServer({ server });
 
-const globalConnectedUsers = {};
-const eventScopedConnections = {}; 
+const globalConnectedUsers = new Map(); // Map<userId, WebSocket>
+const eventScopedConnections = new Map(); // Map<eventId, Set<userId>>
+
+const dispatcher = new WebSocketDispatcher({
+    globalConnectedUsers,
+    eventScopedConnections,
+    wss,
+    WebSocket,
+});
+
 
 wss.on("connection", (ws, req) => {
 
@@ -36,31 +29,14 @@ wss.on("connection", (ws, req) => {
     }
 
     if (req.url === "/internal") {
-        internal(ws, wss, eventScopedConnections, notifyTeamMembers, globalConnectedUsers);
+        internal(ws, wss, eventScopedConnections, globalConnectedUsers);
         return;
     }
-
-    const actionHandlers = {
-        online:                     (ws, data) => online(ws, data, globalConnectedUsers),
-        team_member_added:          (ws, data) => teamMemberAdded(ws, data, globalConnectedUsers, wss, notifyTeamMembers, WebSocket),
-        connect_to_event:           (ws, data) => subscribe(ws, data, eventScopedConnections),
-        disconnect_from_event:      (ws, data) => unsubscribe(ws, data, eventScopedConnections, wss),
-        update_event:               (ws, data) => updateEvent(data, eventScopedConnections, wss),
-        message_broadcast:          (ws, data) => messageBroadcast(data, eventScopedConnections, wss),
-        reaction_broadcast:         (ws, data) => reactionBroadcast(data, eventScopedConnections, wss),
-        vote_broadcast:             (ws, data) => voteBroadcast(data, eventScopedConnections, wss),
-        task_completed_broadcast:   (ws, data) => taskCompletedBroadcast(data, eventScopedConnections, wss),
-        start_media_broadcast:      (ws, data) => startMediaBroadcast(ws, data, eventScopedConnections, WebSocket, wss),
-        send_offer:                 (ws, data) => sendOffer(ws, data, eventScopedConnections, WebSocket, wss),
-        send_answer:                (ws, data) => sendAnswer(ws, data, eventScopedConnections, WebSocket, wss),
-        ice_candidate:              (ws, data) => forwardIceCandidate(ws, data, eventScopedConnections, WebSocket, wss),
-    };
 
     ws.on("message", (message) => {
         try {
             const jsonData = JSON.parse(message.toString());
-            const handler = actionHandlers[jsonData.action];
-            if (handler) handler(ws, jsonData);
+            dispatcher.handle(ws, jsonData);
         } catch (error) {
             console.error("JSON parsing error:", error.message);
         }
@@ -69,19 +45,22 @@ wss.on("connection", (ws, req) => {
     ws.on("error", (err) => console.error("WebSocket server error:", err.message));
 
     ws.on("close", () => {
-        Object.keys(globalConnectedUsers).forEach(userId => {
-            if (globalConnectedUsers[userId] === ws) delete globalConnectedUsers[userId];
-        });
-        if (ws.connectedEvent) {
-            ws.connectedEvent.forEach(({ userId, eventId }) => {
-                if (eventScopedConnections[eventId]) {
-                    eventScopedConnections[eventId] = eventScopedConnections[eventId].filter(id => id !== userId);
-                    if (eventScopedConnections[eventId].length === 0) {
-                        delete eventScopedConnections[eventId];
-                    }
-                }
-            });
+
+        if (ws.userId) {
+            globalConnectedUsers.delete(ws.userId);
         }
+
+
+        (ws.connectedEvent || []).forEach(({ userId, eventId }) => {
+            const connections = eventScopedConnections.get(eventId);
+            if (!connections) return;
+
+            connections.delete(userId);
+
+            if (connections.size === 0) {
+                eventScopedConnections.delete(eventId);
+            }
+        });
     });
 });
 
@@ -109,29 +88,5 @@ process.on("SIGINT", () => {
         });
     });
 });
-
-
-function notifyTeamMembers(eventId, senderId, actionType, payload, wss) {
-    const { eventName, message = "", created_at = null, user } = payload;
-
-    for (const client of wss.clients) {
-        const isNotSender = String(client.userId) !== String(senderId);
-        const isSubscribed = client.allEventIds?.includes(eventId);
-
-        if (client.readyState === WebSocket.OPEN && isSubscribed && isNotSender) {
-            client.send(JSON.stringify({
-                action: actionType,
-                payload: {
-                    eventId,
-                    eventName,
-                    message,
-                    created_at,
-                    user
-                }
-            }));
-        }
-    }
-}
-
 
 export { server, wss };

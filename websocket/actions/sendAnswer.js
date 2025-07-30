@@ -5,7 +5,7 @@ export default function sendAnswer(ws, data, eventScopedConnections, WebSocket, 
     if (
       client.readyState === WebSocket.OPEN &&
       client.userId === toUserId &&
-      (eventScopedConnections[eventId] || []).includes(toUserId)
+      eventScopedConnections.get(eventId)?.has(toUserId)
     ) {
       client.send(JSON.stringify({
         action: "receive_answer",

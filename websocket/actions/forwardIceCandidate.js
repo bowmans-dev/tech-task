@@ -10,7 +10,7 @@ export default function forwardIceCandidate(ws, data, eventScopedConnections, We
       client.readyState === WebSocket.OPEN &&
       client.connectionType !== 'global' && 
       client.userId === toUserId &&        
-      (eventScopedConnections[eventId] || []).includes(toUserId)
+      eventScopedConnections.get(eventId)?.has(toUserId)
     ) {
       client.send(JSON.stringify({
         action: "ice_candidate",

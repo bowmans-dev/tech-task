@@ -16,9 +16,13 @@ export default function subscribe(ws, jsonData, eventScopedConnections) {
         ws.allEventIds.push(eventId);
     }
 
+    if (!ws.connectedEvent) ws.connectedEvent = [];
     ws.connectedEvent.push({ userId, eventId });
-    if (!eventScopedConnections[eventId]) eventScopedConnections[eventId] = [];
-    if (!eventScopedConnections[eventId].includes(userId)) eventScopedConnections[eventId].push(userId);
+
+    if (!eventScopedConnections.has(eventId)) {
+        eventScopedConnections.set(eventId, new Set());
+    }
+    eventScopedConnections.get(eventId).add(userId);
 
     const allUsers = jsonData.existingTeamMembers || [];
     const user = allUsers.find(u => String(u.userId) === userId);

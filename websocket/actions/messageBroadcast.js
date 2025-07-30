@@ -4,12 +4,19 @@ export default function messageBroadcast(data, eventScopedConnections, wss) {
     const senderId = String(data.user.id);
     const eventId = String(data.event_id);
 
-    let recipients = eventScopedConnections[eventId] || [];
-    if (!recipients.includes(senderId)) recipients.push(senderId);
+    // Get the Set of recipients from the Map
+    let recipients = eventScopedConnections.get(eventId);
+    if (!recipients) {
+        recipients = new Set();
+        eventScopedConnections.set(eventId, recipients);
+    }
+    // Add the sender if not already present
+    if (!recipients.has(senderId)) recipients.add(senderId);
 
     wss.clients.forEach((client) => {
+        // Check if client is subscribed to event and their userId is in recipients Set
         if (
-            client.connectedEvent?.some(sub => sub.eventId === eventId && recipients.includes(sub.userId))
+            client.connectedEvent?.some(sub => sub.eventId === eventId && recipients.has(sub.userId))
         ) {
             if (client.readyState === 1) {
                 client.send(JSON.stringify({

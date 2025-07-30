@@ -13,7 +13,7 @@ export default function teamMemberAdded(ws, data, globalConnectedUsers, wss, not
         ws.connectedEvent.push({ userId: newMemberId, eventId });
     }
 
-    if (!globalConnectedUsers[newMemberId]) {
+    if (!globalConnectedUsers.has(newMemberId)) {
         return;
     }
 

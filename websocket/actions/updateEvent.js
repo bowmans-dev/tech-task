@@ -1,6 +1,6 @@
 export default function updateEvent(jsonData, eventScopedConnections, wss) {
     const eventId = jsonData.event_id;
-    if (!eventScopedConnections[eventId]) {
+    if (!eventScopedConnections.has(eventId)) {
         console.warn(`No subscriptions found for event ${eventId}`);
         return;
     }

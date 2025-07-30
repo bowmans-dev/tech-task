@@ -4,8 +4,15 @@ export default function reactionBroadcast(data, eventScopedConnections, wss) {
     const senderId = String(user.id);
     const eventId = String(event_id);
 
-    let recipients = eventScopedConnections[eventId] || [];
-    if (!recipients.includes(senderId)) recipients.push(senderId);
+    // Use Map.get() to get the Set
+    let recipients = eventScopedConnections.get(eventId);
+    if (!recipients) {
+        recipients = new Set();
+        eventScopedConnections.set(eventId, recipients);
+    }
+
+    // Add sender to recipients set if not already present
+    if (!recipients.has(senderId)) recipients.add(senderId);
 
     const payload = JSON.stringify({
         action: 'reaction_broadcast',
@@ -18,7 +25,7 @@ export default function reactionBroadcast(data, eventScopedConnections, wss) {
     wss.clients.forEach((client) => {
         if (
             client.connectedEvent?.some(
-                sub => sub.eventId === eventId && recipients.includes(sub.userId)
+                sub => sub.eventId === eventId && recipients.has(sub.userId)
             )
         ) {
             if (client.readyState === client.OPEN) {

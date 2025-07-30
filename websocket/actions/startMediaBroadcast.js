@@ -1,7 +1,7 @@
 export default function startMediaBroadcast(ws, data, eventScopedConnections, WebSocket, wss) {
   const { type, eventId, userId, currentUser } = data.payload;
 
-  const allConnections = eventScopedConnections[eventId] || [];
+  const allConnections = eventScopedConnections.get(eventId) ?? new Set();
 
   allConnections.forEach(clientUserId => {
     if (String(clientUserId) === String(userId)) {
@@ -11,7 +11,7 @@ export default function startMediaBroadcast(ws, data, eventScopedConnections, We
     ws.send(JSON.stringify({
       action: "send_offer",
       payload: {
-        type: type,
+        type,
         toUserId: clientUserId,
         eventId,
         broadcastingUserDetails: currentUser,

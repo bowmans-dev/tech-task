@@ -4,8 +4,14 @@ export default function taskCompletedBroadcast(data, eventScopedConnections, wss
     const senderId = String(user.id);
     const eventId = String(event_id);
 
-    let recipients = eventScopedConnections[eventId] || [];
-    if (!recipients.includes(senderId)) recipients.push(senderId);
+    let recipients = eventScopedConnections.get(eventId);
+
+    if (!recipients) {
+        recipients = new Set();
+        eventScopedConnections.set(eventId, recipients);
+    }
+
+    if (!recipients.has(senderId)) recipients.add(senderId);
 
     const payload = JSON.stringify({
         action: "task_completed_broadcast",

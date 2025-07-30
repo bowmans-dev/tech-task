@@ -4,8 +4,14 @@ export default function voteBroadcast(data, eventScopedConnections, wss) {
     const senderId = String(user.id);
     const eventId = String(event_id);
 
-    let recipients = eventScopedConnections[eventId] || [];
-    if (!recipients.includes(senderId)) recipients.push(senderId);
+    let recipients = eventScopedConnections.get(eventId);
+
+    if (!recipients) {
+        recipients = new Set();
+        eventScopedConnections.set(eventId, recipients);
+    }
+
+    recipients.add(senderId);
 
     const payload = JSON.stringify({
         action: 'vote_broadcast',

@@ -59,9 +59,7 @@ function openEventModal(eventId) {
 
     const dropZone = document.getElementById("drop-zone");
     if (dropZone) dropZone.scrollTo({ top: dropZone.scrollHeight, behavior: "smooth" });
-  }, 1000);
 
-  setTimeout(() => {
     const messageContainer = document.getElementById("messages");
     const messages = messageContainer.querySelectorAll(".bubble");
     const lastMessage = messages[messages.length - 1];

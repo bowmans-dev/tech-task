@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Default Title')</title>
-    <script src="{{ Vite::asset('resources/js/calendar/calendar.js') }}?v={{ time() }}" type="module" data-turbo-track="reload"></script>
+    @vite(['resources/css/app.css'])
     <style>
         .fc-event-title {
             font-size: 10px !important;
@@ -401,7 +401,8 @@
             opacity: 0;
         }
     </style>
-    @vite(['resources/js/Role/Admin/app.js', 'resources/css/app.css'])
+    <script src="{{ Vite::asset('resources/js/calendar/calendar.js') }}?v={{ time() }}" type="module"></script>
+    @vite(['resources/js/Role/Admin/app.js'])
 </head>
 <body class="bg-gray-100 h-full pt-16">
 

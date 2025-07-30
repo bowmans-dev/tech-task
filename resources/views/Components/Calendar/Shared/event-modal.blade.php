@@ -1,7 +1,7 @@
 {{-- CALENDAR EVENT MODAL--}}
 <div id="event-modal" class="relative w-full bg-white z-[99] hidden shadow-lg overflow-visible scale-90">
 
-    <div id="fs" class="relative w-full bg-white z-[99] overflow-visible overflow-y-scroll grid items-center">
+    <div id="fs" class="relative w-full rounded-lg bg-[#333] z-[99] overflow-visible grid items-center">
         <button id="maximise"
             data-action="maximiseModal" 
             style="right: 3.5rem;" class="absolute cursor-pointer top-[18px] md:top-[10px] lg:top-[10px] text-gray-500 hover:text-gray-700 z-50" aria-label="Close Modal">

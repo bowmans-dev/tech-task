@@ -1,15 +1,15 @@
 <style>
-canvas {
-    width: 100%;
-    height: 38px;
-    padding-left: 40px;
-    max-width: 90vw;
-}
-@media (min-width: 500px) {
-    canvas, video {
-        max-width: 300px;
+    canvas {
+        width: 100%;
+        height: 38px;
+        padding-left: 40px;
+        max-width: 90vw;
     }
-}
+    @media (min-width: 500px) {
+        canvas, video {
+            max-width: 300px;
+        }
+    }
 </style>
 
 {{-- CALENDAR EVENT MODAL TOOLBAR--}}
@@ -129,7 +129,6 @@ canvas {
 </div>
 
 
-
 <!-- LABEL INPUT PANEL -->
 <div data-toolbar-panel="label" id="modal-label-input-container" class="hidden relative mb-6 border border-dashed border-gray-900/25 rounded-lg">
     <div class="absolute inset-y-0 start-0 flex items-center pointer-events-none z-20 ps-3.5">
@@ -138,8 +137,6 @@ canvas {
     <input type="text" id="eventLabel"  class="py-2 ps-10 pe-16 block w-full bg-white border-gray-200 rounded-lg text-sm focus:outline-hidden focus:border-blue-500 focus:ring-blue-500" placeholder="Add event label" />
 </div>
 
-
-
 <!-- USER SEARCH MODAL PANEL -->
 <div data-toolbar-panel="search" id="modal-user-search-box" class="hidden relative mb-6 border border-dashed border-gray-900/25 rounded-lg">
     <div class="absolute inset-y-0 start-0 flex items-center pointer-events-none z-20 ps-3.5">
@@ -147,14 +144,13 @@ canvas {
     </div>
     <input data-action="setupSearchModalInput" type="text" id="searchModal" class="py-2 ps-10 pe-16 block w-full bg-white border-gray-200 rounded-lg text-sm focus:outline-hidden focus:border-blue-500 focus:ring-blue-500" placeholder="Search by name or email" />
 </div>
+
 <!-- USER LIST BOX PANEL -->
 <div data-toolbar-panel="search" id="user-search-box" class="hidden mt-4 z-50 rounded-lg bg-white p-4 pr-0 border border-dashed border-gray-900/25">
     <div class="h-[175px] min-h[175px] max-h-[175px] contain-content overflow-y-scroll">
         @include('Components.List.user-list-modal', ['users' => $users])
     </div>
 </div>
-
-
 
 <!-- POLL BOX PANEL -->
 <div data-toolbar-panel="poll" id="user-poll-box" class="hidden mt-4 z-50 rounded-lg bg-white p-4 pr-0 border border-dashed border-gray-900/25">
@@ -208,7 +204,6 @@ canvas {
     </div>
 </div>
 
-
 <!-- GROUP AUDIO PANEL -->
 <div data-toolbar-panel="audio" id="modal-group-audio-input-container" class="hidden relative mb-6 border border-dashed border-[#2b7fff] rounded-lg">
   <div style="outline: #2b7fff solid 1px; padding: 2px; height: 24px; width: 24px; top: 6px;" class="absolute rounded-full inset-y-0 start-[8px] flex items-center pointer-events-none z-20">
@@ -216,7 +211,6 @@ canvas {
   </div>
   <canvas class="rounded-lg"></canvas>
 </div>
-
 
 <!-- GROUP VIDEO PANEL -->
 <div data-toolbar-panel="video" id="modal-group-video-input-container" class="hidden relative min-w-[300px] mb-6 border border-dashed border-[#2b7fff] rounded-lg">
@@ -231,5 +225,5 @@ canvas {
     <div style="outline: #2b7fff solid 1px; padding: 2px; height: 24px; width: 24px; top: 6px;" class="absolute rounded-full inset-y-0 start-[8px] flex items-center pointer-events-none z-20">
         <svg class="text-gray-400" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#2b7fff"><path d="M711-480Zm209 80H737q-3-21-9.5-41T711-480h126q-4-7-9-12t-12-9q-26-15-59.5-22t-76.5-7h-3q-20-23-43.5-40T582-599q23-5 47.5-8t50.5-3q53 0 99 11t86 32q26 14 40.5 41.5T920-463v63ZM680-640q-50 0-85-35t-35-85q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35Zm0-80q17 0 28.5-11.5T720-760q0-17-11.5-28.5T680-800q-17 0-28.5 11.5T640-760q0 17 11.5 28.5T680-720Zm0-40ZM249-480ZM40-400v-63q0-35 14.5-62.5T95-567q40-21 86-32t99-11q26 0 50.5 3t47.5 8q-28 12-51.5 29T283-530h-3q-43 0-76.5 7T144-501q-7 4-12 9t-9 12h126q-10 19-16.5 39t-9.5 41H40Zm240-240q-50 0-85-35t-35-85q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35Zm0-80q17 0 28.5-11.5T320-760q0-17-11.5-28.5T280-800q-17 0-28.5 11.5T240-760q0 17 11.5 28.5T280-720Zm0-40Zm200 480q-33 0-56.5-23.5T400-360v-120q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480v120q0 33-23.5 56.5T480-280ZM450-80v-82q-72-11-121-67t-49-131h60q0 58 41 99t99 41q58 0 99-41t41-99h60q0 75-49 131t-121 67v82h-60Z"/></svg>
     </div>
-    <canvas class="video-mic-canvas rounded-lg"></canvas>
+    <canvas class="screen-mic-canvas rounded-lg"></canvas>
 </div>

@@ -7,6 +7,10 @@ use App\Domains\Supporting\ImageUpload\ImageService;
 use App\Infrastructures\Persistence\Repositories\EloquentUserRepository;
 use App\Domains\Core\Services\UserService;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Gate;
+use App\Models\Admin;
+use App\Models\User;
+use App\Policies\UserPolicy;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,6 +34,7 @@ class AppServiceProvider extends ServiceProvider
     
     public function boot(): void
     {
-        
+        Gate::policy(User::class, UserPolicy::class);
+        Gate::define('access-monitoring', fn (Admin $admin) => $admin->hasRole('tech-lead'));
     }
 }

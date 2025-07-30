@@ -9,7 +9,9 @@ class UserStoreRequest extends FormRequest
     
     public function authorize(): bool
     {
-        return true;
+        $admin = auth()->guard('admin')->user();
+
+        return $admin && $admin->can('create', \App\Models\User::class);
     }
 
     public function rules(): array

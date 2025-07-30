@@ -26,7 +26,11 @@ class Admin extends Authenticatable implements JWTSubject
         'password',
     ];
 
-    
+    public function hasRole(string $role): bool
+    {
+        return $this->role === $role;
+    }
+ 
     public function getJWTIdentifier()
     {
         return $this->getKey();

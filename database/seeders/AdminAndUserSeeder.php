@@ -21,6 +21,7 @@ class AdminAndUserSeeder extends Seeder
             'email' => 'admin@example.com',
             'password' => bcrypt('test1234'),
             'permissions' => json_encode(['manage_users', 'edit_settings']),
+            'role' => 'tech-lead',
         ]);
 
         // Create User accounts

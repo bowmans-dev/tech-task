@@ -1,9 +1,9 @@
-export default function sendAnswer(ws, data, eventScopedConnections, WebSocket, wss) {
+export default function sendAnswer(ws, data, eventScopedConnections, wss) {
   const { answer, toUserId, eventId } = data.payload;
 
   wss.clients.forEach(client => {
     if (
-      client.readyState === WebSocket.OPEN &&
+      client.readyState === 1 &&
       client.userId === toUserId &&
       eventScopedConnections.get(eventId)?.has(toUserId)
     ) {

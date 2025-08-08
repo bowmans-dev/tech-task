@@ -1,49 +1,31 @@
+import { getUserId } from "../utils/getUserId.js";
+import { getEventId } from "../utils/getEventId.js";
+import { addEventSubscription } from "../utils/addEventSubscription.js";
+import { ensureEventSubscription } from "../utils/ensureEventSubscription.js";
+
 export default function subscribe(ws, jsonData, eventScopedConnections) {
-    
-    const userId = String(jsonData.userId);
-    const eventId = String(jsonData.event_id);
-    
-    if (!userId || !eventId) {
-        console.warn("Invalid subscribe request — missing userId or eventId");
-        return;
-    }
-    
-    ws.connectionType = 'event';
-    ws.userId = userId;
+  const userId = getUserId(ws);
+  const eventId = getEventId(jsonData);
+  if (!userId || !eventId) return console.warn("Invalid subscribe request");
 
-    if (!ws.allEventIds) ws.allEventIds = [];
-    if (!ws.allEventIds.includes(eventId)) {
-        ws.allEventIds.push(eventId);
-    }
+  ws.connectionType = 'event';
+  addEventSubscription(ws, userId, eventId);
+  ensureEventSubscription(ws, userId, eventId, eventScopedConnections);
 
-    if (!ws.connectedEvent) ws.connectedEvent = [];
-    ws.connectedEvent.push({ userId, eventId });
+  const user = (jsonData.existingTeamMembers ?? []).find(u => String(u.userId) === userId);
+  if (!user) return console.warn(`User ${userId} not authorized for event ${eventId}`);
 
-    if (!eventScopedConnections.has(eventId)) {
-        eventScopedConnections.set(eventId, new Set());
-    }
-    eventScopedConnections.get(eventId).add(userId);
+  ws.userDetails ??= {};
+  ws.userDetails[userId] = {
+    id: user.userId,
+    first_name: user.firstName,
+    last_name: user.lastName,
+    profile_picture: user.profilePicture,
+  };
 
-    const allUsers = jsonData.existingTeamMembers || [];
-    const user = allUsers.find(u => String(u.userId) === userId);
-
-    if (!ws.userDetails) ws.userDetails = {};
-    if (!ws.eventDetails) ws.eventDetails = {};
-
-    if (user) {
-        ws.userDetails[userId] = {
-            id: user.userId,
-            first_name: user.firstName,
-            last_name: user.lastName,
-            profile_picture: user.profilePicture
-        };
-    }
-
-    if (jsonData.currentEvent) {
-        const { title, date } = jsonData.currentEvent;
-        ws.eventDetails[eventId] = {
-            title: title || `Event ${eventId}`,
-            date: date || null,
-        };
-    }
+  if (jsonData.currentEvent) {
+    const { title, date } = jsonData.currentEvent;
+    ws.eventDetails ??= {};
+    ws.eventDetails[eventId] = { title: title || `Event ${eventId}`, date: date || null };
+  }
 }

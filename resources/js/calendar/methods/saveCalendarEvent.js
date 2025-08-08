@@ -1,4 +1,4 @@
-import { state, currentUser } from "../state";
+import { state, currentUser } from "../local/state";
 
 function debounce(func, delay) {
   let timeout;

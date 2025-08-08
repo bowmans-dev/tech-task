@@ -43,80 +43,74 @@
 
   <script>
     function formatReadableDate(dateString) {
-        const date = new Date(dateString);
-        if (isNaN(date)) return ""; // Handle invalid dates
-
-        const day = date.getDate();
-        const month = date.toLocaleString("default", { month: "long" });
-        const year = date.getFullYear();
-
-        const ordinal = (n) => {
-            const s = ["th", "st", "nd", "rd"];
-            const v = n % 100;
-            return n + (s[(v - 20) % 10] || s[v] || s[0]);
-        };
-
-        return `${ordinal(day)} of ${month}, ${year}`;
+      const date = new Date(dateString);
+      if (isNaN(date)) return "";
+      const day = date.getDate();
+      const month = date.toLocaleString("default", { month: "long" });
+      const year = date.getFullYear();
+      const ordinal = (n) => {
+        const s = ["th", "st", "nd", "rd"];
+        const v = n % 100;
+        return n + (s[(v - 20) % 10] || s[v] || s[0]);
+      };
+      return `${ordinal(day)} of ${month}, ${year}`;
     }
 
-    const $events  = document.getElementById("events");
+    const $events = document.getElementById("events");
     const $clients = document.getElementById("clients");
 
-    const socket = new WebSocket("ws://localhost:8080/monitor");
+    async function getWebSocketToken() {
+      const res = await fetch("/websocket-token", {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Token fetch failed");
+      const data = await res.json();
+      return data.token;
+    }
 
-    socket.onopen  = () => console.log("✅ Monitor connected");
-    socket.onerror = e  => console.error("❌ Monitor error", e);
-    socket.onclose = () => console.warn("⚠️  Monitor closed");
-
-    socket.onmessage = ({data}) => {
+    function handleMonitorMessage(data) {
       try {
-        const {type, eventScopedConnections, eventDetails, userDetails, clients} = JSON.parse(data);
+        const { type, eventScopedConnections, eventDetails, userDetails, clients } = JSON.parse(data);
         if (type !== "monitor_update") return;
 
-        /* ---------- EVENTS CARD ---------- */
+        // Events UI
         $events.innerHTML = "";
         if (Object.keys(eventScopedConnections).length === 0) {
           $events.innerHTML = "<em>No active subscriptions.</em>";
         } else {
           for (const [eventId, userIds] of Object.entries(eventScopedConnections)) {
-            const evt   = eventDetails?.[eventId] ?? {};
+            const evt = eventDetails?.[eventId] ?? {};
             const title = evt.title ? `#${eventId} - ${evt.title}` : `Event ${eventId}`;
             const date = evt.date ? ` · <span class="small">${formatReadableDate(evt.date)}</span>` : "";
-
-
-            const wrap  = document.createElement("div");
+            const wrap = document.createElement("div");
             wrap.className = "event";
             wrap.innerHTML = `
               <div class="event-title">${title}${date}</div>
               <div class="avatars">
-               ${userIds.map(uid => {
-                const user = userDetails?.[uid];
-                const u = {
+                ${userIds.map(uid => {
+                  const user = userDetails?.[uid];
+                  const u = {
                     first_name: user?.first_name ?? "User",
                     last_name: user?.last_name ?? uid,
                     profilePicture: user?.profile_picture?.startsWith("profile_pictures/")
-                    ? `storage/${user.profile_picture}`
-                    : "/storage/default_profile_image.webp"
-                };
-
-                return `
+                      ? `storage/${user.profile_picture}`
+                      : "/storage/default_profile_image.webp",
+                  };
+                  return `
                     <div class="avatar">
-                    <img src="${u.profilePicture}" alt="">
-                    <span>${u.first_name} ${u.last_name} (${uid})</span>
+                      <img src="${u.profilePicture}" alt="">
+                      <span>${u.first_name} ${u.last_name} (${uid})</span>
                     </div>
-                `;
-                }).join('')}
+                  `;
+                }).join("")}
               </div>
             `;
             $events.appendChild(wrap);
           }
         }
 
-        /* ---------- CLIENTS CARD ---------- */
-
-      // Filter out global clients. (global clients have an empty subscriptions array).
-      const filteredClients = clients.filter(cl => cl.connectedEvent && cl.connectedEvent.length > 0);
-
+        // Clients UI
+        const filteredClients = clients.filter(cl => cl.connectedEvent?.length > 0);
         $clients.innerHTML = "";
         if (!filteredClients.length) {
           $clients.innerHTML = "<em>No connected sockets.</em>";
@@ -124,9 +118,7 @@
           filteredClients.forEach((cl, i) => {
             const div = document.createElement("div");
             div.style.marginBottom = "14px";
-            const subs = cl.connectedEvent?.length
-              ? cl.connectedEvent.map(s => `#${s.userId}@${s.eventId}`).join(", ")
-              : "<em>no subscriptions</em>";
+            const subs = cl.connectedEvent.map(s => `#${s.userId}@${s.eventId}`).join(", ");
             div.innerHTML = `
               <strong>Socket ${i + 1}</strong>
               ${cl.isInternal ? '<span class="tag internal">internal</span>' : ''}
@@ -139,7 +131,22 @@
       } catch (err) {
         console.error("Parse error", err);
       }
-    };
+    }
+
+    (async () => {
+      try {
+        const token = await getWebSocketToken();
+        const socket = new WebSocket(`wss://localhost:8080/monitor`, [token]);
+
+        socket.onopen = () => console.log("✅ Monitor connected");
+        socket.onerror = e => console.error("❌ Monitor error", e);
+        socket.onclose = () => console.warn("⚠️ Monitor closed");
+        socket.onmessage = ({ data }) => handleMonitorMessage(data);
+      } catch (err) {
+        console.error("WebSocket init failed", err);
+      }
+    })();
+
   </script>
 </body>
 </html>

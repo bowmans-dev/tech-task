@@ -1,6 +1,6 @@
 import { state, addTeamMember } from '../../state.js';
-import { renderTeamMembers } from '../../modal/dropZone/teamMembers/renderTeamMembers.js';
-import { renderDroppedFiles } from '../../modal/dropZone/files/renderDroppedFiles.js';
+import { renderTeamMembers } from '../../../modal/dropZone/teamMembers/renderTeamMembers.js';
+import { renderDroppedFiles } from '../../../modal/dropZone/files/renderDroppedFiles.js';
 
 export default function updateEvent(data) {
   const newUsers = data.teamMembers.filter(user =>

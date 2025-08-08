@@ -1,4 +1,4 @@
-import { state, getCurrentUser } from "../state";
+import { state, getCurrentUser } from "../local/state";
 import { saveCalendarEvent } from "./saveCalendarEvent";
 export async function handleDateClick(info) {
 

@@ -3,22 +3,20 @@ import subscribe from "./actions/subscribe.js";
 import unsubscribe from "./actions/unsubscribe.js";
 import updateEvent from "./actions/updateEvent.js";
 import teamMemberAdded from "./actions/teamMemberAdded.js";
-import messageBroadcast from "./actions/messageBroadcast.js";
-import reactionBroadcast from "./actions/reactionBroadcast.js";
-import voteBroadcast from "./actions/voteBroadcast.js";
-import taskCompletedBroadcast from "./actions/taskCompletedBroadcast.js";
-import notifyTeamMembers from "./actions/notifyTeamMembers.js";
-import startMediaBroadcast from "./actions/startMediaBroadcast.js";
-import sendOffer from "./actions/sendOffer.js";
-import sendAnswer from "./actions/sendAnswer.js";
-import forwardIceCandidate from "./actions/forwardIceCandidate.js";
+import messageBroadcast from "./actions/broadcasts/messageBroadcast.js";
+import reactionBroadcast from "./actions/broadcasts/reactionBroadcast.js";
+import voteBroadcast from "./actions/broadcasts/voteBroadcast.js";
+import taskCompletedBroadcast from "./actions/broadcasts/taskCompletedBroadcast.js";
+import startMediaBroadcast from "./actions/webRTC/startMediaBroadcast.js";
+import sendOffer from "./actions/webRTC/sendOffer.js";
+import sendAnswer from "./actions/webRTC/sendAnswer.js";
+import forwardIceCandidate from "./actions/webRTC/forwardIceCandidate.js";
 
 export default class WebSocketDispatcher {
-    constructor({ globalConnectedUsers, eventScopedConnections, wss, WebSocket }) {
+    constructor({ globalConnectedUsers, eventScopedConnections, wss }) {
         this.globalConnectedUsers = globalConnectedUsers;
         this.eventScopedConnections = eventScopedConnections;
         this.wss = wss;
-        this.WebSocket = WebSocket;
     }
 
     handle(ws, data) {
@@ -34,12 +32,12 @@ export default class WebSocketDispatcher {
         online(ws, data, this.globalConnectedUsers);
     }
 
-    team_member_added(ws, data) {
-        teamMemberAdded(ws, data, this.globalConnectedUsers, this.wss, notifyTeamMembers, this.WebSocket);
-    }
-
     connect_to_event(ws, data) {
         subscribe(ws, data, this.eventScopedConnections);
+    }
+
+    team_member_added(ws, data) {
+        teamMemberAdded(ws, data, this.globalConnectedUsers, this.wss);
     }
 
     disconnect_from_event(ws, data) {
@@ -47,38 +45,38 @@ export default class WebSocketDispatcher {
     }
 
     update_event(ws, data) {
-        updateEvent(data, this.eventScopedConnections, this.wss);
+        updateEvent(ws, data, this.eventScopedConnections, this.wss);
     }
 
     message_broadcast(ws, data) {
-        messageBroadcast(data, this.eventScopedConnections, this.wss);
+        messageBroadcast(ws, data, this.eventScopedConnections, this.wss);
     }
 
     reaction_broadcast(ws, data) {
-        reactionBroadcast(data, this.eventScopedConnections, this.wss);
+        reactionBroadcast(ws, data, this.eventScopedConnections, this.wss);
     }
 
     vote_broadcast(ws, data) {
-        voteBroadcast(data, this.eventScopedConnections, this.wss);
+        voteBroadcast(ws, data, this.eventScopedConnections, this.wss);
     }
 
     task_completed_broadcast(ws, data) {
-        taskCompletedBroadcast(data, this.eventScopedConnections, this.wss);
+        taskCompletedBroadcast(ws, data, this.eventScopedConnections, this.wss);
     }
 
     start_media_broadcast(ws, data) {
-        startMediaBroadcast(ws, data, this.eventScopedConnections, this.WebSocket, this.wss);
+        startMediaBroadcast(ws, data, this.eventScopedConnections, this.wss);
     }
 
     send_offer(ws, data) {
-        sendOffer(ws, data, this.eventScopedConnections, this.WebSocket, this.wss);
+        sendOffer(ws, data, this.eventScopedConnections, this.wss);
     }
 
     send_answer(ws, data) {
-        sendAnswer(ws, data, this.eventScopedConnections, this.WebSocket, this.wss);
+        sendAnswer(ws, data, this.eventScopedConnections, this.wss);
     }
 
     ice_candidate(ws, data) {
-        forwardIceCandidate(ws, data, this.eventScopedConnections, this.WebSocket, this.wss);
+        forwardIceCandidate(ws, data, this.eventScopedConnections, this.wss);
     }
 }

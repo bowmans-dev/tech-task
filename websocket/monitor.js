@@ -41,6 +41,6 @@ export default function monitor(ws, wss, eventScopedConnections) {
     };
 
     sendUpdate();
-    const interval = setInterval(sendUpdate, 1000);
+    const interval = setInterval(sendUpdate, 5000);
     ws.on("close", () => clearInterval(interval));
 }

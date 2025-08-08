@@ -5,7 +5,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { Draggable } from '@fullcalendar/interaction';
 import { start } from '@hotwired/turbo';
 start();
-import { currentUser } from './state.js';
+import { currentUser } from './local/state.js';
 
 // Calendar Actions
 import { handleDateClick } from './methods/handleDateClick.js';
@@ -39,7 +39,7 @@ import { submitTasks } from './modal/messages/submitTasksForEvent.js';
 import { submitTaskCompletion } from './modal/messages/submitTaskCompletion.js';
 
 // Global Calendar WebSocket Notifications
-import { globalCalendarEventsWS } from './global/globalCalendarEventsWS.js';
+import { globalConnectedUsersWS } from './global/globalConnectedUsersWS.js';
 
 
 window.handleDrop = handleDrop;
@@ -137,7 +137,7 @@ function renderCalendar() {
 
     calendar.render();
     
-    globalCalendarEventsWS();
+    globalConnectedUsersWS();
 };
 
 document.removeEventListener("turbo:load", renderCalendar);

@@ -1,5 +1,10 @@
+import jwt from "jsonwebtoken";
 import { WebSocket } from "ws";
 import net from "net";
+import dotenv from "dotenv";
+dotenv.config();
+
+const jwtSecret = process.env.JWT_SECRET;
 
 let server;
 let wss;
@@ -21,8 +26,22 @@ function is_port_in_use(port, callback) {
 	test_server.listen(port);
 }
 
-beforeAll(async () => {
+function generateTestToken(userId = 999) {
+  const payload = {
+    iss: "jest-test-client",
+    iat: Math.floor(Date.now() / 1000),
+    exp: Math.floor(Date.now() / 1000) + 60 * 5, // 5 minutes expiry
+    isInternal: false,
+    sub: userId,
+  };
 
+  return jwt.sign(payload, jwtSecret);
+}
+
+
+beforeAll(async () => {
+    
+    console.warn = () => {};
     console.log = () => {};
 
 	await new Promise((resolve, reject) => {
@@ -97,15 +116,15 @@ afterEach(() => {
 });
 
 test("only subscribed users receive messages for their event", (done) => {
-    const clientA = new WebSocket("ws://localhost:8080");
-    const clientB = new WebSocket("ws://localhost:8080");
+    const tokenA = generateTestToken(999);
+    const tokenB = generateTestToken(777);
 
-    clientA.on("open", () => {
-        clientA.send(JSON.stringify({ action: "connect_to_event", userId: 999, event_id: 100 }));
+    const clientA = new WebSocket("wss://localhost:8080", [tokenA], {
+        rejectUnauthorized: false,
     });
 
-    clientB.on("open", () => {
-        clientB.send(JSON.stringify({ action: "connect_to_event", userId: 777, event_id: 200 }));
+    const clientB = new WebSocket("wss://localhost:8080", [tokenB], {
+        rejectUnauthorized: false,
     });
 
     setTimeout(() => {
@@ -129,15 +148,24 @@ test("only subscribed users receive messages for their event", (done) => {
 
 
 test("users subscribed to different events do not receive messages", (done) => {
-    const clientSubscribedTo100 = new WebSocket("ws://localhost:8080");
-    const clientSubscribedTo200 = new WebSocket("ws://localhost:8080");
+
+    const tokenA = generateTestToken(999);
+    const tokenB = generateTestToken(888);
+
+    const clientSubscribedTo100 = new WebSocket("wss://localhost:8080", [tokenA], {
+        rejectUnauthorized: false,
+    });
+
+    const clientSubscribedTo200 = new WebSocket("wss://localhost:8080", [tokenB], {
+        rejectUnauthorized: false,
+    });
 
     clientSubscribedTo100.on("open", () => {
-        clientSubscribedTo100.send(JSON.stringify({ action: "connect_to_event", userId: 999, event_id: 100 }));
+        clientSubscribedTo100.send(JSON.stringify({ action: "connect_to_event", userId: "999", event_id: 100 }));
     });
 
     clientSubscribedTo200.on("open", () => {
-        clientSubscribedTo200.send(JSON.stringify({ action: "connect_to_event", userId: 888, event_id: 200 }));
+        clientSubscribedTo200.send(JSON.stringify({ action: "connect_to_event", userId: "888", event_id: 200 }));
     });
 
     setTimeout(() => {
@@ -162,11 +190,16 @@ test("users subscribed to different events do not receive messages", (done) => {
 }, 30000);
 
 test("user can unsubscribe from an event", (done) => {
-    const clientA = new WebSocket("ws://localhost:8080");
+
+    const tokenA = generateTestToken(999);
+
+    const clientA = new WebSocket("wss://localhost:8080", [tokenA], {
+        rejectUnauthorized: false,
+    });
 
     clientA.on("open", () => {
         // First, subscribe clientA to an event (Event 100)
-        clientA.send(JSON.stringify({ action: "connect_to_event", userId: 999, event_id: 100 }));
+        clientA.send(JSON.stringify({ action: "connect_to_event", userId: "999", event_id: 100 }));
 
         // After subscribing, send unsubscribe request
         setTimeout(() => {
@@ -178,7 +211,7 @@ test("user can unsubscribe from an event", (done) => {
         const response = JSON.parse(data.toString()); 
 
         // Ensure the unsubscribe response contains correct data
-        if (response.action === "unsubscribed") {
+        if (response.action === "disconnect_from_event") {
             expect(response.userId).toBe("999");
             expect(response.event_id).toBe("100");
 
@@ -193,15 +226,23 @@ test("user can unsubscribe from an event", (done) => {
 
 
 test("broadcasting to different events works independently", (done) => {
-    const clientA = new WebSocket("ws://localhost:8080");
-    const clientB = new WebSocket("ws://localhost:8080");
+    const tokenA = generateTestToken(999);
+    const tokenB = generateTestToken(888);
+
+    const clientA = new WebSocket("wss://localhost:8080", [tokenA], {
+        rejectUnauthorized: false,
+    });
+
+    const clientB = new WebSocket("wss://localhost:8080", [tokenB], {
+        rejectUnauthorized: false,
+    });
 
     clientA.on("open", () => {
-        clientA.send(JSON.stringify({ action: "connect_to_event", userId: 999, event_id: 100 }));
+        clientA.send(JSON.stringify({ action: "connect_to_event", userId: "999", event_id: 100 }));
     });
 
     clientB.on("open", () => {
-        clientB.send(JSON.stringify({ action: "connect_to_event", userId: 888, event_id: 200 }));
+        clientB.send(JSON.stringify({ action: "connect_to_event", userId: "888", event_id: 200 }));
     });
 
     // Give some time for the clients to subscribe

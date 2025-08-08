@@ -16,9 +16,9 @@
             </div>
             <p id="{{ $fileNameId ?? 'file-name' }}" class="file-name mt-2 text-sm text-gray-500"></p>
             <img id="{{ $filePreviewId ?? 'file-preview' }}" 
-     src="{{ $currentImageUrl ?? asset('storage/default_profile_image.webp') }}" 
-     alt="Profile Picture" 
-     class="file-preview mt-4 {{ $currentImageUrl ? '' : 'hidden' }} rounded-md">
+                src="{{ $currentImageUrl ?? asset('storage/default_profile_image.webp') }}" 
+                alt="Profile Picture" 
+                class="file-preview mt-4 {{ $currentImageUrl ? '' : 'hidden' }} rounded-md">
         </div>
     </div>
 </div> 

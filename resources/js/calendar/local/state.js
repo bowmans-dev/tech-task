@@ -55,14 +55,27 @@ export const currentUser = getCurrentUser();
 // 3. WebSocket Connection
 // ─────────────────────────────────────────────
 
-import { websocketActionHandlers } from './local/websocketActionHandlers.js';
-import { webRtcActionHandlers } from './local/webRtcActionHandlers.js';
+export async function getWebSocketToken() {
+    const res = await fetch('/websocket-token', {
+        credentials: 'include', // important: send session cookies
+    });
+
+    if (!res.ok) throw new Error('Token fetch failed');
+
+    const data = await res.json();
+    return data.token;
+}
+
+
+import { websocketActionHandlers } from './event/websocketActionHandlers.js';
+import { webRtcActionHandlers } from './event/webRtcActionHandlers.js';
 
 let retryInterval;
 let retryCount = 0;
 const retryDelays = [10000, 30000, 60000];
 
-export function connectToEventWebSocket() {
+export async function connectToEventWebSocket() {
+
     const eventId = state.currentEvent?.id;
 
     if (!eventId || !currentUser?.userId) {
@@ -71,7 +84,14 @@ export function connectToEventWebSocket() {
     }
 
     const normalizedUserId = String(currentUser.userId);
-    const socket = new WebSocket("ws://localhost:8080");
+    
+    const token = await getWebSocketToken();
+    if (!token) {
+        console.error("No token available for WebSocket connection");
+        return;
+    }
+    
+    const socket = new WebSocket(`wss://localhost:8080`, [token]);
 
     if (state.currentWs) {
         state.currentWs.close();
@@ -99,12 +119,17 @@ export function connectToEventWebSocket() {
 
     socket.onmessage = async (message) => {
 
+        console.log(message);
         try {
             const data = JSON.parse(message.data);
+
+            console.log(data);
 
             const handler =
             websocketActionHandlers[data.action] ||
             webRtcActionHandlers[data.action];
+
+            console.log(handler);
 
             if (handler) {
                 await handler(data);
@@ -124,7 +149,7 @@ export function connectToEventWebSocket() {
     socket.onclose = async () => {
         // Check if the server is online before deciding retry strategy
         try {
-            await fetch("http://localhost:8080", { method: "HEAD" }); // Ping server
+            await fetch("https://localhost:8080", { method: "HEAD" }); // Ping server
             console.warn("Event Server is online. Reconnecting in 3 seconds...");
             retryInterval = setInterval(connectToEventWebSocket, 3000);
         } catch {
@@ -156,7 +181,6 @@ export function subscribeUserToEvent(userId) {
 
 export function unsubscribeUserFromEvent(userId) {
   const eventId = state.currentEvent.id;
-
   state.currentWs?.send(JSON.stringify({
     action: "disconnect_from_event",
     event_id: eventId,

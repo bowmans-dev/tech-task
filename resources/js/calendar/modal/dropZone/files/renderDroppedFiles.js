@@ -1,4 +1,4 @@
-import { state } from "../../../state";
+import { state } from "../../../local/state";
 
 export function renderDroppedFiles() {
     const previewContainer = document.getElementById('file-preview');

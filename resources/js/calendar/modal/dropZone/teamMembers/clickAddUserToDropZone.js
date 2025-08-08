@@ -1,11 +1,11 @@
-import { state } from "../../../state";
-import { isUserAlreadyInTeam } from "../../../state";
-import { isUserInDatabase } from "../../../state";
-import { addTeamMember } from "../../../state";
-import { removeTeamMember } from "../../../state";
+import { state } from "../../../local/state";
+import { isUserAlreadyInTeam } from "../../../local/state";
+import { isUserInDatabase } from "../../../local/state";
+import { addTeamMember } from "../../../local/state";
+import { removeTeamMember } from "../../../local/state";
 import { removeTeamMemberFromCalendarEvent } from "./removeTeamMemberFromCalendarEvent";
-import { sendEventUpdate } from "../../../state";
-import { notifyNewTeamMembers } from "../../../state";
+import { sendEventUpdate } from "../../../local/state";
+import { notifyNewTeamMembers } from "../../../local/state";
 import { saveCalendarEvent } from "../../../methods/saveCalendarEvent";
 
 export function clickAddUserToDropZone(user) {

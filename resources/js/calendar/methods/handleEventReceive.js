@@ -1,4 +1,4 @@
-import { state } from "../state";
+import { state } from "../local/state";
 import { saveCalendarEvent } from "./saveCalendarEvent";
 
 export async function handleEventReceive(info) {

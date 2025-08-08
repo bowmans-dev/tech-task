@@ -1,4 +1,4 @@
-export default function startMediaBroadcast(ws, data, eventScopedConnections, WebSocket, wss) {
+export default function startMediaBroadcast(ws, data, eventScopedConnections, wss) {
   const { type, eventId, userId, currentUser } = data.payload;
 
   const allConnections = eventScopedConnections.get(eventId) ?? new Set();

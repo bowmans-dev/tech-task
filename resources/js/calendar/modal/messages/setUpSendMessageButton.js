@@ -1,4 +1,4 @@
-import { state } from '../../state';
+import { state } from '../../local/state';
 import { sendMessageForEvent } from './sendMessageForEvent';
 
 export async function setUpSendMessageButton(e) {

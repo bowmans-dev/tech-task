@@ -3,8 +3,10 @@
 namespace App\Domains\Shared\Events\Listeners\Messages;
 
 use App\Models\User;
+use App\Utils\HtmlMinifier;
 use App\Domains\Shared\Events\DomainEvents\Messages\MessageSent;
-use App\Domains\Supporting\Websocket\{UserPayloadHelper, InternalWebsocketClient};
+use App\Domains\Supporting\Websocket\{UserPayloadHelper, GlobalConnectedUsersInternalClient};
+use Illuminate\Support\Facades\Log;
 
 class NotifyTeamMembersOnMessageSent
 {
@@ -19,16 +21,21 @@ class NotifyTeamMembersOnMessageSent
         $taskData = collect($tasks)->map(fn($task) => ['id' => $task->id, 'text' => $task->task_text])->toArray();
 
         $html = view('Components.messages._message', [
-            'message' => $message, 
-            'profilePicture' => $userPayload['profile_picture'], 
-            'displayName' => $userPayload['display_name'], 
-            'isSender' => null,
-            'isPoll' => $message->is_poll,
-            'options' => $message->is_poll ? $options : [],
-            'selectedOptionId' => null,
-            'isTaskList' => $message->is_task_list,
-            'tasks' => $message->is_task_list ? $taskData : [],
+            'message'         => $message,
+            'profilePicture'  => $userPayload['profile_picture'],
+            'displayName'     => $userPayload['display_name'],
+            'isSender'        => null,
+            'isPoll'          => $message->is_poll,
+            'options'         => $message->is_poll ? $options : [],
+            'selectedOptionId'=> null,
+            'isTaskList'      => $message->is_task_list,
+            'tasks'           => $message->is_task_list ? $taskData : [],
         ])->render();
+
+
+        $minifiedHtml = HtmlMinifier::minify($html);
+
+        // $startTime = microtime(true);
 
         $payload = [
             'action'      => 'message_broadcast',
@@ -41,9 +48,14 @@ class NotifyTeamMembersOnMessageSent
             'user'        => $userPayload,
             'is_task_list'=> $message->is_task_list,
             'tasks'       => $taskData,
-            'html'        => $html,
+            'html'        => $minifiedHtml,
         ];
 
-        (new InternalWebsocketClient())->send($payload);
+        (new GlobalConnectedUsersInternalClient())->send($payload);
+
+        // $elapsed = round((microtime(true) - $startTime) * 1000, 2);
+        // Log::info("Message broadcast payload size: " . strlen(json_encode($payload)) . " bytes");
+        // Log::info("Message broadcast send time: {$elapsed} ms");
+
     }
 }

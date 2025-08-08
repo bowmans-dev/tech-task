@@ -1,46 +1,28 @@
-export default function teamMemberAdded(ws, data, globalConnectedUsers, wss, notifyTeamMembers, WebSocket) {
-    const eventId = data.event_id;
-    const newMemberId = String(data.newMemberId);
-    ws.userId = ws.userId || newMemberId;
+import notifyTeamMembers from "../utils/notifyTeamMembers.js";
+import { findClientByUserId } from "../utils/findClientByUserId.js";
+import { getEventId } from "../utils/getEventId.js";
+import { addEventSubscription } from "../utils/addEventSubscription.js";
+import { ensureEventSubscription } from "../utils/ensureEventSubscription.js";
 
-    if (!ws.allEventIds) ws.allEventIds = [];
-    if (!ws.allEventIds.includes(eventId)) {
-        ws.allEventIds.push(eventId);
-    }
+export default function teamMemberAdded(ws, data, globalConnectedUsers, wss) {
+  const eventId = getEventId(data);
+  const newMemberId = String(data.newMemberId);
+  ws.userId ||= newMemberId;
 
-    if (!ws.connectedEvent) ws.connectedEvent = [];
-    if (!ws.connectedEvent.some(sub => sub.eventId === eventId)) {
-        ws.connectedEvent.push({ userId: newMemberId, eventId });
-    }
+  addEventSubscription(ws, newMemberId, eventId);
+  ensureEventSubscription(ws, newMemberId, eventId, globalConnectedUsers);
 
-    if (!globalConnectedUsers.has(newMemberId)) {
-        return;
-    }
+  if (!globalConnectedUsers.has(newMemberId)) return;
 
-    // Find the WebSocket connection for the user
-    const targetClient = [...wss.clients].find(client =>
-        String(client.userId) === newMemberId && client.readyState === WebSocket.OPEN
-    );
+  const target = findClientByUserId(wss, newMemberId);
+  if (!target) return console.warn(`User ${newMemberId} socket not open`);
 
-    if (!targetClient) {
-        console.warn(`WebSocket for user ${newMemberId} is not open`);
-        return;
-    }
+  addEventSubscription(target, newMemberId, eventId);
+  ensureEventSubscription(target, newMemberId, eventId, globalConnectedUsers);
 
-    if (!targetClient.allEventIds) targetClient.allEventIds = [];
-    if (!targetClient.allEventIds.includes(eventId)) {
-        targetClient.allEventIds.push(eventId);
-    }
-
-    if (!targetClient.connectedEvent) targetClient.connectedEvent = [];
-    if (!targetClient.connectedEvent.some(sub => sub.eventId === eventId)) {
-        targetClient.connectedEvent.push({ userId: newMemberId, eventId });
-    }
-
-    // notifyTeamMembers(eventId, senderId, actionType)
-    notifyTeamMembers(eventId, null, "team_member_added", {
-        eventName: data.eventName,
-        message: `You were added to ${data.eventName}`,
-        user: data.user
-    }, wss);
+  notifyTeamMembers(eventId, null, "team_member_added", {
+    eventName: data.eventName,
+    message: `You were added to ${data.eventName}`,
+    user: data.user
+  }, wss);
 }

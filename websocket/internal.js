@@ -1,4 +1,4 @@
-import notifyTeamMembers from "./actions/notifyTeamMembers.js";
+import notifyTeamMembers from "./utils/notifyTeamMembers.js";
 
 export default function internal(ws, wss, eventScopedConnections, globalConnectedUsers) {
     ws.isInternal = true;
@@ -9,6 +9,11 @@ export default function internal(ws, wss, eventScopedConnections, globalConnecte
         if (data.action === "message_broadcast") {
             const senderId = String(data.user.id);
             const eventId = data.event_id;
+
+            // const jsonSize = Buffer.byteLength(JSON.stringify(data));
+            // console.log(`Received message_broadcast payload size: ${jsonSize} bytes (${(jsonSize / 1024).toFixed(2)} KB)`);
+
+            // const startTime = Date.now();
 
             const senderClient = [...wss.clients].find(c => String(c.userId) === senderId);
             if (senderClient) {
@@ -41,7 +46,7 @@ export default function internal(ws, wss, eventScopedConnections, globalConnecte
             // Broadcast to those currently viewing
             wss.clients.forEach((client) => {
                 const isSubscribed = client.connectedEvent?.some(sub => sub.eventId === eventId);
-                if (!client.isInternal && isSubscribed) {
+                if (client.readyState === 1 && !client.isInternal && isSubscribed) {
                     const isSender = client.userId === senderId;
                     const updatedData = { ...data, isSender };
                     client.send(JSON.stringify(updatedData));
@@ -53,8 +58,11 @@ export default function internal(ws, wss, eventScopedConnections, globalConnecte
                 eventName: data.event_name,
                 message: data.message,
                 created_at: data.created_at,
-                user: data.user
+                user: data.user,
             }, wss);
+
+            // const elapsed = Date.now() - startTime;
+            // console.log(`Broadcast send time: ${elapsed} ms`);
 
             // Internal socket is one-time use
             ws.terminate();

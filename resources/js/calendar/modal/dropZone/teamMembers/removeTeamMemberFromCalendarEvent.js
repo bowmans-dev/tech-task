@@ -1,4 +1,4 @@
-import { unsubscribeUserFromEvent } from "../../../state";
+import { unsubscribeUserFromEvent } from "../../../local/state";
 
 export function removeTeamMemberFromCalendarEvent(eventId, userId) {
 

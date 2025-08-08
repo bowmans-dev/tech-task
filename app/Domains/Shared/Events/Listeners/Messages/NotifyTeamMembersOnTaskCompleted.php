@@ -2,8 +2,9 @@
 
 namespace App\Domains\Shared\Events\Listeners\Messages;
 
+use App\Utils\HtmlMinifier;
 use App\Domains\Shared\Events\DomainEvents\Messages\TaskCompleted;
-use App\Domains\Supporting\Websocket\{WebsocketClient, UserPayloadHelper, WorkerPayloadHelper};
+use App\Domains\Supporting\Websocket\{UserPayloadHelper, WorkerPayloadHelper, EventScopedConnectionsInternalClient};
 use Illuminate\Support\Facades\{View, Log};
 
 class NotifyTeamMembersOnTaskCompleted
@@ -35,15 +36,17 @@ class NotifyTeamMembersOnTaskCompleted
             'completedTaskIds' => $completedTaskIds,
         ])->render();
 
+        $minifiedHtml = HtmlMinifier::minify($taskHtml);
+
         $payload = [
             'action' => 'task_completed_broadcast',
             'message_id' => $message->id,
             'task_id' => $completion->task->id,
             'event_id' => $message->event_id,
             'user' => $userPayload,
-            'html' => $taskHtml,
+            'html' => $minifiedHtml,
         ];
 
-        (new WebsocketClient())->send($payload);
+        (new EventScopedConnectionsInternalClient)->send($payload);
     }
 }

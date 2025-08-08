@@ -1,4 +1,4 @@
-export default function forwardIceCandidate(ws, data, eventScopedConnections, WebSocket, wss) {
+export default function forwardIceCandidate(ws, data, eventScopedConnections, wss) {
   const { candidate, toUserId, eventId } = data.payload;
 
   if (toUserId === ws.userId) {
@@ -7,7 +7,7 @@ export default function forwardIceCandidate(ws, data, eventScopedConnections, We
 
   wss.clients.forEach(client => {
     if (
-      client.readyState === WebSocket.OPEN &&
+      client.readyState === 1 &&
       client.connectionType !== 'global' && 
       client.userId === toUserId &&        
       eventScopedConnections.get(eventId)?.has(toUserId)

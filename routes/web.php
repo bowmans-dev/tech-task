@@ -10,16 +10,14 @@ use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Route;
 
 
-
 Route::get('/', [AuthController::class, 'showLoginForm'])->name('login.form');
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login.form');
+Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
+Route::post('/register', [AuthController::class, 'store'])->name('users.register');
+Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('/websocket-token', [AuthController::class, 'websocketToken']);
 
-Route::group([], function () {
-    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login.form');
-    Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
-    Route::post('/register', [AuthController::class, 'store'])->name('users.register');
-    Route::post('/login', [AuthController::class, 'login'])->name('login');
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-});
 
 // Password reset routes
 Route::prefix('password')->group(function () {
@@ -28,30 +26,29 @@ Route::prefix('password')->group(function () {
     Route::post('/reset', [AuthController::class, 'resetPassword'])->name('password.update');
 });
 
+
 // User Groups
-Route::group([], function () {
-    Route::post('/groups/create-group', [UserGroupController::class, 'createGroup'])->name('groups.store'); 
-    Route::delete('/groups/{id}', [UserGroupController::class, 'deleteGroup'])->name('groups.destroy');
-    Route::post('/user-groups/add-user', [UserGroupController::class, 'addUserToGroup'])->name('user_groups.store');
-    Route::post('/user-groups/remove-user', [UserGroupController::class, 'removeUserFromGroup'])->name('user_groups.remove');
-});
+Route::post('/groups/create-group', [UserGroupController::class, 'createGroup'])->name('groups.store'); 
+Route::delete('/groups/{id}', [UserGroupController::class, 'deleteGroup'])->name('groups.destroy');
+Route::post('/user-groups/add-user', [UserGroupController::class, 'addUserToGroup'])->name('user_groups.store');
+Route::post('/user-groups/remove-user', [UserGroupController::class, 'removeUserFromGroup'])->name('user_groups.remove');
+
 
 // Calendar Routes
-Route::group([], function () {
-    Route::get('/calendar', [CalendarController::class, 'showCalendar'])->name('calendar.show');
-    Route::post('/calendar/events/save', [CalendarController::class, 'saveCalendarEvent']);
-    Route::post('/calendar/events/{eventId}/delete', [CalendarController::class, 'deleteCalendarEvent']);
-    Route::get('/calendar/events/all', [CalendarController::class, 'getAllEvents']);
-    Route::get('/calendar/events', [CalendarController::class, 'getUserEvents']);
-    Route::delete('/calendar/event/{eventId}/team-members/{userId}', [CalendarController::class, 'removeTeamMember'])->name('calendar.team-members.remove');
-    // Calendar Event Messages
-    Route::post('/messages', [MessageController::class, 'store'])->name('messages.store'); 
-    Route::get('/events/{eventId}/messages', [MessageController::class, 'fetchMessages'])->name('messages.fetch');
-    Route::post('/message/react', [MessageController::class, 'react']);
-    Route::post('/poll-vote', [MessageController::class, 'vote']);
-    Route::post('/tasks/complete', [MessageController::class, 'complete']);
-});
+Route::get('/calendar', [CalendarController::class, 'showCalendar'])->name('calendar.show');
+Route::post('/calendar/events/save', [CalendarController::class, 'saveCalendarEvent']);
+Route::post('/calendar/events/{eventId}/delete', [CalendarController::class, 'deleteCalendarEvent']);
+Route::get('/calendar/events/all', [CalendarController::class, 'getAllEvents']);
+Route::get('/calendar/events', [CalendarController::class, 'getUserEvents']);
+Route::delete('/calendar/event/{eventId}/team-members/{userId}', [CalendarController::class, 'removeTeamMember'])->name('calendar.team-members.remove');
 
+
+// Calendar Event Messages
+Route::post('/messages', [MessageController::class, 'store'])->name('messages.store'); 
+Route::get('/events/{eventId}/messages', [MessageController::class, 'fetchMessages'])->name('messages.fetch');
+Route::post('/message/react', [MessageController::class, 'react']);
+Route::post('/poll-vote', [MessageController::class, 'vote']);
+Route::post('/tasks/complete', [MessageController::class, 'complete']);
 
 
 // Protected User Routes

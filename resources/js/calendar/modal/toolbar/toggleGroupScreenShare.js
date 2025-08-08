@@ -1,4 +1,4 @@
-import { startMediaStream } from "../../state";
+import { startMediaStream } from "../../local/state";
 import { stopMediaSession } from "./utils/stopMediaSession";
 import { initializeCanvas } from "./utils/initializeCanvas";
 import { setupAudioVisualizer } from "./utils/setupAudioVisualizer";

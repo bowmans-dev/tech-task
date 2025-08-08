@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use App\Http\Requests\UserStoreRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Password;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Models\Admin;
 
 
 class AuthController extends Controller
@@ -82,6 +84,25 @@ class AuthController extends Controller
             ->withErrors(['email' => $errorMessage])
             ->with('auth.failed', $errorMessage)
             ->withInput();
+    }
+
+    public function websocketToken(Request $request)
+    {
+        $user = Auth::user();
+        $admin = Auth::guard('admin')->user();
+
+        if (!$user && !$admin) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $token = $user
+            ? JWTAuth::fromUser($user)
+            : JWTAuth::fromUser($admin);
+
+        return response()->json([
+            'message' => 'WebSocket token issued.',
+            'token' => $token,
+        ]);
     }
 
 

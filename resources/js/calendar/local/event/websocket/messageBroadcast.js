@@ -1,4 +1,5 @@
 export default function messageBroadcast(data) {
+
   const dropZone = document.getElementById("drop-zone");
   const dropZoneEventId = dropZone?.getAttribute("data-event-id");
 

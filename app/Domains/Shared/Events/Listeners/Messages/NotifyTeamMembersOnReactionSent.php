@@ -3,9 +3,11 @@
 namespace App\Domains\Shared\Events\Listeners\Messages;
 
 use App\Models\User;
+use App\Utils\HtmlMinifier;
 use App\Domains\Shared\Events\DomainEvents\Messages\MessageReacted;
-use App\Domains\Supporting\Websocket\{UserPayloadHelper, WebsocketClient};
+use App\Domains\Supporting\Websocket\{UserPayloadHelper, EventScopedConnectionsInternalClient};
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Log;
 
 class NotifyTeamMembersOnReactionSent
 {
@@ -27,6 +29,8 @@ class NotifyTeamMembersOnReactionSent
             'message' => $message,
         ])->render();
 
+        $minifiedHtml = HtmlMinifier::minify($reactionHtml);
+
         // Construct broadcast payload
         $payload = [
             'action' => 'reaction_broadcast',
@@ -34,9 +38,9 @@ class NotifyTeamMembersOnReactionSent
             'event_id' => $message->event_id,
             'emoji' => $reaction->emoji,
             'user' => $userPayload,
-            'html' => $reactionHtml,
+            'html' => $minifiedHtml,
         ];
 
-        (new WebsocketClient())->send($payload);
+        (new EventScopedConnectionsInternalClient)->send($payload);
     }
 }

@@ -1,6 +1,6 @@
 // ./dropZone/teamMmebers/renderTeamMembers.js
 
-import { removeTeamMember} from "../../../state";
+import { removeTeamMember} from "../../../local/state";
 import { removeTeamMemberFromCalendarEvent } from "./removeTeamMemberFromCalendarEvent";
 
 const clearContainer = (element) => {

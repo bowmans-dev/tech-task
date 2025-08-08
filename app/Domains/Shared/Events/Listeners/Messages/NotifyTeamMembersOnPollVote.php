@@ -2,8 +2,9 @@
 
 namespace App\Domains\Shared\Events\Listeners\Messages;
 
+use App\Utils\HtmlMinifier;
 use App\Domains\Shared\Events\DomainEvents\Messages\PollVoted;
-use App\Domains\Supporting\Websocket\{UserPayloadHelper, WebsocketClient};
+use App\Domains\Supporting\Websocket\{UserPayloadHelper, EventScopedConnectionsInternalClient};
 use Illuminate\Support\Facades\View;
 
 class NotifyTeamMembersOnPollVote
@@ -42,14 +43,16 @@ class NotifyTeamMembersOnPollVote
             'selectedOptionId' => $selectedOptionId,
         ])->render();
 
+        $minifiedHtml = HtmlMinifier::minify($pollHtml);
+
         $payload = [
             'action' => 'vote_broadcast',
             'message_id' => $message->id,
             'event_id' => $message->event_id,
             'user' => $userPayload,
-            'html' => $pollHtml,
+            'html' => $minifiedHtml,
         ];
 
-        (new WebsocketClient())->send($payload);
+        (new EventScopedConnectionsInternalClient)->send($payload);
     }
 }

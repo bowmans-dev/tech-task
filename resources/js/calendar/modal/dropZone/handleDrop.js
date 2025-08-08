@@ -1,9 +1,9 @@
-import { state, currentUser } from "../../state";
-import { isUserAlreadyInTeam } from "../../state";
-import { isUserInDatabase } from "../../state";
-import { addTeamMember } from "../../state";
-import { notifyNewTeamMembers } from "../../state";
-import { sendEventUpdate } from "../../state";
+import { state, currentUser } from "../../local/state";
+import { isUserAlreadyInTeam } from "../../local/state";
+import { isUserInDatabase } from "../../local/state";
+import { addTeamMember } from "../../local/state";
+import { notifyNewTeamMembers } from "../../local/state";
+import { sendEventUpdate } from "../../local/state";
 import { saveCalendarEvent } from "../../methods/saveCalendarEvent";
 import { renderTeamMembers } from "./teamMembers/renderTeamMembers";
 

@@ -1,5 +1,5 @@
 import { fetchMessagesForEvent } from '../modal/messages/fetchMessagesForEvent';
-import { state, currentUser, connectToEventWebSocket } from '../state';
+import { state, currentUser, connectToEventWebSocket } from '../local/state';
 import { showEventModal } from '../modal/actions/showEventModal';
 
 // Update the global state (state.currentEvent) from the existing saved fullcalendar (db) event.

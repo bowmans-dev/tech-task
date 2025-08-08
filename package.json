@@ -30,7 +30,9 @@
         "@fullcalendar/interaction": "^6.1.17",
         "@fullcalendar/timegrid": "^6.1.17",
         "@hotwired/turbo": "^8.0.13",
+        "dotenv": "^17.2.1",
         "fullcalendar": "^6.1.17",
+        "jsonwebtoken": "^9.0.2",
         "ws": "^8.18.2"
     }
 }

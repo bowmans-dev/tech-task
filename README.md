@@ -3,7 +3,6 @@
 ![System Diagram](./screenshots/sign_in_screenshot.png)
 ![Create User Screenshot](./screenshots/create_user_screenshot.png)
 ![Users List Screenshot](./screenshots/users_list_groups_screenshot.png)
-![Calendar Events Messaging Screenshot](./screenshots/calendar_events_messaging_screenshot.png)
 ![Calendar Events Messaging Screenshot 2](./screenshots/calendar_event_group_audio.png)
 ![Calendar Events Messaging Screenshot 2](./screenshots/calendar_event_webrtc.png)
 ![Calendar Events Messaging Screenshot 2](./screenshots/calendar_event_webrtc_2.png)
@@ -62,6 +61,94 @@ php artisan serve
 ```bash
 php artisan queue:work
 ```
+
+### **Setting Up secure websocket server connections (wss://) Locally with mkcert**
+
+Use `mkcert` to generate **trusted SSL certificates** for websocket servers `wss://localhost` connections.
+
+---
+
+### 1. **Install mkcert**
+
+#### Windows
+
+* Open **PowerShell as Administrator**
+* Install via [Chocolatey](https://chocolatey.org/):
+
+  ```bash
+  choco install mkcert
+  ```
+
+#### macOS
+
+* Install via [Homebrew](https://brew.sh/):
+
+  ```bash
+  brew install mkcert
+  ```
+
+#### Linux
+
+* Install dependencies:
+
+  ```bash
+  sudo apt install libnss3-tools
+  ```
+* Then install mkcert manually:
+
+  ```bash
+  sudo wget https://github.com/FiloSottile/mkcert/releases/latest/download/mkcert-v1.4.4-linux-amd64 -O /usr/local/bin/mkcert
+  sudo chmod +x /usr/local/bin/mkcert
+  ```
+
+---
+
+### 2. **Trust mkcert Globally**
+
+This **creates a local certificate authority (CA)** and **trusts it on your system**, allowing all certificates created by mkcert to be accepted without security warnings.
+
+```bash
+mkcert -install
+```
+
+Run this **once globally**, from an **admin/root terminal**:
+
+* Windows: PowerShell as Administrator
+* macOS/Linux: Terminal with `sudo` if necessary
+
+---
+
+### 3. **Generate Certificates in Your Project**
+
+Navigate to your **project root directory**:
+
+```bash
+cd path/to/your/project
+```
+
+Then run:
+
+```bash
+mkcert localhost
+```
+
+This creates two files in your project folder:
+
+* `localhost.pem` → the SSL certificate
+* `localhost-key.pem` → the private key
+
+---
+
+### 4. **Add Certificates to .gitignore**
+
+These files should not be committed:
+
+```gitignore
+localhost.pem
+localhost-key.pem
+```
+
+---
 
 ### **Start The Websocket server**
 (For realtime calendar group messaging)

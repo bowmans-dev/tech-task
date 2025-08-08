@@ -1,10 +1,16 @@
-import http from "http";
-import { WebSocketServer, WebSocket } from "ws";
+import https from "https";
+import fs from "fs";
+import { WebSocketServer } from "ws";
 import monitor from "./websocket/monitor.js";
 import internal from "./websocket/internal.js";
 import WebSocketDispatcher from "./websocket/dispatcher.js";
+import { verifyToken } from "./websocket/auth/verifyToken.js";
 
-const server = http.createServer();
+const server = https.createServer({
+    key: fs.readFileSync('./localhost-key.pem'),
+    cert: fs.readFileSync('./localhost.pem'),
+});
+
 const wss = new WebSocketServer({ server });
 
 const globalConnectedUsers = new Map(); // Map<userId, WebSocket>
@@ -14,22 +20,33 @@ const dispatcher = new WebSocketDispatcher({
     globalConnectedUsers,
     eventScopedConnections,
     wss,
-    WebSocket,
 });
 
 
 wss.on("connection", (ws, req) => {
 
-    ws.allEventIds = [];
-    ws.connectedEvent = [];
+    const protocols = req.headers["sec-websocket-protocol"];
+    const token = Array.isArray(protocols) ? protocols[0] : protocols;
+    
+    const result = verifyToken(token);
 
-    if (req.url === "/monitor") {
-        monitor(ws, wss, eventScopedConnections);
+    if (result.error) {
+        console.warn("Connection rejected:", result.error);
+        ws.close(result.code, result.error);
         return;
     }
 
+    ws.userId = result.payload.sub;
+    ws.allEventIds = [];
+    ws.connectedEvent = [];
+
     if (req.url === "/internal") {
         internal(ws, wss, eventScopedConnections, globalConnectedUsers);
+        return;
+    }
+
+    if (req.url === "/monitor") {
+        monitor(ws, wss, eventScopedConnections);
         return;
     }
 
@@ -73,20 +90,26 @@ server.on("error", (err) => {
 });
 
 server.listen(8080, () => {
-    console.log("WebSocket server running on ws://localhost:8080");
-}).on("error", (err) => {
-    if (err.code === "EADDRINUSE") {
-        console.log("WebSocket server already active, skipping startup.");
-    }
+    console.log("WebSocket server running on wss://localhost:8080");
 });
 
-process.on("SIGINT", () => {
-    wss.clients.forEach((client) => client.terminate());
-    wss.close(() => {
-        server.close(() => {
-            process.exit(0);
-        });
+let isShuttingDown = false;
+
+function shutdown() {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
+
+  console.log("Shutting down...");
+
+  wss.clients.forEach((client) => client.terminate());
+
+  wss.close(() => {
+    server.close(() => {
+      process.exit(0);
     });
-});
+  });
+}
+
+process.once("SIGINT", shutdown);
 
 export { server, wss };
